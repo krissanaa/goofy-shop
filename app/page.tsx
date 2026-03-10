@@ -1,53 +1,78 @@
-import { Navbar } from "@/components/navbar"
-import { Hero } from "@/components/hero"
-import { FeaturedDrops } from "@/components/featured-drops"
-import { ProductGrid } from "@/components/product-grid"
-import { SearchCommand } from "@/components/search-command"
+import type { Metadata } from "next"
+import { DynamicZoneRenderer } from "@/components/dynamic-zone-renderer"
 import { Footer } from "@/components/footer"
+import { NavbarServer } from "@/components/navbar-server"
+import { PromoCodeBanner } from "@/components/promo-code-banner"
+import { SearchCommand } from "@/components/search-command"
+import { getHomePage, getResolvedGlobalConfig } from "@/lib/strapi"
 
-export default function HomePage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const homePage = await getHomePage()
+
+  return {
+    title: homePage.seoTitle,
+    description: homePage.seoDescription,
+    openGraph: {
+      title: homePage.seoTitle,
+      description: homePage.seoDescription,
+      type: "website",
+    },
+  }
+}
+
+export default async function HomePage() {
+  const [homePage, globalConfig] = await Promise.all([
+    getHomePage(),
+    getResolvedGlobalConfig(),
+  ])
+
+  const godMode = globalConfig.godMode
+  const showNavbar = !godMode.enabled || godMode.aboveFold.showNavbar
+  const showFooter = !godMode.enabled || godMode.bottom.showFooter
+  const showPromoBanner =
+    godMode.enabled && godMode.conversion.showPromoCodeBanner
+  const slideshowIndex = homePage.sections.findIndex(
+    (section) => section.__component === "sections.slideshow",
+  )
+  const marqueeIndex = homePage.sections.findIndex(
+    (section) => section.__component === "sections.marquee-text",
+  )
+
+  const sectionsToRender = homePage.sections.filter((_, index) => {
+    if (index === slideshowIndex || index === marqueeIndex) return false
+    return true
+  })
+
+  if (slideshowIndex >= 0) {
+    sectionsToRender.unshift(homePage.sections[slideshowIndex])
+  }
+
+  if (marqueeIndex >= 0) {
+    const insertAt = slideshowIndex >= 0 ? 1 : 0
+    sectionsToRender.splice(insertAt, 0, homePage.sections[marqueeIndex])
+  }
+
   return (
-    <main className="min-h-screen bg-background">
-      <Navbar />
-      <Hero />
+    <main className="min-h-screen bg-[var(--color-cream)]">
+      {showNavbar ? <NavbarServer /> : null}
 
-      {/* Marquee ticker */}
-      <div className="overflow-hidden border-y border-border bg-secondary py-3">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i} className="mx-8 text-xs font-bold uppercase tracking-[0.4em] text-muted-foreground">
-              Free Shipping Over $150
-              <span className="mx-8 text-primary/40">{'///'}</span>
-              New Drop March 1
-              <span className="mx-8 text-primary/40">{'///'}</span>
-              Limited Stock Available
-              <span className="mx-8 text-primary/40">{'///'}</span>
-              1 Per Customer
-            </span>
-          ))}
-        </div>
+      <div className={showNavbar ? "pt-16" : undefined}>
+        {!showNavbar ? <div className="h-[2px] w-full menu-color-line" /> : null}
+
+        {showPromoBanner ? (
+          <PromoCodeBanner
+            text={godMode.conversion.promoBannerText}
+            code={godMode.conversion.promoBannerCode}
+            ctaText={godMode.conversion.promoBannerCtaText}
+            ctaLink={godMode.conversion.promoBannerCtaLink}
+          />
+        ) : null}
+
+        <DynamicZoneRenderer sections={sectionsToRender} />
       </div>
 
-      <FeaturedDrops />
-
-      {/* Divider */}
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
-        <div className="h-px bg-border" />
-      </div>
-
-      <ProductGrid />
-      <Footer />
+      {showFooter ? <Footer /> : null}
       <SearchCommand />
-
-      <style>{`
-        @keyframes marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-      `}</style>
     </main>
   )
 }

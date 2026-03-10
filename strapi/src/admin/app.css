@@ -1,0 +1,268 @@
+/* ═══════════════════════════════════════════════════════════
+   GOOFY ADMIN — matches frontend globals.css exactly
+   Font: Space Grotesk (Google Fonts) | Colors: Mario palette
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts import (same as frontend) ─────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* ── Base reset & font ─────────────────────────────────────── */
+html, body, #strapi, #app, [data-strapi-theme] {
+  background-color: #fafaf8 !important;
+  color: #1a1a2e !important;
+  font-family: 'Space Grotesk', 'Geist Mono', monospace, sans-serif !important;
+}
+
+/* ── Mario color stripe at top (matches navbar stripe) ─────── */
+#strapi > div > header::before,
+nav[aria-label*='Main']::before {
+  content: '' !important;
+  display: block !important;
+  height: 6px !important;
+  background: linear-gradient(90deg, #e52521 25%, #049cd8 25%, #049cd8 50%, #fbd000 50%, #fbd000 75%, #43b047 75%) !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* ── All text: dark navy (matches --foreground: #1a1a2e) ───── */
+* {
+  font-family: 'Space Grotesk', 'Geist Mono', monospace, sans-serif !important;
+  color: #1a1a2e !important;
+}
+
+/* ── Headings ──────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  color: #1a1a2e !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* ── Links ─────────────────────────────────────────────────── */
+a:not([class*='Button']) {
+  color: #049cd8 !important;
+  text-decoration: none !important;
+  transition: color 0.1s ease !important;
+}
+a:not([class*='Button']):hover {
+  color: #0380b0 !important;
+}
+
+/* ── Buttons — matches .mario-btn from frontend ────────────── */
+button, [class*='Button'], a[class*='Button'] {
+  font-family: 'Space Grotesk', 'Geist Mono', monospace, sans-serif !important;
+  font-weight: 900 !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  border-radius: 0 !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+  cursor: pointer !important;
+}
+
+/* Primary button — Mario red */
+[class*='Button'][class*='primary'],
+[class*='ButtonPrimary'],
+button[type='submit'] {
+  background-color: #e52521 !important;
+  color: #ffffff !important;
+  border: 3px solid #1a1a2e !important;
+  box-shadow: none !important;
+}
+[class*='Button'][class*='primary']:hover,
+[class*='ButtonPrimary']:hover,
+button[type='submit']:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 2px 2px 0 0 #1a1a2e !important;
+  background-color: #c41e1a !important;
+  color: #ffffff !important;
+}
+[class*='Button'][class*='primary']:active,
+button[type='submit']:active {
+  transform: translate(0, 0) !important;
+  box-shadow: none !important;
+}
+
+/* Secondary button — cream */
+[class*='Button'][class*='secondary'],
+[class*='ButtonSecondary'] {
+  background-color: #f0ece4 !important;
+  color: #1a1a2e !important;
+  border: 3px solid #1a1a2e !important;
+  box-shadow: none !important;
+}
+[class*='Button'][class*='secondary']:hover,
+[class*='ButtonSecondary']:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 2px 2px 0 0 #1a1a2e !important;
+  color: #1a1a2e !important;
+}
+
+/* Danger/delete button — keep red */
+[class*='Button'][class*='danger'],
+[class*='ButtonDanger'] {
+  background-color: #e52521 !important;
+  color: #ffffff !important;
+  border: 3px solid #1a1a2e !important;
+}
+[class*='Button'][class*='danger']:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 2px 2px 0 0 #1a1a2e !important;
+  color: #ffffff !important;
+}
+
+/* Ghost/tertiary button */
+[class*='Button'][class*='ghost'],
+[class*='Button'][class*='tertiary'] {
+  background-color: transparent !important;
+  color: #1a1a2e !important;
+  border: 3px solid #e0dcd4 !important;
+}
+[class*='Button'][class*='ghost']:hover,
+[class*='Button'][class*='tertiary']:hover {
+  border-color: #1a1a2e !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 2px 2px 0 0 #1a1a2e !important;
+  color: #1a1a2e !important;
+}
+
+/* ── Cards & Panels — matches .pixel-card from frontend ────── */
+[class*='Box'],
+[class*='Card'],
+[class*='Modal'],
+[class*='Panel'] {
+  background-color: #ffffff !important;
+  border: 3px solid #1a1a2e !important;
+  border-radius: 0 !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+[class*='Card']:hover {
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 3px 3px 0 0 #e52521, 6px 6px 0 0 #049cd8 !important;
+}
+
+/* ── Sidebar — white with border ───────────────────────────── */
+[class*='LeftMenu'],
+[class*='Sidebar'],
+nav[aria-label] {
+  background-color: #ffffff !important;
+  border-right: 3px solid #e0dcd4 !important;
+}
+
+/* Sidebar active item */
+[class*='NavLink'][aria-current='page'],
+[class*='MenuItem'][class*='active'],
+[class*='NavItem'][class*='active'] {
+  color: #e52521 !important;
+  background-color: #f0ece4 !important;
+}
+
+/* ── Top header bar ─────────────────────────────────────────── */
+[class*='TopNav'],
+[class*='Header'],
+header {
+  background-color: #ffffff !important;
+  border-bottom: 3px solid #e0dcd4 !important;
+}
+
+/* ── Inputs — matches frontend input style ──────────────────── */
+input, textarea, select {
+  background-color: #f0ece4 !important;
+  border: 2px solid #e0dcd4 !important;
+  border-radius: 0 !important;
+  color: #1a1a2e !important;
+  font-family: 'Space Grotesk', 'Geist Mono', monospace, sans-serif !important;
+  font-size: 0.875rem !important;
+  transition: border-color 0.15s ease !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #e52521 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(229, 37, 33, 0.15) !important;
+}
+
+/* ── Badges — matches .mario-badge from frontend ────────────── */
+[class*='Badge'],
+[class*='Status'] {
+  font-family: 'Space Grotesk', 'Geist Mono', monospace, sans-serif !important;
+  font-size: 0.6rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  padding: 0.25rem 0.6rem !important;
+  border: 2px solid #1a1a2e !important;
+  border-radius: 0 !important;
+}
+
+[class*='Badge'][class*='success'],
+[class*='Status'][class*='published'] {
+  background-color: #43b047 !important;
+  color: #ffffff !important;
+  border-color: #369a3a !important;
+}
+[class*='Badge'][class*='danger'],
+[class*='Badge'][class*='error'],
+[class*='Status'][class*='unpublished'] {
+  background-color: #e52521 !important;
+  color: #ffffff !important;
+  border-color: #c41e1a !important;
+}
+[class*='Badge'][class*='warning'] {
+  background-color: #fbd000 !important;
+  color: #1a1a2e !important;
+  border-color: #d4b000 !important;
+}
+[class*='Badge'][class*='info'],
+[class*='Badge'][class*='secondary'] {
+  background-color: #049cd8 !important;
+  color: #ffffff !important;
+  border-color: #0380b0 !important;
+}
+
+/* ── Tables ─────────────────────────────────────────────────── */
+table {
+  border-collapse: collapse !important;
+}
+thead tr {
+  background-color: #1a1a2e !important;
+}
+thead th {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  padding: 0.75rem 1rem !important;
+  border: none !important;
+}
+tbody tr:nth-child(even) {
+  background-color: #f0ece4 !important;
+}
+tbody tr:nth-child(odd) {
+  background-color: #ffffff !important;
+}
+tbody tr:hover {
+  background-color: #fafaf8 !important;
+}
+td {
+  color: #1a1a2e !important;
+  border-bottom: 1px solid #e0dcd4 !important;
+  padding: 0.75rem 1rem !important;
+}
+
+/* ── Logo hover (fixed to actually work) ─────────────────────── */
+/* Menu logo hover: black text -> white text on black background */
+img[src*='menu-logo'] {
+  display: inline-block !important;
+  padding: 0.2rem 0.45rem !important;
+  border-radius: 0.35rem !important;
+  background: transparent !important;
+  transition: background-color 0.2s ease, filter 0.2s ease !important;
+}
+
+img[src*='menu-logo']:hover {
+  background-color: #000000 !important;
+  filter: brightness(0) invert(1) !important;
+}

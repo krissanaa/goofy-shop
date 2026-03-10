@@ -3,75 +3,104 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ─── MARIO 8-BIT RETRO SKATER THEME ────────────────────────────────────── */
+/* White background, Mario red primary, pixel-sharp, bright & fun            */
+
 :root {
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.12 0 0);
-  --card: oklch(0.97 0 0);
-  --card-foreground: oklch(0.12 0 0);
-  --popover: oklch(0.985 0 0);
-  --popover-foreground: oklch(0.12 0 0);
-  --primary: oklch(0.45 0.18 142);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.94 0 0);
-  --secondary-foreground: oklch(0.12 0 0);
-  --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.45 0.18 142);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.88 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.45 0.18 142);
-  --chart-1: oklch(0.45 0.18 142);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --color-cream: #f1eee8;
+  --color-black: #0a0a0a;
+  --color-red: #e70009;
+  --color-blue: #2b7fff;
+  --color-yellow: #fbd000;
+  --color-green: #00aa00;
+  --color-white: #ffffff;
+  --color-gray: #8a8a8a;
+
+  --background: #f1eee8;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+
+  /* Mario Red = primary */
+  --primary: #e52521;
+  --primary-foreground: #ffffff;
+
+  /* Light cream panels */
+  --secondary: #f0ece4;
+  --secondary-foreground: #1a1a2e;
+  --muted: #f0ece4;
+  --muted-foreground: #7a7a8c;
+
+  /* Mario Blue = accent */
+  --accent: #049cd8;
+  --accent-foreground: #ffffff;
+
+  --destructive: #e52521;
+  --destructive-foreground: #ffffff;
+
+  --border: #e0dcd4;
+  --input: #f0ece4;
+  --ring: #e52521;
+
+  --chart-1: #e52521;
+  --chart-2: #049cd8;
+  --chart-3: #43b047;
+  --chart-4: #fbd000;
+  --chart-5: #f5a623;
+
   --radius: 0.5rem;
-  --sidebar: oklch(0.97 0 0);
-  --sidebar-foreground: oklch(0.12 0 0);
-  --sidebar-primary: oklch(0.45 0.18 142);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.94 0 0);
-  --sidebar-accent-foreground: oklch(0.12 0 0);
-  --sidebar-border: oklch(0.88 0 0);
-  --sidebar-ring: oklch(0.45 0.18 142);
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1a2e;
+  --sidebar-primary: #e52521;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0ece4;
+  --sidebar-accent-foreground: #1a1a2e;
+  --sidebar-border: #e0dcd4;
+  --sidebar-ring: #e52521;
+
+  /* Mario palette extras */
+  --mario-red: #e52521;
+  --mario-blue: #049cd8;
+  --mario-yellow: #fbd000;
+  --mario-green: #43b047;
 }
 
 .dark {
-  --background: oklch(0.07 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.1 0 0);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.89 0.21 128);
-  --primary-foreground: oklch(0.07 0 0);
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.89 0.21 128);
-  --accent-foreground: oklch(0.07 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.22 0 0);
-  --input: oklch(0.22 0 0);
-  --ring: oklch(0.89 0.21 128);
-  --chart-1: oklch(0.89 0.21 128);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.1 0 0);
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.89 0.21 128);
-  --sidebar-primary-foreground: oklch(0.07 0 0);
-  --sidebar-accent: oklch(0.18 0 0);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(0.22 0 0);
-  --sidebar-ring: oklch(0.89 0.21 128);
+  --background: #f1eee8;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+  --primary: #e52521;
+  --primary-foreground: #ffffff;
+  --secondary: #f0ece4;
+  --secondary-foreground: #1a1a2e;
+  --muted: #f0ece4;
+  --muted-foreground: #7a7a8c;
+  --accent: #049cd8;
+  --accent-foreground: #ffffff;
+  --destructive: #e52521;
+  --destructive-foreground: #ffffff;
+  --border: #e0dcd4;
+  --input: #f0ece4;
+  --ring: #e52521;
+  --chart-1: #e52521;
+  --chart-2: #049cd8;
+  --chart-3: #43b047;
+  --chart-4: #fbd000;
+  --chart-5: #f5a623;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1a2e;
+  --sidebar-primary: #e52521;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0ece4;
+  --sidebar-accent-foreground: #1a1a2e;
+  --sidebar-border: #e0dcd4;
+  --sidebar-ring: #e52521;
 }
 
 @theme inline {
@@ -124,16 +153,259 @@
   }
 }
 
-/* Noise texture overlay */
-.noise-bg {
-  position: relative;
+/* ─── MARIO 8-BIT RETRO UTILITIES ────────────────────────────────────────── */
+
+/* Pixel shadow on cards — 8-bit style */
+.pixel-card {
+  border: 3px solid #1a1a2e;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.noise-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 1;
+.pixel-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 3px 3px 0 0 #e52521, 6px 6px 0 0 #049cd8;
+}
+
+/* Mario stripe divider — red/blue/yellow/green */
+.mario-stripe {
+  height: 6px;
+  background: linear-gradient(90deg, #e52521 25%, #049cd8 25%, #049cd8 50%, #fbd000 50%, #fbd000 75%, #43b047 75%);
+}
+
+.stripe-bar {
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-red) 0%,
+    var(--color-red) 25%,
+    var(--color-blue) 25%,
+    var(--color-blue) 50%,
+    var(--color-yellow) 50%,
+    var(--color-yellow) 75%,
+    var(--color-green) 75%,
+    var(--color-green) 100%
+  );
+}
+
+.menu-color-line {
+  background: linear-gradient(
+    90deg,
+    #e70009 0%,
+    #e70009 20%,
+    #2b7fff 20%,
+    #2b7fff 40%,
+    #ffffff 40%,
+    #ffffff 60%,
+    #2b7fff 60%,
+    #2b7fff 80%,
+    #e70009 80%,
+    #e70009 100%
+  );
+  background-size: 220% 100%;
+  animation: menu-line-flow 4.5s linear infinite;
+}
+
+/* Mario badge — pixel style */
+.mario-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border: 2px solid #1a1a2e;
+}
+.mario-badge-red {
+  background: #e52521;
+  color: #fff;
+  border-color: #c41e1a;
+}
+.mario-badge-blue {
+  background: #049cd8;
+  color: #fff;
+  border-color: #0380b0;
+}
+.mario-badge-yellow {
+  background: #fbd000;
+  color: #1a1a2e;
+  border-color: #d4b000;
+}
+.mario-badge-green {
+  background: #43b047;
+  color: #fff;
+  border-color: #369a3a;
+}
+
+/* 8-bit block button */
+.mario-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 900;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.5rem;
+  border: 3px solid #1a1a2e;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  cursor: pointer;
+}
+.mario-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 2px 2px 0 0 #1a1a2e;
+}
+.mario-btn:active {
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+.mario-btn-red {
+  background: #e52521;
+  color: #fff;
+}
+.mario-btn-blue {
+  background: #049cd8;
+  color: #fff;
+}
+.mario-btn-outline {
+  background: #fff;
+  color: #1a1a2e;
+}
+
+/* Coin animation for price tags */
+@keyframes coin-spin {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.3); }
+}
+.coin-price {
+  color: #fbd000;
+  text-shadow: 1px 1px 0 #d4b000;
+}
+
+/* Marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 30s linear infinite;
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+.animate-marquee-slow {
+  animation: marquee 40s linear infinite;
+}
+.animate-marquee-fast {
+  animation: marquee 12s linear infinite;
+}
+
+/* Blink for live indicators */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Pixel grid background pattern */
+.pixel-bg {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Question block style */
+.question-block {
+  background: #fbd000;
+  border: 3px solid #d4b000;
+  color: #1a1a2e;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Products hero scene */
+.products-scene-bg {
+  background-color: #7da2ff;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to top, #cc5a00 0, #cc5a00 24px, transparent 24px, transparent 100%),
+    linear-gradient(to top, transparent 0, transparent 24px, #000 24px, #000 28px, transparent 28px, transparent 100%),
+    repeating-linear-gradient(to right, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 32px),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 10px);
+  background-size:
+    16px 16px,
+    16px 16px,
+    100% 100%,
+    100% 100%,
+    32px 24px,
+    100% 24px;
+  background-position:
+    0 0,
+    0 0,
+    0 100%,
+    0 100%,
+    0 100%,
+    0 100%;
+  background-repeat:
+    repeat,
+    repeat,
+    no-repeat,
+    no-repeat,
+    repeat-x,
+    repeat-x;
+}
+
+@keyframes skater-kickflip {
+  0% {
+    left: -5%;
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(8deg);
+  }
+  45% {
+    transform: translateY(-16px) rotate(-10deg);
+  }
+  70% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+  100% {
+    left: 92%;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+.products-skater {
+  animation: skater-kickflip 6.5s linear infinite;
+}
+
+@keyframes cloud-drift {
+  0% { transform: translateX(0); opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { transform: translateX(28px); opacity: 0.6; }
+}
+.products-cloud {
+  animation: cloud-drift 8s ease-in-out infinite alternate;
+}
+.products-cloud-delay {
+  animation: cloud-drift 10s ease-in-out infinite alternate-reverse;
+}
+
+.products-cursor {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes menu-line-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }

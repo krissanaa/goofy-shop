@@ -1,60 +1,69 @@
-"use client"
+import { getProducts, getCategories, getStrapiImageUrl } from "@/lib/strapi"
+import { ProductGridClient } from "@/components/product-grid-client"
 
-import { useState } from "react"
-import { products, categories } from "@/lib/data"
-import { ProductCard } from "@/components/product-card"
-import { Button } from "@/components/ui/button"
+export async function ProductGrid() {
+  const [strapiProducts, strapiCategories] = await Promise.allSettled([
+    getProducts(),
+    getCategories(),
+  ])
 
-export function ProductGrid() {
-  const [activeCategory, setActiveCategory] = useState("All")
+  const products =
+    strapiProducts.status === "fulfilled" && strapiProducts.value?.data?.length
+      ? strapiProducts.value.data.map((p) => ({
+          id: p.slug,
+          slug: p.slug,
+          name: p.name,
+          description: p.description || undefined,
+          price: p.price,
+          originalPrice: p.compare_at_price ?? undefined,
+          badge: p.badge ?? undefined,
+          isActive: !p.is_sold_out,
+          isDropProduct: p.is_limited,
+          createdAt: p.publishedAt || p.createdAt,
+          images:
+            p.images?.length > 0
+              ? [
+                  {
+                    url: getStrapiImageUrl(p.images[0], "medium"),
+                    alt: p.images[0].alternativeText || p.name,
+                  },
+                ]
+              : [],
+          categories: p.category
+            ? [
+                {
+                  title: p.category.title,
+                  slug: p.category.slug,
+                },
+              ]
+            : [],
+          variants: [
+            {
+              id: p.slug,
+              name: p.name,
+              price: p.price,
+              stock: p.stock_quantity,
+            },
+          ],
+        }))
+      : [];
 
-  const filtered = activeCategory === "All"
-    ? products
-    : products.filter((p) => p.category === activeCategory)
+  const categoryNames =
+    strapiCategories.status === "fulfilled" && strapiCategories.value?.data?.length
+      ? ["All", ...strapiCategories.value.data.map((c) => c.title)]
+      : ["All"];
 
   return (
-    <section id="products" className="mx-auto max-w-7xl px-4 py-24 lg:px-8 lg:py-32">
-      <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-primary">
-            Collection
-          </p>
-          <h2 className="mt-3 text-4xl font-bold tracking-tighter text-foreground lg:text-5xl">
-            All Products
-          </h2>
-        </div>
-
-        {/* Category filter */}
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <Button
-              key={cat}
-              variant={activeCategory === cat ? "default" : "outline"}
-              size="sm"
-              className={`rounded-none text-xs font-bold uppercase tracking-widest ${
-                activeCategory === cat
-                  ? ''
-                  : 'border-border text-muted-foreground hover:text-foreground hover:bg-foreground/5'
-              }`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:gap-6">
-        {filtered.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="mt-12 flex flex-col items-center justify-center py-24 text-center">
-          <p className="text-sm uppercase tracking-widest text-muted-foreground">No products found</p>
-        </div>
-      )}
-    </section>
+    <ProductGridClient
+      sectionTitle="FEATURED DROPS"
+      products={products}
+      categories={categoryNames}
+      showCategoryTabs
+      showTopStats
+      showSort
+      showSearch
+      showViewToggle
+      showWishlist
+    />
   )
 }

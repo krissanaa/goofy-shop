@@ -3,8 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Star, Sparkles } from "lucide-react"
 
 const slides = [
   { src: "/images/hero-1.jpg", alt: "Streetwear collection hero" },
@@ -22,7 +21,8 @@ export function Hero() {
   }, [])
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="pixel-bg relative min-h-[90vh] w-full overflow-hidden bg-background">
+      {/* Background images — bright, not dark */}
       {slides.map((slide, i) => (
         <div
           key={slide.src}
@@ -33,47 +33,72 @@ export function Hero() {
             src={slide.src}
             alt={slide.alt}
             fill
-            className="object-cover"
+            className="object-cover opacity-20"
             priority={i === 0}
           />
         </div>
       ))}
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-background/70" />
+      {/* Light gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
 
       {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-start justify-end px-6 pb-24 lg:px-16 lg:pb-32 max-w-7xl mx-auto">
-        <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-primary">
+      <div className="relative z-10 flex h-full min-h-[90vh] max-w-7xl mx-auto flex-col items-center justify-center px-6 py-32 text-center lg:px-12">
+
+        {/* Season badge */}
+        <div className="mario-badge mario-badge-yellow mb-8">
+          <Star className="h-3 w-3 fill-current" />
           SS26 Collection
-        </p>
-        <h1 className="max-w-3xl text-5xl font-bold leading-[0.95] tracking-tighter text-foreground sm:text-7xl lg:text-8xl text-balance">
-          Built for the streets.
-          <br />
-          Worn by the culture.
-        </h1>
-        <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
-          Premium skate hardware and streetwear essentials. Limited drops, exclusive collabs, zero compromises.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Button asChild size="lg" className="rounded-none px-8 py-6 text-sm font-bold uppercase tracking-widest">
-            <Link href="/drop">
-              Shop the Drop
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="rounded-none border-foreground/20 px-8 py-6 text-sm font-bold uppercase tracking-widest text-foreground hover:bg-foreground/10">
-            <Link href="#products">Explore Collection</Link>
-          </Button>
         </div>
 
-        {/* Slide indicators */}
-        <div className="mt-12 flex gap-2">
+        {/* Main headline */}
+        <h1 className="max-w-4xl font-black leading-[0.92] tracking-tighter text-foreground" style={{ fontSize: 'clamp(2.5rem, 7vw, 5.5rem)' }}>
+          BUILT FOR THE{' '}
+          <span className="text-primary">STREETS</span>.
+        </h1>
+        <h2 className="mt-2 font-black leading-[0.92] tracking-tighter" style={{ fontSize: 'clamp(2.5rem, 7vw, 5.5rem)', color: '#049cd8' }}>
+          WORN BY THE CULTURE.
+        </h2>
+
+        {/* Sub copy */}
+        <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground">
+          Premium skate hardware and streetwear essentials.
+          Limited drops, exclusive collabs, zero compromises.
+        </p>
+
+        {/* CTAs */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link href="/drop" className="mario-btn mario-btn-red">
+            <Sparkles className="h-4 w-4" />
+            Shop the Drop
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="#products" className="mario-btn mario-btn-outline">
+            Explore Collection
+          </Link>
+        </div>
+
+        {/* Stats row */}
+        <div className="mt-16 flex items-center gap-6 sm:gap-10">
+          {[
+            { value: '500+', label: 'Products', color: '#e52521' },
+            { value: '12K+', label: 'Skaters', color: '#049cd8' },
+            { value: '100%', label: 'Authentic', color: '#43b047' },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <p className="text-2xl font-black tracking-tighter sm:text-3xl" style={{ color: stat.color }}>{stat.value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Slide dots */}
+        <div className="mt-10 flex gap-2">
           {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
-              className={`h-0.5 transition-all duration-500 ${i === current ? 'w-12 bg-primary' : 'w-6 bg-foreground/30'}`}
+              className={`h-3 w-3 border-2 border-foreground transition-all ${i === current ? 'bg-primary border-primary' : 'bg-transparent'}`}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}

@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_sections_sponsor_strips",
+  "info": {
+    "displayName": "Sponsor Strip",
+    "description": "Homepage trusted by the culture logo marquee section"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "TRUSTED BY THE CULTURE"
+    },
+    "logos": {
+      "type": "json"
+    }
+  }
+}

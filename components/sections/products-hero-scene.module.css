@@ -1,0 +1,805 @@
+.root {
+  --red: #e70009;
+  --gold: #fbd000;
+  --green: #00aa00;
+  --black: #000;
+  --white: #fff;
+  --sky: #6b8cff;
+  --ground: #d35400;
+  --brick-dark: #a04000;
+  width: 100%;
+  background: #fff;
+  font-family: var(--font-vt323), monospace;
+}
+
+.withBorder {
+  border-top: 4px solid #000;
+  border-bottom: 4px solid #000;
+}
+
+.pixelSvg {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.pixelHero {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 320px;
+  padding: 48px 24px 0;
+  background-color: var(--sky);
+  background-image: repeating-linear-gradient(
+    transparent 0,
+    transparent 3px,
+    rgba(0, 0, 0, 0.04) 3px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+}
+
+.marqueeBar {
+  overflow: hidden;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.marqueeTrack {
+  display: flex;
+  align-items: center;
+}
+
+.marqueeItem {
+  margin: 0 2rem;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.mWhite {
+  color: #fff;
+}
+
+.mGold {
+  color: #fbd000;
+}
+
+.mRed {
+  color: #e70009;
+}
+
+.mGreen {
+  color: #00aa00;
+}
+
+.cloud {
+  position: absolute;
+  left: -200px;
+  pointer-events: none;
+}
+
+.cloudA {
+  top: 44px;
+  animation: cloudDrift 28s linear infinite;
+}
+
+.cloudB {
+  top: 110px;
+  animation: cloudDrift 44s linear infinite 12s;
+}
+
+.cloudC {
+  top: 20px;
+  animation: cloudDrift 36s linear infinite 22s;
+}
+
+.titleBox {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 32px;
+  padding: 20px 44px;
+  background: #000;
+  border: 4px solid var(--gold);
+  text-align: center;
+  box-shadow:
+    6px 6px 0 #8b6800,
+    10px 10px 0 #000;
+  animation: dropIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+.tag {
+  margin-bottom: 10px;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  font-family: var(--font-press-start-2p), monospace;
+  font-size: 8px;
+}
+
+.t1 {
+  color: #fff;
+  line-height: 2;
+  text-shadow: 3px 3px 0 #333;
+  font-family: var(--font-press-start-2p), monospace;
+  font-size: 15px;
+}
+
+.t2 {
+  color: var(--red);
+  line-height: 1.6;
+  text-shadow: 3px 3px 0 #8b0000;
+  font-family: var(--font-press-start-2p), monospace;
+  font-size: 22px;
+}
+
+.sub {
+  margin-top: 10px;
+  color: #888;
+  letter-spacing: 0.1em;
+  font-family: var(--font-press-start-2p), monospace;
+  font-size: 6px;
+}
+
+.titleBox::before,
+.titleBox::after,
+.cornerBl,
+.cornerBr {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+}
+
+.titleBox::before {
+  top: -4px;
+  left: -4px;
+}
+
+.titleBox::after {
+  top: -4px;
+  right: -4px;
+}
+
+.cornerBl {
+  bottom: -4px;
+  left: -4px;
+}
+
+.cornerBr {
+  right: -4px;
+  bottom: -4px;
+}
+
+.blink {
+  animation: blink 0.9s step-end infinite;
+}
+
+.scene {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  height: 160px;
+  animation: sceneIn 0.5s ease 0.6s both;
+}
+
+.groundRow {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  overflow: hidden;
+  height: 36px;
+  border-top: 3px solid #000;
+}
+
+.brickCell {
+  position: relative;
+  flex: 1;
+  height: 36px;
+  border-right: 2px solid var(--brick-dark);
+  background: var(--ground);
+}
+
+.brickCell::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--brick-dark);
+}
+
+.brickCell::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 4px;
+  left: 0;
+  height: 2px;
+  background: var(--brick-dark);
+}
+
+.skaterWrap {
+  position: absolute;
+  bottom: 36px;
+  left: 0;
+  z-index: 10;
+}
+
+.skaterBody {
+  transform-origin: center bottom;
+  animation: skaterMove 9s linear infinite;
+}
+
+.board {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  transform-origin: center center;
+  animation: boardMove 9s linear infinite;
+}
+
+.trail {
+  position: absolute;
+  bottom: 10px;
+  left: -34px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  animation: trailFade 9s linear infinite;
+}
+
+.trailDot1 {
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.trailDot2 {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: 0.7;
+  background: #fff;
+}
+
+.trailDot3 {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  opacity: 0.4;
+  background: #fff;
+}
+
+.trailDot4 {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  opacity: 0.2;
+  background: #fff;
+}
+
+.sparks {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: sparksTiming 9s linear infinite;
+}
+
+.sp {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #000;
+}
+
+.sp1 {
+  background: #fbd000;
+  animation: spark1 0.38s ease-out infinite;
+}
+
+.sp2 {
+  background: #fbd000;
+  animation: spark2 0.38s ease-out infinite;
+  animation-delay: 0.03s;
+}
+
+.sp3 {
+  background: #fff;
+  animation: spark3 0.38s ease-out infinite;
+  animation-delay: 0.06s;
+}
+
+.sp4 {
+  background: #e70009;
+  animation: spark4 0.38s ease-out infinite;
+  animation-delay: 0.02s;
+}
+
+.sp5 {
+  background: #6b8cff;
+  animation: spark5 0.38s ease-out infinite;
+  animation-delay: 0.04s;
+}
+
+.signWrap {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 40px;
+  margin-bottom: 36px;
+}
+
+.signBack {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 116px;
+  height: 116px;
+  background: #000;
+  border: 4px solid #000;
+}
+
+.signBoard {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 116px;
+  height: 116px;
+  background: #fff;
+  border: 4px solid #000;
+  box-shadow: 6px 6px 0 #000;
+}
+
+.barTop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 8px;
+  background: var(--gold);
+  border-bottom: 3px solid #000;
+}
+
+.barBot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 8px;
+  background: var(--gold);
+  border-top: 3px solid #000;
+}
+
+.stripeL {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 6px;
+  background: var(--red);
+  border-right: 2px solid #000;
+}
+
+.stripeR {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  width: 6px;
+  background: var(--red);
+  border-left: 2px solid #000;
+}
+
+.bolt {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #000;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+}
+
+.boltTl {
+  top: 9px;
+  left: 8px;
+}
+
+.boltTr {
+  top: 9px;
+  right: 8px;
+}
+
+.boltBl {
+  bottom: 9px;
+  left: 8px;
+}
+
+.boltBr {
+  right: 8px;
+  bottom: 9px;
+}
+
+.signLogo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 86px;
+  height: 78px;
+  color: var(--red);
+  text-align: center;
+  line-height: 1.9;
+  font-family: var(--font-press-start-2p), monospace;
+  font-size: 8px;
+}
+
+.signLogoImage {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 86px;
+  max-width: 86px;
+  max-height: 78px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.signPost {
+  position: relative;
+  z-index: 3;
+  width: 10px;
+  height: 28px;
+  background: #555;
+  border-right: 3px solid #000;
+  border-left: 3px solid #000;
+}
+
+.signPostBase {
+  position: relative;
+  z-index: 3;
+  width: 22px;
+  height: 7px;
+  background: #444;
+  border: 3px solid #000;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes cloudDrift {
+  from {
+    transform: translateX(-200px);
+  }
+  to {
+    transform: translateX(calc(100vw + 200px));
+  }
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes sceneIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes skaterMove {
+  0% {
+    opacity: 1;
+    transform: translateX(-140px) translateY(0) rotate(0deg);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(18vw) translateY(0) rotate(0deg);
+  }
+  26% {
+    opacity: 1;
+    transform: translateX(26vw) translateY(-54px) rotate(-12deg);
+  }
+  34% {
+    opacity: 1;
+    transform: translateX(34vw) translateY(-68px) rotate(10deg);
+  }
+  40% {
+    opacity: 1;
+    transform: translateX(40vw) translateY(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(50vw) translateY(0) rotate(0deg);
+  }
+  58% {
+    opacity: 1;
+    transform: translateX(58vw) translateY(-54px) rotate(-12deg);
+  }
+  66% {
+    opacity: 1;
+    transform: translateX(66vw) translateY(-68px) rotate(10deg);
+  }
+  72% {
+    opacity: 1;
+    transform: translateX(72vw) translateY(0) rotate(0deg);
+  }
+  88% {
+    opacity: 1;
+    transform: translateX(110vw) translateY(0) rotate(0deg);
+  }
+  89% {
+    opacity: 0;
+  }
+  99% {
+    opacity: 0;
+    transform: translateX(-140px) translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-140px) translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes boardMove {
+  0% {
+    opacity: 1;
+    transform: translateX(-140px) translateY(8px) rotate(0deg) scaleY(1);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(18vw) translateY(8px) rotate(0deg) scaleY(1);
+  }
+  26% {
+    opacity: 1;
+    transform: translateX(25vw) translateY(-32px) rotate(0deg) scaleY(1);
+  }
+  30% {
+    opacity: 1;
+    transform: translateX(29vw) translateY(-64px) rotate(120deg) scaleY(-1);
+  }
+  36% {
+    opacity: 1;
+    transform: translateX(36vw) translateY(-30px) rotate(280deg) scaleY(1);
+  }
+  40% {
+    opacity: 1;
+    transform: translateX(40vw) translateY(8px) rotate(360deg) scaleY(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(50vw) translateY(8px) rotate(360deg) scaleY(1);
+  }
+  58% {
+    opacity: 1;
+    transform: translateX(57vw) translateY(-32px) rotate(360deg) scaleY(1);
+  }
+  62% {
+    opacity: 1;
+    transform: translateX(61vw) translateY(-64px) rotate(480deg) scaleY(-1);
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(68vw) translateY(-30px) rotate(640deg) scaleY(1);
+  }
+  72% {
+    opacity: 1;
+    transform: translateX(72vw) translateY(8px) rotate(720deg) scaleY(1);
+  }
+  88% {
+    opacity: 1;
+    transform: translateX(110vw) translateY(8px) rotate(720deg) scaleY(1);
+  }
+  89% {
+    opacity: 0;
+  }
+  99% {
+    opacity: 0;
+    transform: translateX(-140px) translateY(8px) rotate(0deg) scaleY(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-140px) translateY(8px) rotate(0deg) scaleY(1);
+  }
+}
+
+@keyframes trailFade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  18%,
+  71% {
+    opacity: 0.7;
+  }
+  89% {
+    opacity: 0;
+  }
+}
+
+@keyframes sparksTiming {
+  0%,
+  39% {
+    opacity: 0;
+  }
+  40%,
+  46% {
+    opacity: 1;
+  }
+  47%,
+  71% {
+    opacity: 0;
+  }
+  72%,
+  78% {
+    opacity: 1;
+  }
+  79%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes spark1 {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-16px, -14px);
+  }
+}
+
+@keyframes spark2 {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(16px, -14px);
+  }
+}
+
+@keyframes spark3 {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, -22px);
+  }
+}
+
+@keyframes spark4 {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-10px, -18px);
+  }
+}
+
+@keyframes spark5 {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, -18px);
+  }
+}
+
+@media (max-width: 900px) {
+  .titleBox {
+    padding: 16px 20px;
+  }
+
+  .t2 {
+    font-size: 18px;
+  }
+
+  .scene {
+    height: 132px;
+  }
+
+  .signWrap {
+    margin-right: 10px;
+    transform: scale(0.8);
+    transform-origin: bottom right;
+  }
+}
+
+@media (max-width: 640px) {
+  .marqueeItem {
+    margin: 0 1.2rem;
+    font-size: 0.7rem;
+  }
+
+  .pixelHero {
+    min-height: 250px;
+    padding: 32px 12px 0;
+  }
+
+  .cloud {
+    display: none;
+  }
+
+  .tag {
+    font-size: 6px;
+  }
+
+  .t1 {
+    font-size: 12px;
+  }
+
+  .t2 {
+    font-size: 16px;
+  }
+
+  .sub {
+    font-size: 5px;
+  }
+
+  .skaterWrap {
+    bottom: 30px;
+    left: -10px;
+    transform: scale(0.62);
+    transform-origin: left bottom;
+  }
+
+  .trail {
+    left: -24px;
+  }
+}

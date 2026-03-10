@@ -2,11 +2,11 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import type { Product } from "@/lib/data"
+import type { CatalogProduct } from "@/lib/types/catalog"
 import { Badge } from "@/components/ui/badge"
 
 interface ProductCardProps {
-  product: Product
+  product: CatalogProduct
 }
 
 export function ProductCard({ product }: ProductCardProps) {

@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_sections_marquee_texts",
+  "info": {
+    "displayName": "Marquee Text",
+    "description": "Scrolling announcement/hype text banner"
+  },
+  "options": {},
+  "attributes": {
+    "items": {
+      "type": "json",
+      "required": true
+    },
+    "background_color": {
+      "type": "string",
+      "default": "#e52521"
+    },
+    "text_color": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "speed": {
+      "type": "enumeration",
+      "enum": ["slow", "normal", "fast"],
+      "default": "normal"
+    }
+  }
+}

@@ -1,0 +1,824 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+  EXPIRED
+  ABANDONED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLING
+  SHIPPED
+  COMPLETED
+  CANCELED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  EXPIRED
+}
+
+enum ShipmentStatus {
+  PENDING
+  LABEL_CREATED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+  LOST
+  CANCELED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum DropStatus {
+  DRAFT
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELED
+}
+
+enum DropEntryStatus {
+  WAITING
+  ALLOWED
+  BLOCKED
+  CONVERTED
+}
+
+enum ReservationStatus {
+  ACTIVE
+  COMMITTED
+  RELEASED
+  EXPIRED
+  CANCELED
+}
+
+enum InventoryAdjustmentReason {
+  RECEIPT
+  PURCHASE
+  CANCELED_ORDER
+  REFUND
+  DAMAGE
+  MANUAL_CORRECTION
+  DROP_RELEASE
+}
+
+enum AuditAction {
+  PRODUCT_CREATE
+  PRODUCT_UPDATE
+  VARIANT_CREATE
+  VARIANT_UPDATE
+  INVENTORY_ADJUST
+  ORDER_STATUS_CHANGE
+  DROP_CREATE
+  DROP_UPDATE
+  PRICE_UPDATE
+  COUPON_CREATE
+  COUPON_UPDATE
+  IMPORT_CSV
+}
+
+enum RiskType {
+  CHECKOUT_VELOCITY
+  DISTINCT_CARDS
+  SHARED_IP_LIMITED_DROP
+  FAILED_PAYMENTS
+  BOT_SIGNAL
+  MANUAL_REVIEW
+}
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskAction {
+  NONE
+  SOFT_BLOCK
+  REQUIRE_REVIEW
+  HARD_BLOCK
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+enum PromotionScope {
+  ORDER
+  VARIANT
+  CATEGORY
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  passwordHash  String?
+  role          Role      @default(CUSTOMER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts             Account[]
+  sessions             Session[]
+  carts                Cart[]
+  orders               Order[]
+  reviews              Review[]
+  dropEntries          DropEntry[]
+  stockReservations    StockReservation[]
+  couponUsages         CouponUsage[]
+  riskEvents           RiskEvent[]           @relation("RiskActor")
+  resolvedRiskEvents   RiskEvent[]           @relation("RiskResolver")
+  auditLogs            AuditLog[]            @relation("AuditActor")
+  inventoryAdjustments InventoryAdjustment[] @relation("InventoryAdjustmentActor")
+  createdDrops         DropEvent[]           @relation("DropCreator")
+
+  @@index([role])
+  @@index([createdAt])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent     Category?           @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children   Category[]          @relation("CategoryHierarchy")
+  products   ProductCategory[]
+  promotions PromotionCategory[]
+
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  description   String?
+  brand         String?
+  isActive      Boolean  @default(true)
+  isDropProduct Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  variants   ProductVariant[]
+  media      Media[]
+  categories ProductCategory[]
+  reviews    Review[]
+
+  @@index([createdAt])
+}
+
+model ProductVariant {
+  id          String   @id @default(cuid())
+  productId   String
+  sku         String   @unique
+  title       String?
+  size        String?
+  color       String?
+  attributes  Json?
+  barcode     String?
+  weightGrams Int?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product                  Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventory                Inventory?
+  prices                   Price[]
+  media                    Media[]
+  cartItems                CartItem[]
+  orderItems               OrderItem[]
+  stockReservations        StockReservation[]
+  dropVariants             DropVariant[]
+  inventoryAdjustments     InventoryAdjustment[]
+  promotionVariants        PromotionVariant[]
+  couponVariantConstraints CouponVariantConstraint[]
+
+  @@unique([productId, size, color])
+  @@index([sku])
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model Inventory {
+  id           String   @id @default(cuid())
+  variantId    String   @unique
+  onHand       Int      @default(0)
+  reserved     Int      @default(0)
+  available    Int      @default(0)
+  safetyStock  Int      @default(0)
+  reorderPoint Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  variant     ProductVariant        @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  adjustments InventoryAdjustment[]
+
+  @@index([variantId])
+}
+
+model InventoryAdjustment {
+  id            String                    @id @default(cuid())
+  inventoryId   String
+  variantId     String
+  delta         Int
+  reason        InventoryAdjustmentReason
+  referenceType String?
+  referenceId   String?
+  notes         String?
+  createdById   String?
+  createdAt     DateTime                  @default(now())
+
+  inventory Inventory      @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  createdBy User?          @relation("InventoryAdjustmentActor", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([variantId, createdAt])
+  @@index([referenceId])
+  @@index([createdById])
+}
+
+model Price {
+  id              String    @id @default(cuid())
+  variantId       String
+  currency        String    @db.VarChar(3)
+  amount          Int
+  compareAtAmount Int?
+  startsAt        DateTime  @default(now())
+  endsAt          DateTime?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([variantId, currency, isActive])
+  @@index([createdAt])
+}
+
+model Cart {
+  id          String     @id @default(cuid())
+  userId      String?
+  guestToken  String?    @unique
+  status      CartStatus @default(ACTIVE)
+  currency    String     @default("USD") @db.VarChar(3)
+  expiresAt   DateTime?
+  dropEventId String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  dropEvent DropEvent? @relation(fields: [dropEventId], references: [id], onDelete: SetNull)
+  items     CartItem[]
+  order     Order?
+
+  @@index([userId])
+  @@index([dropEventId])
+  @@index([status, createdAt])
+}
+
+model CartItem {
+  id            String   @id @default(cuid())
+  cartId        String
+  variantId     String
+  quantity      Int
+  unitPrice     Int
+  currency      String   @default("USD") @db.VarChar(3)
+  reservationId String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cart        Cart              @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant     ProductVariant    @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  reservation StockReservation? @relation("CartItemReservation", fields: [reservationId], references: [id], onDelete: SetNull)
+
+  @@unique([cartId, variantId])
+  @@index([variantId])
+  @@index([createdAt])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String
+  cartId          String?     @unique
+  status          OrderStatus @default(PENDING)
+  currency        String      @default("USD") @db.VarChar(3)
+  subtotal        Int
+  discountTotal   Int         @default(0)
+  shippingTotal   Int         @default(0)
+  taxTotal        Int         @default(0)
+  grandTotal      Int
+  email           String
+  billingAddress  Json?
+  shippingAddress Json?
+  dropEventId     String?
+  idempotencyKey  String?     @unique
+  placedAt        DateTime    @default(now())
+  paidAt          DateTime?
+  fulfilledAt     DateTime?
+  canceledAt      DateTime?
+  refundedAt      DateTime?
+  cancelReason    String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  cart         Cart?              @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  dropEvent    DropEvent?         @relation(fields: [dropEventId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+  payments     Payment[]
+  shipments    Shipment[]
+  reservations StockReservation[]
+  riskEvents   RiskEvent[]
+  couponUsages CouponUsage[]
+
+  @@index([userId])
+  @@index([dropEventId])
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id             String   @id @default(cuid())
+  orderId        String
+  variantId      String
+  productName    String
+  variantTitle   String?
+  sku            String
+  quantity       Int
+  unitPrice      Int
+  discountAmount Int      @default(0)
+  lineTotal      Int
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([variantId])
+}
+
+model Payment {
+  id                String          @id @default(cuid())
+  orderId           String
+  provider          PaymentProvider @default(STRIPE)
+  providerPaymentId String?
+  checkoutSessionId String?         @unique
+  paymentIntentId   String?
+  idempotencyKey    String?         @unique
+  status            PaymentStatus   @default(PENDING)
+  amount            Int
+  currency          String          @default("USD") @db.VarChar(3)
+  failureCode       String?
+  failureMessage    String?
+  metadata          Json?
+  paidAt            DateTime?
+  refundedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model Shipment {
+  id                String         @id @default(cuid())
+  orderId           String
+  carrier           String?
+  serviceLevel      String?
+  trackingNumber    String?        @unique
+  status            ShipmentStatus @default(PENDING)
+  addressSnapshot   Json?
+  metadata          Json?
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  estimatedDelivery DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  productId String?
+  variantId String?
+  type      MediaType @default(IMAGE)
+  url       String
+  altText   String?
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  product Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([productId, sortOrder])
+  @@index([variantId, sortOrder])
+}
+
+model DropEvent {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  name         String
+  description  String?
+  status       DropStatus @default(SCHEDULED)
+  startsAt     DateTime
+  endsAt       DateTime
+  timezone     String     @default("UTC")
+  queueEnabled Boolean    @default(false)
+  createdById  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  rule         DropRule?
+  variants     DropVariant[]
+  carts        Cart[]
+  orders       Order[]
+  entries      DropEntry[]
+  reservations StockReservation[]
+  riskEvents   RiskEvent[]
+  createdBy    User?              @relation("DropCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([startsAt, endsAt])
+  @@index([status, startsAt])
+  @@index([createdAt])
+}
+
+model DropRule {
+  id                    String   @id @default(cuid())
+  dropEventId           String   @unique
+  maxUnitsPerUser       Int      @default(1)
+  reservationTtlMinutes Int      @default(5)
+  cartTimeoutMinutes    Int      @default(5)
+  queueEnabled          Boolean  @default(true)
+  botProtectionEnabled  Boolean  @default(true)
+  maxCheckoutAttempts2m Int      @default(4)
+  maxFailedPayments24h  Int      @default(3)
+  maxDistinctCards24h   Int      @default(3)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  dropEvent DropEvent @relation(fields: [dropEventId], references: [id], onDelete: Cascade)
+
+  @@index([dropEventId])
+}
+
+model DropVariant {
+  id           String   @id @default(cuid())
+  dropEventId  String
+  variantId    String
+  allocation   Int
+  perUserLimit Int?
+  createdAt    DateTime @default(now())
+
+  dropEvent DropEvent      @relation(fields: [dropEventId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@unique([dropEventId, variantId])
+  @@index([dropEventId])
+  @@index([variantId])
+}
+
+model DropEntry {
+  id            String          @id @default(cuid())
+  dropEventId   String
+  userId        String
+  status        DropEntryStatus @default(WAITING)
+  entryToken    String          @unique
+  queuePosition Int?
+  allowedAt     DateTime?
+  expiresAt     DateTime?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  dropEvent DropEvent @relation(fields: [dropEventId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([dropEventId, userId])
+  @@index([dropEventId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model StockReservation {
+  id             String            @id @default(cuid())
+  variantId      String
+  userId         String
+  orderId        String?
+  dropEventId    String?
+  quantity       Int
+  status         ReservationStatus @default(ACTIVE)
+  idempotencyKey String?           @unique
+  expiresAt      DateTime
+  committedAt    DateTime?
+  releasedAt     DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order     Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  dropEvent DropEvent?     @relation(fields: [dropEventId], references: [id], onDelete: SetNull)
+  cartItem  CartItem?      @relation("CartItemReservation")
+
+  @@index([variantId, status, expiresAt])
+  @@index([userId, createdAt])
+  @@index([orderId])
+  @@index([dropEventId])
+  @@index([createdAt])
+}
+
+model ProductCategory {
+  id         String   @id @default(cuid())
+  productId  String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, categoryId])
+  @@index([categoryId])
+}
+
+model Promotion {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  scope       PromotionScope
+  isActive    Boolean        @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  coupons    Coupon[]
+  variants   PromotionVariant[]
+  categories PromotionCategory[]
+
+  @@index([isActive, startsAt, endsAt])
+}
+
+model PromotionVariant {
+  id          String   @id @default(cuid())
+  promotionId String
+  variantId   String
+  createdAt   DateTime @default(now())
+
+  promotion Promotion      @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, variantId])
+  @@index([variantId])
+}
+
+model PromotionCategory {
+  id          String   @id @default(cuid())
+  promotionId String
+  categoryId  String
+  createdAt   DateTime @default(now())
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, categoryId])
+  @@index([categoryId])
+}
+
+model Coupon {
+  id             String     @id @default(cuid())
+  code           String     @unique
+  type           CouponType
+  value          Int
+  currency       String?    @db.VarChar(3)
+  maxRedemptions Int?
+  usedCount      Int        @default(0)
+  perUserLimit   Int?
+  minOrderAmount Int?
+  startsAt       DateTime?
+  endsAt         DateTime?
+  isActive       Boolean    @default(true)
+  promotionId    String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  promotion          Promotion?                @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  usages             CouponUsage[]
+  variantConstraints CouponVariantConstraint[]
+
+  @@index([isActive, startsAt, endsAt])
+  @@index([createdAt])
+}
+
+model CouponVariantConstraint {
+  id        String   @id @default(cuid())
+  couponId  String
+  variantId String
+  createdAt DateTime @default(now())
+
+  coupon  Coupon         @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, variantId])
+  @@index([variantId])
+}
+
+model CouponUsage {
+  id             String   @id @default(cuid())
+  couponId       String
+  orderId        String
+  userId         String
+  discountAmount Int
+  createdAt      DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, orderId])
+  @@index([couponId, userId])
+  @@index([orderId])
+  @@index([userId, createdAt])
+}
+
+model Review {
+  id               String       @id @default(cuid())
+  productId        String
+  userId           String
+  rating           Int
+  title            String?
+  body             String?
+  status           ReviewStatus @default(PENDING)
+  verifiedPurchase Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId])
+  @@index([productId, status, createdAt])
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  actorUserId String?
+  action      AuditAction
+  entityType  String
+  entityId    String
+  before      Json?
+  after       Json?
+  reason      String?
+  ipAddress   String?
+  userAgent   String?
+  requestId   String?
+  createdAt   DateTime    @default(now())
+
+  actorUser User? @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model RiskEvent {
+  id           String       @id @default(cuid())
+  userId       String?
+  orderId      String?
+  dropEventId  String?
+  type         RiskType
+  severity     RiskSeverity
+  score        Int          @default(0)
+  action       RiskAction   @default(NONE)
+  reason       String
+  details      Json?
+  ipAddress    String?
+  userAgent    String?
+  resolvedById String?
+  resolvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+
+  user       User?      @relation("RiskActor", fields: [userId], references: [id], onDelete: SetNull)
+  order      Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  dropEvent  DropEvent? @relation(fields: [dropEventId], references: [id], onDelete: SetNull)
+  resolvedBy User?      @relation("RiskResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([orderId, createdAt])
+  @@index([dropEventId, createdAt])
+  @@index([type, createdAt])
+  @@index([createdAt])
+}
+
+model IdempotencyKey {
+  id           String    @id @default(cuid())
+  scope        String
+  key          String
+  requestHash  String?
+  responseCode Int?
+  responseBody Json?
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime?
+
+  @@unique([scope, key])
+  @@index([expiresAt])
+}

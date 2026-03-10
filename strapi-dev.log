@@ -1,0 +1,52 @@
+
+> goofy-shop-strapi@0.1.0 strapi C:\Users\Krissana.kou\WebstormProjects\goofy-shop\strapi
+> strapi "develop"
+
+- Cleaning dist dir C:/Users/Krissana.kou/WebstormProjects/goofy-shop/strapi/dist
+√ Cleaning dist dir (16ms)
+- Loading Strapi
+(node:31668) [DEP0187] DeprecationWarning: Passing invalid argument types to fs.existsSync is deprecated
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[2026-03-04 10:42:49.358] [33mwarn[39m: admin.auth.options.expiresIn is deprecated and will be removed in Strapi 6. Please configure admin.auth.sessions.maxRefreshTokenLifespan and admin.auth.sessions.maxSessionLifespan.
+[2026-03-04 10:42:49.509] [32minfo[39m: Public read permissions enforced for Product, Category, Drop Event, Global Config, Home Page, Products Page, and Locations Page APIs.
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_AI_URL
+    - STRAPI_ANALYTICS_URL
+√ Building build context (131ms)
+- Creating admin
+√ Creating admin (502ms)
+√ Loading Strapi (2788ms)
+- Generating types
+√ Generating types (540ms)
+- Compiling TS
+- Cleaning dist dir C:/Users/Krissana.kou/WebstormProjects/goofy-shop/strapi/dist
+√ Cleaning dist dir (78ms)
+√ Compiling TS (1820ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Mar 04 2026 10:42:52 GMT+0700 (Indochina Ti… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 5168 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 31668                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.36.1 (node v24.11.0)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m postgres                                         [90m│[39m
+[90m│[39m Database name      [90m│[39m goofy_shop                                       [90m│[39m
+[90m│[39m Database schema    [90m│[39m public                                           [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2026-03-04 10:42:52.537] [32minfo[39m: Strapi started successfully
+^C ELIFECYCLE  Command failed with exit code 3221225786.
