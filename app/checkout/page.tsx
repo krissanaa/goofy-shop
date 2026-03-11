@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { NavbarServer } from "@/components/navbar-server"
 import { CheckoutPage } from "@/components/checkout-page"
 import { SearchCommand } from "@/components/search-command"
-import { getResolvedGlobalConfig } from "@/lib/strapi"
+import { defaultGlobalConfig } from "@/config/defaults"
 
 export const metadata: Metadata = {
   title: "Checkout - GOOFY SHOP",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function CheckoutRoutePage() {
-  const config = await getResolvedGlobalConfig()
+  const config = defaultGlobalConfig
   const godMode = config.godMode
   const showNavbar = !godMode.enabled || godMode.aboveFold.showNavbar
 

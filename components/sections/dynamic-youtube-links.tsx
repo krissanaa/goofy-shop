@@ -1,10 +1,9 @@
 import Image from "next/image"
 import { Play } from "lucide-react"
 import type { CSSProperties } from "react"
-import type { YoutubeLinksData } from "@/lib/strapi-types"
 
 interface DynamicYoutubeLinksProps {
-  data: YoutubeLinksData
+  data: any
 }
 
 interface YoutubeCardItem {
@@ -86,12 +85,13 @@ function normalizeUrl(rawUrl: string): string {
   return `https://${rawUrl}`
 }
 
-function resolveStrapiAssetUrl(rawUrl: string): string {
+function resolveAssetUrl(rawUrl: string): string {
   if (!rawUrl) return ""
   if (/^https?:\/\//i.test(rawUrl)) return rawUrl
 
-  const baseUrl = (process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337").replace(/\/$/, "")
-  return rawUrl.startsWith("/") ? `${baseUrl}${rawUrl}` : `${baseUrl}/${rawUrl}`
+  // For Supabase, we assume these are public URLs or absolute paths.
+  // If we needed a base URL, it would be NEXT_PUBLIC_SUPABASE_URL.
+  return rawUrl
 }
 
 function resolveMediaUrl(value: unknown): string {
@@ -110,7 +110,7 @@ function resolveMediaUrl(value: unknown): string {
     toString(thumbnail?.url) ||
     toString(mediaRecord.url)
 
-  return resolveStrapiAssetUrl(rawUrl)
+  return resolveAssetUrl(rawUrl)
 }
 
 function isValidColorCode(value: string): boolean {
@@ -212,7 +212,7 @@ function normalizeItem(raw: unknown): YoutubeCardItem | null {
   }
 }
 
-function normalizeItems(items: YoutubeLinksData["items"]): YoutubeCardItem[] {
+function normalizeItems(items: any[]): YoutubeCardItem[] {
   if (!Array.isArray(items) || items.length === 0) return FALLBACK_ITEMS
   const parsed = items
     .map((item) => normalizeItem(item))

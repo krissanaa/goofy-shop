@@ -1,16 +1,12 @@
 import {
   getCategories,
-  getLocationsPage,
-  getResolvedGlobalConfig,
-  getStrapiImageUrl,
-} from "@/lib/strapi"
+} from "@/lib/api"
 import { Navbar } from "@/components/navbar"
+import { defaultGlobalConfig, defaultLocationsPageConfig } from "@/config/defaults"
 
 export async function NavbarServer() {
-  const [config, locationsPage] = await Promise.all([
-    getResolvedGlobalConfig(),
-    getLocationsPage(),
-  ])
+  const config = defaultGlobalConfig
+  const locationsPage = defaultLocationsPageConfig
   const shopMenuConfig = config.navigation.shopMenu
   const shopMenuEnabled = shopMenuConfig.godMode
     ? shopMenuConfig.enabled
@@ -26,12 +22,10 @@ export async function NavbarServer() {
       const categoryRes = await getCategories()
 
       categories =
-        categoryRes?.data?.slice(0, categoryLimit).map((c) => ({
+        categoryRes?.slice(0, categoryLimit).map((c: any) => ({
           title: c.title,
           slug: c.slug,
-          image: c.thumbnail
-            ? getStrapiImageUrl(c.thumbnail, "medium")
-            : undefined,
+          image: undefined, // Add image mapping if available in Supabase
         })) ?? []
     } catch {
       categories = []

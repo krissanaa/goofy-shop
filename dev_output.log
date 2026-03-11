@@ -1,0 +1,18 @@
+
+> my-project@0.1.0 dev /app
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+- Environments: .env.local, .env
+
+✓ Starting...
+✓ Ready in 809ms
+○ Compiling / ...
+ GET / 200 in 8.3s (compile: 6.8s, render: 1500ms)
+ GET /api/search/products 404 in 1947ms (compile: 1753ms, render: 193ms)
+ GET /products 200 in 1335ms (compile: 795ms, render: 540ms)
+ GET /api/search/products 404 in 65ms (compile: 7ms, render: 58ms)
+✓ Compiled in 98ms
+✓ Compiled in 92ms

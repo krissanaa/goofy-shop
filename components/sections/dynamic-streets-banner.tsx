@@ -1,10 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
-import { getStrapiImageUrl } from "@/lib/strapi"
-import type { StreetsBannerData } from "@/lib/strapi-types"
 
 interface DynamicStreetsBannerProps {
-  data: StreetsBannerData
+  data: any
 }
 
 export function DynamicStreetsBanner({ data }: DynamicStreetsBannerProps) {
@@ -16,7 +14,7 @@ export function DynamicStreetsBanner({ data }: DynamicStreetsBannerProps) {
   const ctaText = data.cta_text?.trim() || "Shop The Drop"
   const ctaLink = data.cta_link?.trim() || "/products"
   const bannerImageUrl = data.background_image
-    ? getStrapiImageUrl(data.background_image, "large")
+    ? data.background_image.url
     : null
 
   return (

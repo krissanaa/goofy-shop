@@ -1,7 +1,5 @@
-import type { MarqueeTextData } from "@/lib/strapi-types"
-
 interface DynamicMarqueeProps {
-  data: MarqueeTextData
+  data: any
 }
 
 const fallbackItems = [

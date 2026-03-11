@@ -1,8 +1,7 @@
 import { SponsorLogoStrip, type SponsorBrand } from "@/components/sponsor-logo-strip"
-import type { SponsorStripData } from "@/lib/strapi-types"
 
 interface DynamicSponsorStripProps {
-  data: SponsorStripData
+  data: any
 }
 
 const FALLBACK_BRANDS: SponsorBrand[] = [
@@ -16,7 +15,7 @@ const FALLBACK_BRANDS: SponsorBrand[] = [
   { name: "REAL", url: "https://www.realskateboards.com", logoUrl: "https://logo.clearbit.com/realskateboards.com" },
 ]
 
-function normalizeLogos(logos: SponsorStripData["logos"]): SponsorBrand[] {
+function normalizeLogos(logos: any[]): SponsorBrand[] {
   if (!Array.isArray(logos) || logos.length === 0) return FALLBACK_BRANDS
 
   const parsed: SponsorBrand[] = []

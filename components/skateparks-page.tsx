@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Heart, Search, Share2 } from "lucide-react"
-import type { ResolvedLocationPark } from "@/lib/strapi-types"
+import type { ResolvedLocationPark } from "@/lib/types/cms"
 
 type ParkFilter = "all" | "free" | "indoor" | "bowl" | "street" | "night"
 

@@ -1,8 +1,8 @@
-import type { Role } from "@prisma/client";
 import { NextRequest } from "next/server";
-import { auth } from "@/auth";
 import { ApiError } from "@/lib/server/errors";
-import { prisma } from "@/lib/server/prisma";
+import { supabase } from "@/lib/supabase";
+
+export type Role = "CUSTOMER" | "STAFF" | "ADMIN";
 
 export interface AuthUser {
   id: string;
@@ -11,42 +11,16 @@ export interface AuthUser {
 }
 
 export const requireAuth = async (request: NextRequest): Promise<AuthUser> => {
-  const session = await auth();
-  const sessionUser = session?.user as { id?: string; email?: string | null; role?: Role } | undefined;
-  let user = null as { id: string; email: string; role: Role } | null;
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (sessionUser?.id) {
-    user = await prisma.user.findUnique({
-      where: { id: sessionUser.id },
-      select: { id: true, email: true, role: true },
-    });
-  } else if (sessionUser?.email) {
-    user = await prisma.user.findUnique({
-      where: { email: sessionUser.email },
-      select: { id: true, email: true, role: true },
-    });
-  }
-
-  if (!user) {
-    const headerUserId = request.headers.get("x-user-id");
-    if (!headerUserId) {
-      throw new ApiError(401, "UNAUTHORIZED", "Authentication required.");
-    }
-
-    user = await prisma.user.findUnique({
-      where: { id: headerUserId },
-      select: { id: true, email: true, role: true },
-    });
-  }
-
-  if (!user) {
-    throw new ApiError(401, "UNAUTHORIZED", "User session is invalid.");
+  if (error || !user) {
+    throw new ApiError(401, "UNAUTHORIZED", "Authentication required.");
   }
 
   return {
     id: user.id,
-    email: user.email,
-    role: user.role,
+    email: user.email!,
+    role: (user.user_metadata?.role as Role) || "CUSTOMER",
   };
 };
 

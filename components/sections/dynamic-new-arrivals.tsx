@@ -1,14 +1,13 @@
 import { DynamicBadgeProductSlot } from "@/components/sections/dynamic-badge-product-slot"
-import { getResolvedGlobalConfig } from "@/lib/strapi"
-import type { NewArrivalsData } from "@/lib/strapi-types"
+import { defaultGlobalConfig } from "@/config/defaults"
 
 interface DynamicNewArrivalsProps {
-  data: NewArrivalsData
+  data: any
 }
 
 export async function DynamicNewArrivals({ data }: DynamicNewArrivalsProps) {
   const globalConfig =
-    data.badge_filter === "SALE" ? await getResolvedGlobalConfig() : null
+    data.badge_filter === "SALE" ? defaultGlobalConfig : null
 
   return (
     <DynamicBadgeProductSlot

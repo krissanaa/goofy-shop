@@ -359,7 +359,7 @@ export function FeaturedDropsPanel({
 
             {items.length === 0 ? (
               <div className="border border-dashed border-[#F8B800]/25 bg-[#111111] p-8 text-center text-sm text-[#F5EFE0]/60">
-                No featured products configured in Strapi yet.
+                No featured products found.
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

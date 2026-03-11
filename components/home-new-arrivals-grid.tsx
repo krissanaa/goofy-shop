@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useState, type CSSProperties } from "react"
 import { ShoppingBag } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
-import type { ProductBadgeFilter } from "@/lib/strapi-types"
+import type { ProductBadgeFilter } from "@/lib/types/cms"
 import { cn } from "@/lib/utils"
 
 export interface HomeNewArrivalProduct {

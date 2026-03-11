@@ -1,13 +1,12 @@
-﻿import type {
+import type {
   ResolvedGlobalConfig,
   PageSection,
   ResolvedProductsPageConfig,
   ResolvedLocationsPageConfig,
-} from '@/lib/strapi-types';
+} from '@/lib/types/cms';
 
-// â”€â”€â”€ Safe Mode Defaults â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Used when Strapi is down or unreachable. The site will render with these
-// values so it never crashes.
+// ─── Default Configuration ─────────────────────────────────────────────────────────────
+// Default configuration for the site.
 
 export const defaultGlobalConfig: ResolvedGlobalConfig = {
   siteName: 'GOOFY SHOP',
@@ -319,9 +318,6 @@ export const defaultProductsPageConfig: ResolvedProductsPageConfig = {
   promoText: 'Buy 2 get 1 free on selected drops',
   promoCtaText: 'Grab Deal ->',
 };
-
-
-
 
 export const defaultLocationsPageConfig: ResolvedLocationsPageConfig = {
   seoTitle: 'Locations | GOOFY SHOP',

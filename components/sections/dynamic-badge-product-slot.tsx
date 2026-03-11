@@ -8,10 +8,11 @@ import {
   type HomeNewArrivalProduct,
   type ProductSectionGridTheme,
 } from "@/components/home-new-arrivals-grid"
-import type { ProductBadgeFilter } from "@/lib/strapi-types"
 import { cn } from "@/lib/utils"
+import { getProductsByBadge } from "@/lib/api"
 
-const DEFAULT_STRAPI_URL = "http://localhost:1337"
+export type ProductBadge = 'NEW' | 'DROP' | 'SALE' | 'HOT' | 'COLLAB';
+export type ProductBadgeFilter = ProductBadge | 'ALL';
 const MIN_PRODUCTS = 1
 const MAX_PRODUCTS = 12
 const BADGE_FILTER_VALUES: ProductBadgeFilter[] = [
@@ -33,7 +34,7 @@ interface DynamicBadgeProductSlotProps {
   saleEndDateOverride?: string | null
 }
 
-interface StrapiProductResponse {
+interface ProductResponse {
   data?: unknown[]
 }
 
@@ -212,16 +213,13 @@ function toNumberValue(value: unknown, fallback = 0): number {
   return fallback
 }
 
-function resolveStrapiAssetUrl(url: string): string {
+function resolveAssetUrl(url: string): string {
   if (!url) return "/images/placeholder.jpg"
   if (url.startsWith("http://") || url.startsWith("https://")) {
     return url
   }
 
-  const baseUrl =
-    (process.env.NEXT_PUBLIC_STRAPI_URL || DEFAULT_STRAPI_URL).replace(/\/$/, "")
-
-  return `${baseUrl}${url.startsWith("/") ? url : `/${url}`}`
+  return url
 }
 
 function toMediaArray(value: unknown): Record<string, unknown>[] {
@@ -306,7 +304,7 @@ function resolveProductImage(product: Record<string, unknown>): string {
     toStringValue(thumbnail?.url) ||
     toStringValue(image.url)
 
-  return resolveStrapiAssetUrl(url)
+  return resolveAssetUrl(url)
 }
 
 function toObjectValue(value: unknown): Record<string, unknown> | null {
@@ -380,7 +378,7 @@ function getCountdownUnits(targetDate: Date | null, now: number) {
   ]
 }
 
-function mapStrapiProduct(
+function mapProduct(
   rawProduct: unknown,
   index: number,
 ): HomeNewArrivalProduct | null {
@@ -460,22 +458,6 @@ function mapStrapiProduct(
       getNestedNumber(specs, ["waitlist_count", "waitlistCount", "waitlist"]) ??
       fallbackWaitlist,
   }
-}
-
-function buildProductsUrl(badgeFilter: ProductBadgeFilter, limit: number): string {
-  const baseUrl =
-    (process.env.NEXT_PUBLIC_STRAPI_URL || DEFAULT_STRAPI_URL).replace(/\/$/, "")
-  const params = new URLSearchParams()
-
-  params.set("sort", "publishedAt:desc")
-  params.set("pagination[limit]", String(limit))
-  params.set("populate", "*")
-
-  if (badgeFilter !== "ALL") {
-    params.set("filters[badge][$eq]", badgeFilter)
-  }
-
-  return `${baseUrl}/api/products?${params.toString()}`
 }
 
 function ProductSkeletonCards({
@@ -594,22 +576,27 @@ export function DynamicBadgeProductSlot({
     setError(null)
 
     try {
-      const response = await fetch(
-        buildProductsUrl(normalizedBadgeFilter, normalizedLimit),
-        {
-          method: "GET",
-          cache: "no-store",
-        },
-      )
-
-      if (!response.ok) {
-        throw new Error(`Request failed (${response.status})`)
-      }
-
-      const payload = (await response.json()) as StrapiProductResponse
-      const items = Array.isArray(payload?.data) ? payload.data : []
+      const items = await getProductsByBadge(normalizedBadgeFilter === 'ALL' ? '' : normalizedBadgeFilter, normalizedLimit)
       const mappedProducts = items
-        .map((item, index) => mapStrapiProduct(item, index))
+        .map((item, index) => ({
+            id: item.id,
+            slug: item.slug,
+            name: item.name,
+            price: Number(item.price),
+            originalPrice: item.original_price ? Number(item.original_price) : null,
+            category: item.category,
+            brand: item.brand_name || item.category,
+            image: item.images?.[0] || "/images/placeholder.jpg",
+            stock: item.stock,
+            isSoldOut: item.stock <= 0,
+            publishedAt: item.created_at,
+            saleEndDate: null,
+            viewsCount: item.views || 0,
+            soldCount: item.sold_count || 0,
+            averageRating: Number(item.rating) || 0,
+            limitPerCustomer: 2,
+            waitlistCount: 0,
+        }))
         .filter((item): item is HomeNewArrivalProduct => item !== null)
 
       setProducts(mappedProducts)
@@ -617,7 +604,7 @@ export function DynamicBadgeProductSlot({
       const message =
         err instanceof Error
           ? err.message
-          : "Could not load products from Strapi."
+          : "Could not load products from Supabase."
       setProducts([])
       setError(message)
     } finally {

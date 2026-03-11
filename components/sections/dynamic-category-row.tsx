@@ -1,6 +1,6 @@
 import { CategoryRowPanel, type CategoryRowPanelItem } from "@/components/category-row-panel"
-import { getCategories, getStrapiImageUrl } from "@/lib/strapi"
-import type { CategoryRowData } from "@/lib/strapi-types"
+import { getCategories } from "@/lib/api"
+import type { PageSection } from "@/lib/types/cms"
 
 type DesiredCategoryKey =
   | "decks"
@@ -93,7 +93,7 @@ function extractCategoryHints(link: string): string[] {
   }
 }
 
-function normalizeItems(items: CategoryRowData["items"]): CategoryItem[] {
+function normalizeItems(items: any[]): CategoryItem[] {
   if (!Array.isArray(items) || items.length === 0) return []
 
   return items
@@ -140,7 +140,7 @@ function findConfiguredItem(
 
 function findLiveCategory(
   desiredKey: DesiredCategoryKey,
-  categories: Awaited<ReturnType<typeof getCategories>>["data"],
+  categories: any[],
 ) {
   return categories.find(
     (category) =>
@@ -150,7 +150,7 @@ function findLiveCategory(
 }
 
 interface DynamicCategoryRowProps {
-  data: CategoryRowData
+  data: any
 }
 
 export async function DynamicCategoryRow({ data }: DynamicCategoryRowProps) {
@@ -161,12 +161,12 @@ export async function DynamicCategoryRow({ data }: DynamicCategoryRowProps) {
       : "SHOP BY CATEGORY"
   const configuredItems = normalizeItems(data.items)
 
-  let categoryList: Awaited<ReturnType<typeof getCategories>>["data"] = []
+  let categoryList: any[] = []
 
   try {
     const categoryResponse = await getCategories()
-    categoryList = Array.isArray(categoryResponse?.data)
-      ? categoryResponse.data
+    categoryList = Array.isArray(categoryResponse)
+      ? categoryResponse
       : []
   } catch {
     categoryList = []
@@ -176,8 +176,8 @@ export async function DynamicCategoryRow({ data }: DynamicCategoryRowProps) {
     const configuredItem = findConfiguredItem(desired.key, configuredItems)
     const liveCategory = findLiveCategory(desired.key, categoryList)
 
-    const imageUrl = liveCategory?.thumbnail
-      ? getStrapiImageUrl(liveCategory.thumbnail, "medium")
+    const imageUrl = (liveCategory as any)?.thumbnail
+      ? (liveCategory as any).thumbnail.url
       : desired.fallbackImageUrl
 
     return {
