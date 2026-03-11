@@ -1,13 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
-import type { RetroBannerData } from "@/lib/strapi-types"
-import { getStrapiImageUrl } from "@/lib/strapi"
 
 interface DynamicRetroBannerProps {
-  data: RetroBannerData
+  data: any
 }
 
-const styleMap: Record<RetroBannerData["style"], { bg: string; text: string; border: string }> = {
+const styleMap: Record<string, { bg: string; text: string; border: string }> = {
   "mario-red": { bg: "#e52521", text: "#ffffff", border: "#a01816" },
   "luigi-green": { bg: "#43b047", text: "#ffffff", border: "#2d7a32" },
   "toad-blue": { bg: "#049cd8", text: "#ffffff", border: "#0370c8" },
@@ -84,7 +82,7 @@ function resolveBaseColor(data: RetroBannerData, fallbackColor: string): string 
 
 export function DynamicRetroBanner({ data }: DynamicRetroBannerProps) {
   const presetColors = styleMap[data.style] || styleMap["mario-red"]
-  const imageUrl = data.image ? getStrapiImageUrl(data.image, "large") : null
+  const imageUrl = data.image ? data.image.url : null
   const mode =
     data.banner_style === "original-picture" && imageUrl
       ? "original-picture"

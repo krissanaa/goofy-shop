@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import type { PageSection } from '@/lib/strapi-types';
+import type { PageSection } from '@/lib/types/cms';
 import { DynamicHero } from '@/components/sections/dynamic-hero';
 import { DynamicMarquee } from '@/components/sections/dynamic-marquee';
 import { DynamicRetroBanner } from '@/components/sections/dynamic-retro-banner';

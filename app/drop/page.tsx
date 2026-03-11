@@ -3,12 +3,12 @@ import { Footer } from "@/components/footer"
 import { HypeDropCountdown } from "@/components/hype-drop-countdown"
 import { NavbarServer } from "@/components/navbar-server"
 import { SearchCommand } from "@/components/search-command"
-import { getActiveDropEvent, getResolvedGlobalConfig } from "@/lib/strapi"
+import { getActiveDropEvent } from "@/lib/api"
+import { defaultGlobalConfig } from "@/config/defaults"
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const res = await getActiveDropEvent()
-    const drop = res?.data?.[0]
+    const drop = await getActiveDropEvent()
     if (drop) {
       return {
         title: `${drop.title} — GOOFY SHOP`,
@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DropPage() {
-  const config = await getResolvedGlobalConfig()
+  const config = defaultGlobalConfig
   const godMode = config.godMode
   const showNavbar = !godMode.enabled || godMode.aboveFold.showNavbar
   const showFooter = !godMode.enabled || godMode.bottom.showFooter
@@ -34,21 +34,17 @@ export default async function DropPage() {
   let heroBannerUrl: string | null = null
 
   try {
-    const res = await getActiveDropEvent()
-    const drop = res?.data?.[0]
+    const drop = await getActiveDropEvent()
     if (drop) {
       dropTitle = drop.title
-      dropDate = new Date(drop.release_date)
+      dropDate = new Date(drop.drop_date)
       dropSubtitle = dropDate.toLocaleDateString('en-US', {
         month: 'long', day: 'numeric', year: 'numeric',
       }) + ' at ' + dropDate.toLocaleTimeString('en-US', {
         hour: 'numeric', minute: '2-digit', timeZoneName: 'short',
       })
-      if (drop.hero_banner?.url) {
-        const base = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
-        heroBannerUrl = drop.hero_banner.url.startsWith('http')
-          ? drop.hero_banner.url
-          : `${base}${drop.hero_banner.url}`
+      if (drop.teaser_image) {
+        heroBannerUrl = drop.teaser_image
       }
     }
   } catch {}

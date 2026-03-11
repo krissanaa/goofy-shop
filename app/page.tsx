@@ -4,52 +4,48 @@ import { Footer } from "@/components/footer"
 import { NavbarServer } from "@/components/navbar-server"
 import { PromoCodeBanner } from "@/components/promo-code-banner"
 import { SearchCommand } from "@/components/search-command"
-import { getHomePage, getResolvedGlobalConfig } from "@/lib/strapi"
+import { defaultHomePageSections, defaultGlobalConfig, defaultSeoTitle, defaultSeoDescription } from "@/config/defaults"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const homePage = await getHomePage()
-
   return {
-    title: homePage.seoTitle,
-    description: homePage.seoDescription,
+    title: defaultSeoTitle,
+    description: defaultSeoDescription,
     openGraph: {
-      title: homePage.seoTitle,
-      description: homePage.seoDescription,
+      title: defaultSeoTitle,
+      description: defaultSeoDescription,
       type: "website",
     },
   }
 }
 
 export default async function HomePage() {
-  const [homePage, globalConfig] = await Promise.all([
-    getHomePage(),
-    getResolvedGlobalConfig(),
-  ])
+  const homePageSections = defaultHomePageSections
+  const globalConfig = defaultGlobalConfig
 
   const godMode = globalConfig.godMode
   const showNavbar = !godMode.enabled || godMode.aboveFold.showNavbar
   const showFooter = !godMode.enabled || godMode.bottom.showFooter
   const showPromoBanner =
     godMode.enabled && godMode.conversion.showPromoCodeBanner
-  const slideshowIndex = homePage.sections.findIndex(
+  const slideshowIndex = homePageSections.findIndex(
     (section) => section.__component === "sections.slideshow",
   )
-  const marqueeIndex = homePage.sections.findIndex(
+  const marqueeIndex = homePageSections.findIndex(
     (section) => section.__component === "sections.marquee-text",
   )
 
-  const sectionsToRender = homePage.sections.filter((_, index) => {
+  const sectionsToRender = homePageSections.filter((_, index) => {
     if (index === slideshowIndex || index === marqueeIndex) return false
     return true
   })
 
   if (slideshowIndex >= 0) {
-    sectionsToRender.unshift(homePage.sections[slideshowIndex])
+    sectionsToRender.unshift(homePageSections[slideshowIndex])
   }
 
   if (marqueeIndex >= 0) {
     const insertAt = slideshowIndex >= 0 ? 1 : 0
-    sectionsToRender.splice(insertAt, 0, homePage.sections[marqueeIndex])
+    sectionsToRender.splice(insertAt, 0, homePageSections[marqueeIndex])
   }
 
   return (
@@ -68,7 +64,7 @@ export default async function HomePage() {
           />
         ) : null}
 
-        <DynamicZoneRenderer sections={sectionsToRender} />
+        <DynamicZoneRenderer sections={sectionsToRender as any} />
       </div>
 
       {showFooter ? <Footer /> : null}

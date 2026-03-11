@@ -1,19 +1,26 @@
-import { NextRequest } from "next/server";
-import { getProducts } from "@/lib/strapi";
-import { ok, withApiHandler } from "@/lib/server/response";
+import { NextResponse } from "next/server"
+import { supabase } from "@/lib/supabase"
 
-export const dynamic = "force-dynamic";
+export async function GET() {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, slug, name, category, price")
+      .order("created_at", { ascending: false })
 
-export const GET = withApiHandler(async (_request: NextRequest) => {
-  const response = await getProducts({ revalidate: 0 });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-  return ok({
-    items: response.data.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      category: product.category?.title ?? "Product",
-      price: product.price,
-    })),
-  });
-});
+    return NextResponse.json({
+      data: {
+        items: data || [],
+      },
+    })
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
+  }
+}

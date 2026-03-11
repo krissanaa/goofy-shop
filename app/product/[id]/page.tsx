@@ -5,7 +5,8 @@ import { NavbarServer } from "@/components/navbar-server"
 import { ProductDetail } from "@/components/product-detail"
 import { PromoCodeBanner } from "@/components/promo-code-banner"
 import { SearchCommand } from "@/components/search-command"
-import { getProductBySlug, getResolvedGlobalConfig, getStrapiImageUrl } from "@/lib/strapi"
+import { getProductBySlug } from "@/lib/api"
+import { defaultGlobalConfig } from "@/config/defaults"
 
 interface ProductPageProps {
   params: Promise<{ id: string }>
@@ -15,9 +16,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const { id } = await params
 
   try {
-    const strapiResponse = await getProductBySlug(id)
-    if (strapiResponse.data.length > 0) {
-      const product = strapiResponse.data[0]
+    const product = await getProductBySlug(id)
+    if (product) {
       return {
         title: `${product.name} - GOOFY SHOP`,
         description: product.description || "",
@@ -29,10 +29,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const [{ id }, config] = await Promise.all([
-    params,
-    getResolvedGlobalConfig(),
-  ])
+  const { id } = await params
+  const config = defaultGlobalConfig
 
   const godMode = config.godMode
   const showNavbar = !godMode.enabled || godMode.aboveFold.showNavbar
@@ -41,33 +39,31 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const showStockWarning = !godMode.enabled || godMode.conversion.showStockWarning
 
   try {
-    const strapiResponse = await getProductBySlug(id)
-    if (strapiResponse.data.length > 0) {
-      const strapiProduct = strapiResponse.data[0]
-
+    const supabaseProduct = await getProductBySlug(id)
+    if (supabaseProduct) {
       const product = {
-        id: strapiProduct.slug,
-        slug: strapiProduct.slug,
-        name: strapiProduct.name,
-        description: strapiProduct.description || undefined,
-        price: strapiProduct.price,
-        originalPrice: strapiProduct.compare_at_price,
+        id: supabaseProduct.slug,
+        slug: supabaseProduct.slug,
+        name: supabaseProduct.name,
+        description: supabaseProduct.description || undefined,
+        price: Number(supabaseProduct.price),
+        originalPrice: supabaseProduct.original_price ? Number(supabaseProduct.original_price) : null,
         image:
-          strapiProduct.images?.length > 0
-            ? getStrapiImageUrl(strapiProduct.images[0], "large")
+          supabaseProduct.images?.length > 0
+            ? supabaseProduct.images[0]
             : "/images/placeholder.jpg",
         images:
-          strapiProduct.images?.length > 0
-            ? strapiProduct.images.map((img) => ({
-                url: getStrapiImageUrl(img, "large"),
-                alt: img.alternativeText || strapiProduct.name,
+          supabaseProduct.images?.length > 0
+            ? supabaseProduct.images.map((img: string) => ({
+                url: img,
+                alt: supabaseProduct.name,
               }))
             : [],
-        category: strapiProduct.category?.title || "Uncategorized",
-        stock: strapiProduct.stock_quantity,
-        isLimited: strapiProduct.is_limited,
-        isSoldOut: strapiProduct.is_sold_out,
-        specs: strapiProduct.specs,
+        category: supabaseProduct.category || "Uncategorized",
+        stock: supabaseProduct.stock,
+        isLimited: false, // Map if needed
+        isSoldOut: supabaseProduct.stock <= 0,
+        specs: {}, // Map if needed
       }
 
       return (

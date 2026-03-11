@@ -4,10 +4,10 @@ import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/hooks/use-cart'
 import { Toaster } from '@/components/ui/toaster'
 import { TRPCProvider } from '@/components/trpc-provider'
-import { getResolvedGlobalConfig } from '@/lib/strapi'
 import { GlobalConfigProvider } from '@/components/global-config-provider'
 import { CookiePolicyBar } from '@/components/cookie-policy-bar'
 import { GlobalWatermark } from '@/components/global-watermark'
+import { defaultGlobalConfig } from '@/config/defaults'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 })
 
 export async function generateMetadata(): Promise<Metadata> {
-  const config = await getResolvedGlobalConfig()
+  const config = defaultGlobalConfig
   return {
     title: `${config.siteName} - Streetwear & Skate`,
     description: config.siteDescription,
@@ -47,7 +47,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const config = await getResolvedGlobalConfig()
+  const config = defaultGlobalConfig
   const watermarkText =
     config.siteDescription?.trim() || config.siteName || "GOOFY"
 

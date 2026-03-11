@@ -1,9 +1,7 @@
-import { getStrapiImageUrl } from "@/lib/strapi"
-import type { SlideshowData } from "@/lib/strapi-types"
 import { HeroSection, type HeroStat } from "@/components/sections/HeroSection"
 
 interface DynamicSlideshowProps {
-  data: SlideshowData
+  data: any
 }
 
 const fallbackSlides = [
@@ -19,8 +17,8 @@ const fallbackStats: HeroStat[] = [
 export function DynamicSlideshow({ data }: DynamicSlideshowProps) {
   const slides = !data.slides?.length
     ? fallbackSlides
-    : data.slides.map((slide, index) => ({
-        src: getStrapiImageUrl(slide, "large"),
+    : data.slides.map((slide: any, index: number) => ({
+        src: slide.url,
         alt: slide.alternativeText || `Slideshow image ${index + 1}`,
       }))
 

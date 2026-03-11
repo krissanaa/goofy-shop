@@ -1,5 +1,3 @@
-import type { HeroSectionData } from "@/lib/strapi-types"
-import { getStrapiImageUrl } from "@/lib/strapi"
 import { HeroSection, type HeroStat } from "@/components/sections/HeroSection"
 
 interface DynamicHeroProps {
@@ -65,11 +63,11 @@ function normalizeStats(
 }
 
 export function DynamicHero({ data }: DynamicHeroProps) {
-  const slides = data.background_image
+  const slides = (data as any).background_image
     ? [
         {
-          src: getStrapiImageUrl(data.background_image, "large"),
-          alt: data.background_image.alternativeText || data.title,
+          src: (data as any).background_image.url,
+          alt: (data as any).background_image.alternativeText || data.title,
         },
       ]
     : fallbackSlide

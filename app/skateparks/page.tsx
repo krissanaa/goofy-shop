@@ -3,10 +3,11 @@ import { Footer } from "@/components/footer"
 import { NavbarServer } from "@/components/navbar-server"
 import { SearchCommand } from "@/components/search-command"
 import { SkateparksPage } from "@/components/skateparks-page"
-import { getLocationsPage, getResolvedGlobalConfig } from "@/lib/strapi"
+import { getSkateparks } from "@/lib/api"
+import { defaultGlobalConfig, defaultLocationsPageConfig } from "@/config/defaults"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locationsPage = await getLocationsPage()
+  const locationsPage = defaultLocationsPageConfig
   return {
     title: locationsPage.seoTitle,
     description: locationsPage.seoDescription,
@@ -19,10 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SkateparksRoute() {
-  const [globalConfig, locationsPage] = await Promise.all([
-    getResolvedGlobalConfig(),
-    getLocationsPage(),
-  ])
+  const globalConfig = defaultGlobalConfig
+  const locationsPageConfig = defaultLocationsPageConfig
+  const supabaseSkateparks = await getSkateparks()
 
   const godMode = globalConfig.godMode
   const showNavbar = !godMode.enabled || godMode.aboveFold.showNavbar
@@ -34,9 +34,30 @@ export default async function SkateparksRoute() {
 
       <div className={showNavbar ? "pt-16" : undefined}>
         <SkateparksPage
-          pageTitle={locationsPage.pageTitle}
-          searchPlaceholder={locationsPage.searchPlaceholder}
-          parks={locationsPage.parks}
+          pageTitle={locationsPageConfig.pageTitle}
+          searchPlaceholder={locationsPageConfig.searchPlaceholder}
+          parks={supabaseSkateparks.length > 0 ? supabaseSkateparks.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            address: p.address,
+            placeCode: p.city,
+            categoryLabel: 'Skatepark',
+            reviewSnippet: '',
+            rating: Number(p.rating),
+            reviewsCount: p.review_count,
+            status: p.open ? 'open' : 'closed',
+            opensText: p.hours,
+            accessType: 'free',
+            environmentType: 'outdoor',
+            hasBowl: false,
+            hasStreet: true,
+            hasNight: false,
+            tags: p.tags || [],
+            distance: '',
+            photoCount: p.photo_count,
+            mapsQuery: `${p.name}, ${p.city}`,
+            imageUrl: p.photo || '/placeholder.jpg',
+          })) : locationsPageConfig.parks}
         />
       </div>
 

@@ -10,8 +10,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const productUrl = `/product/${(product as any).slug || product.id}`
   return (
-    <Link href={`/product/${product.id}`} className="group block">
+    <Link href={productUrl} className="group block">
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <Image
           src={product.image}

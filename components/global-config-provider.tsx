@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext } from "react"
-import type { ResolvedGlobalConfig } from "@/lib/strapi-types"
+import type { ResolvedGlobalConfig } from "@/lib/types/cms"
 import { defaultGlobalConfig } from "@/config/defaults"
 
 const GlobalConfigContext = createContext<ResolvedGlobalConfig>(defaultGlobalConfig)

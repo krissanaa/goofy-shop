@@ -13,15 +13,17 @@ import {
 } from "@/components/product-grid-client"
 import { ProductsHeroScene } from "@/components/sections/products-hero-scene"
 import { DEFAULT_HOME_MARQUEE_ITEMS } from "@/lib/marquee"
-import type { MarqueeTextData, ProductBadge } from "@/lib/strapi-types"
 import {
   getCategories,
-  getHomePage,
   getProducts,
-  getProductsPage,
-  getResolvedGlobalConfig,
-  getStrapiImageUrl,
-} from "@/lib/strapi"
+} from "@/lib/api"
+import {
+  defaultGlobalConfig,
+  defaultProductsPageConfig,
+  defaultHomePageSections
+} from "@/config/defaults"
+
+export type ProductBadge = 'NEW' | 'DROP' | 'SALE' | 'HOT' | 'COLLAB';
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -53,7 +55,7 @@ const BADGE_FILTER_MAP: Record<string, ProductBadge> = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const config = await getProductsPage()
+  const config = defaultProductsPageConfig
   return {
     title: config.seoTitle,
     description: config.seoDescription,
@@ -66,10 +68,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const [pageConfig, globalConfig] = await Promise.all([
-    getProductsPage(),
-    getResolvedGlobalConfig(),
-  ])
+  const pageConfig = defaultProductsPageConfig
+  const globalConfig = defaultGlobalConfig
   const godMode = globalConfig.godMode
   const showNavbar = !godMode.enabled || godMode.aboveFold.showNavbar
   const showFooter = !godMode.enabled || godMode.bottom.showFooter
@@ -85,7 +85,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     pageConfig.enableTopStats &&
     (!godMode.enabled || godMode.socialProof.showNumberStats)
 
-  const homePage = showMarquee ? await getHomePage() : null
+  const homePageSections = defaultHomePageSections
   const params = await searchParams
   const requestedCategory = params.category
     ? decodeURIComponent(params.category)
@@ -117,52 +117,50 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     ? params.favorites === "1" || params.favorites === "true"
     : pageConfig.initialFavoritesOnly
 
-  const [strapiProducts, strapiCategories] = await Promise.allSettled([
+  const [supabaseProducts, supabaseCategories] = await Promise.allSettled([
     getProducts(),
     getCategories(),
   ])
 
   const products =
-    strapiProducts.status === "fulfilled" && strapiProducts.value?.data?.length
-      ? strapiProducts.value.data.map((p) => ({
+    supabaseProducts.status === "fulfilled" && supabaseProducts.value?.length
+      ? supabaseProducts.value.map((p) => ({
           id: p.slug,
           slug: p.slug,
           name: p.name,
           description: p.description || undefined,
-          price: p.price,
-          originalPrice: p.compare_at_price ?? undefined,
+          price: Number(p.price),
+          originalPrice: p.original_price ? Number(p.original_price) : undefined,
           badge: p.badge ?? undefined,
-          isActive: !p.is_sold_out,
-          isDropProduct: p.is_limited,
-          createdAt:
-            (p as { publishedAt?: string; createdAt?: string }).publishedAt ||
-            (p as { createdAt?: string }).createdAt,
+          isActive: p.stock > 0,
+          isDropProduct: false, // Map if needed
+          createdAt: p.created_at,
           images:
             p.images?.length > 0
               ? [
                   {
-                    url: getStrapiImageUrl(p.images[0], "medium"),
-                    alt: p.images[0].alternativeText || p.name,
+                    url: p.images[0],
+                    alt: p.name,
                   },
                 ]
               : [],
           categories: p.category
-            ? [{ title: p.category.title, slug: p.category.slug }]
+            ? [{ title: p.category, slug: p.category.toLowerCase() }]
             : [],
           variants: [
             {
               id: p.slug,
               name: p.name,
-              price: p.price,
-              stock: p.stock_quantity,
+              price: Number(p.price),
+              stock: p.stock,
             },
           ],
         }))
       : []
 
   const categoryData =
-    strapiCategories.status === "fulfilled" && strapiCategories.value?.data?.length
-      ? strapiCategories.value.data
+    supabaseCategories.status === "fulfilled" && supabaseCategories.value?.length
+      ? supabaseCategories.value
       : []
 
   const categoryNames =
@@ -185,8 +183,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     ) ??
     "All"
   const homeMarqueeSections = (
-    homePage?.sections.filter(
-      (section): section is MarqueeTextData =>
+    homePageSections.filter(
+      (section): section is any =>
         section.__component === "sections.marquee-text",
     ) ?? []
   )

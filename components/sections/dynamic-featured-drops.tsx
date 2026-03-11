@@ -1,8 +1,7 @@
 import { FeaturedDrops } from "@/components/featured-drops"
-import type { FeaturedDropsData } from "@/lib/strapi-types"
 
 interface DynamicFeaturedDropsProps {
-  data: FeaturedDropsData
+  data: any
 }
 
 export function DynamicFeaturedDrops({ data }: DynamicFeaturedDropsProps) {

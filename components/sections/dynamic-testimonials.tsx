@@ -1,7 +1,5 @@
-import type { TestimonialsData } from "@/lib/strapi-types"
-
 interface DynamicTestimonialsProps {
-  data: TestimonialsData
+  data: any
 }
 
 interface TestimonialItem {
@@ -15,7 +13,7 @@ const FALLBACK_ITEMS: TestimonialItem[] = [
   { quote: "Drop day support was quick, and the deck arrived perfect.", author: "Jordan K." },
 ]
 
-function normalizeItems(items: TestimonialsData["items"]): TestimonialItem[] {
+function normalizeItems(items: any[]): TestimonialItem[] {
   if (!Array.isArray(items) || items.length === 0) return FALLBACK_ITEMS
 
   const parsed = items
