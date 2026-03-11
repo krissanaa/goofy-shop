@@ -48,9 +48,16 @@ export interface StrapiProduct {
   compare_at_price: number | null;
   sku: string;
   badge: ProductBadge | null;
+  brand_name?: string | null;
   stock_quantity: number;
   is_limited: boolean;
   is_sold_out: boolean;
+  sale_end_date?: string | null;
+  views_count?: number | null;
+  sold_count?: number | null;
+  average_rating?: number | null;
+  limit_per_customer?: number | null;
+  waitlist_count?: number | null;
   specs: Record<string, string> | null;
   images: StrapiImage[];
   category: StrapiCategory | null;
@@ -64,6 +71,8 @@ export interface StrapiDropEvent {
   title: string;
   description: string | null;
   release_date: string;
+  end_date?: string | null;
+  entered_count?: number | null;
   is_active: boolean;
   entryCount?: number;
   hero_banner: StrapiImage | null;
@@ -597,6 +606,7 @@ export async function getResolvedGlobalConfig(): Promise<ResolvedGlobalConfig> {
       background: d.themeBackground || defaultGlobalConfig.theme.background,
       foreground: d.themeForeground || defaultGlobalConfig.theme.foreground,
     },
+    saleEndDate: d.saleEndDate ?? defaultGlobalConfig.saleEndDate,
     footer: {
       copyrightText: d.copyrightText || defaultGlobalConfig.footer.copyrightText,
       socialLinks: d.socialLinks?.length

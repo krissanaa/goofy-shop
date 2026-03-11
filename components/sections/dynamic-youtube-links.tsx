@@ -232,7 +232,7 @@ export function DynamicYoutubeLinks({ data }: DynamicYoutubeLinksProps) {
   const items = normalizeItems(data.items)
 
   return (
-    <section className="bg-[#F1EEE8] py-12">
+    <section id="videos" className="bg-[#F1EEE8] py-12">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="inline-flex items-center border-4 border-black bg-black px-4 py-2 shadow-[4px_4px_0_#FBD000]">
           <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#FBD000]">

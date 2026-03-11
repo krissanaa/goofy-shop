@@ -243,6 +243,8 @@ export interface SectionsSlideshow extends Struct.ComponentSchema {
       Schema.Attribute.DefaultTo<6>;
     badge_text: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'SS26 Collection'>;
+    bottom_note_text: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'GOOFY SKATE COMMUNITY LAOS'>;
     description: Schema.Attribute.Text &
       Schema.Attribute.DefaultTo<'Premium skate hardware and streetwear essentials. Limited drops, exclusive collabs, zero compromises.'>;
     heading_highlight: Schema.Attribute.String &

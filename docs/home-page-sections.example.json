@@ -1,0 +1,215 @@
+{
+  "seo_title": "GOOFY SHOP - Streetwear & Skate",
+  "seo_description": "GOOFY is the first skateboard shop and skate community in Laos. Premium hardware and limited drops.",
+  "page_sections": [
+    {
+      "__component": "sections.slideshow",
+      "id": 0,
+      "autoplay_seconds": 6,
+      "show_dots": true,
+      "show_overlay_text": true,
+      "show_buttons": true,
+      "show_stats": true,
+      "badge_text": "GOOFY LAOS",
+      "heading_line_1": "LAOS",
+      "heading_highlight": "SKATE",
+      "heading_line_2": "CULTURE",
+      "description": "First skateboard shop & community in Laos",
+      "primary_cta_text": "SHOP NOW",
+      "primary_cta_link": "/products",
+      "secondary_cta_text": "WATCH US SKATE ▶",
+      "secondary_cta_link": "#videos",
+      "bottom_note_text": "GOOFY SKATE COMMUNITY LAOS",
+      "stats": [
+        { "value": "50+", "label": "Products", "color": "#F8B800" },
+        { "value": "100+", "label": "Community", "color": "#F8B800" },
+        { "value": "20+", "label": "Videos", "color": "#F8B800" }
+      ]
+    },
+    {
+      "__component": "sections.marquee-text",
+      "id": 1,
+      "items": [
+        "NEW DROP",
+        "SS26 BRICK PACK",
+        "FREE SHIPPING",
+        "LAOS SKATE"
+      ],
+      "background_color": "#F8B800",
+      "text_color": "#1A1614",
+      "speed": "normal"
+    },
+    {
+      "__component": "sections.featured-drops",
+      "id": 2,
+      "title": "Hype Drops",
+      "subtitle": "Latest drop picks",
+      "limit": 4,
+      "badge_filter": "DROP",
+      "show_timer": true
+    },
+    {
+      "__component": "sections.category-row",
+      "id": 3,
+      "title": "SHOP BY CATEGORY",
+      "items": [
+        {
+          "title": "Decks",
+          "subtitle": "Street and park setups",
+          "link": "/products?category=decks",
+          "accentColor": "#F8B800"
+        },
+        {
+          "title": "Wheels",
+          "subtitle": "Grip, speed, and control",
+          "link": "/products?category=wheels",
+          "accentColor": "#F8B800"
+        },
+        {
+          "title": "Apparel",
+          "subtitle": "Daily wear and skate fits",
+          "link": "/products?category=apparel",
+          "accentColor": "#F8B800"
+        },
+        {
+          "title": "Trucks",
+          "subtitle": "Precision turning hardware",
+          "link": "/products?category=trucks",
+          "accentColor": "#F8B800"
+        },
+        {
+          "title": "Gear",
+          "subtitle": "Tools, bags, and session extras",
+          "link": "/products?category=gear",
+          "accentColor": "#F8B800"
+        },
+        {
+          "title": "Accessories",
+          "subtitle": "Wax, grip, pins, and extras",
+          "link": "/products?category=accessories",
+          "accentColor": "#F8B800"
+        }
+      ]
+    },
+    {
+      "__component": "sections.new-arrivals",
+      "id": 4,
+      "title": "NEW ARRIVALS",
+      "subtitle": "Latest setups, apparel, and fresh stock straight into the shop.",
+      "limit": 4,
+      "badge_filter": "NEW"
+    },
+    {
+      "__component": "sections.new-arrivals",
+      "id": 5,
+      "title": "SALE",
+      "subtitle": "Current markdowns moving fast while sizes and stock still hold.",
+      "limit": 4,
+      "badge_filter": "SALE"
+    },
+    {
+      "__component": "sections.new-arrivals",
+      "id": 6,
+      "title": "HOT TRENDING",
+      "subtitle": "What the community is checking, buying, and talking about most.",
+      "limit": 4,
+      "badge_filter": "HOT"
+    },
+    {
+      "__component": "sections.new-arrivals",
+      "id": 7,
+      "title": "COLLAB",
+      "subtitle": "Limited partnership stock, controlled access, and faster sell-through.",
+      "limit": 4,
+      "badge_filter": "COLLAB"
+    },
+    {
+      "__component": "sections.youtube-links",
+      "id": 8,
+      "title": "VIDEOS",
+      "subtitle": "Latest edits, tutorials, and setup videos.",
+      "card_style": "original-picture",
+      "items": [
+        {
+          "title": "Street Session Highlights",
+          "label": "EDIT",
+          "date": "2026-03-01",
+          "duration": "06:42",
+          "color_name": "red",
+          "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        },
+        {
+          "title": "Kickflip Basics in 5 Minutes",
+          "label": "TUTORIAL",
+          "date": "2026-02-21",
+          "duration": "05:14",
+          "color_name": "yellow",
+          "url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+        },
+        {
+          "title": "Deck Setup: Trucks + Wheels",
+          "label": "HOW TO",
+          "date": "2026-02-10",
+          "duration": "08:09",
+          "color_name": "blue",
+          "url": "https://www.youtube.com/watch?v=jNQXAC9IVRw"
+        },
+        {
+          "title": "Best Flatground Tricks This Week",
+          "label": "WEEKLY",
+          "date": "2026-01-29",
+          "duration": "04:33",
+          "color_name": "green",
+          "url": "https://www.youtube.com/watch?v=oHg5SJYRHA0"
+        }
+      ]
+    },
+    {
+      "__component": "sections.sponsor-strip",
+      "id": 9,
+      "title": "TRUSTED BY THE CULTURE",
+      "logos": [
+        {
+          "name": "BAKER",
+          "url": "https://www.bakerskateboards.com",
+          "logoUrl": "https://logo.clearbit.com/bakerskateboards.com"
+        },
+        {
+          "name": "PALACE",
+          "url": "https://www.palaceskateboards.com",
+          "logoUrl": "https://logo.clearbit.com/palaceskateboards.com"
+        },
+        {
+          "name": "PRIMITIVE",
+          "url": "https://primitiveskate.com",
+          "logoUrl": "https://logo.clearbit.com/primitiveskate.com"
+        },
+        {
+          "name": "ENJOI",
+          "url": "https://enjoico.com",
+          "logoUrl": "https://logo.clearbit.com/enjoico.com"
+        },
+        {
+          "name": "SANTA CRUZ",
+          "url": "https://santacruzskateboards.com",
+          "logoUrl": "https://logo.clearbit.com/santacruzskateboards.com"
+        },
+        {
+          "name": "ELEMENT",
+          "url": "https://www.elementbrand.com",
+          "logoUrl": "https://logo.clearbit.com/elementbrand.com"
+        },
+        {
+          "name": "GIRL",
+          "url": "https://www.girlskateboards.com",
+          "logoUrl": "https://logo.clearbit.com/girlskateboards.com"
+        },
+        {
+          "name": "REAL",
+          "url": "https://www.realskateboards.com",
+          "logoUrl": "https://logo.clearbit.com/realskateboards.com"
+        }
+      ]
+    }
+  ]
+}

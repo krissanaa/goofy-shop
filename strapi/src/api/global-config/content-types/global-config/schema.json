@@ -85,6 +85,9 @@
       "type": "string",
       "default": "#1a1a2e"
     },
+    "saleEndDate": {
+      "type": "datetime"
+    },
     "copyrightText": {
       "type": "string",
       "default": "© 2026 Goofy Shop. All rights reserved."

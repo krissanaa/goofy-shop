@@ -409,3 +409,48 @@
     background-position: 100% 50%;
   }
 }
+
+@keyframes watermark-fade {
+  0%, 100% {
+    opacity: 0.72;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-10px);
+  }
+}
+
+.watermark-float {
+  animation: watermark-fade 14s ease-in-out infinite;
+}
+
+@keyframes sale-flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes sale-dot-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(229, 34, 34, 0.35);
+  }
+  60% {
+    opacity: 0.7;
+    transform: scale(1.16);
+    box-shadow: 0 0 0 10px rgba(229, 34, 34, 0);
+  }
+}
+
+.sale-urgency-flash {
+  animation: sale-flash 1.4s ease-in-out infinite;
+}
+
+.sale-dot-pulse {
+  animation: sale-dot-pulse 1.2s ease-out infinite;
+}

@@ -8,6 +8,48 @@ interface DynamicHeroProps {
 
 const fallbackSlide = [{ src: "/images/hero-1.jpg", alt: "Streetwear hero image" }]
 
+function resolveTitleLines(rawTitle: string | null): {
+  line1: string
+  line2: string
+  line3: string
+} {
+  const fallback = {
+    line1: "LAOS",
+    line2: "SKATE",
+    line3: "CULTURE",
+  }
+
+  const title = rawTitle?.trim()
+  if (!title) return fallback
+
+  const parts = title
+    .split(/\r?\n|[|/]/g)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0)
+
+  if (parts.length >= 3) {
+    return {
+      line1: parts[0],
+      line2: parts[1],
+      line3: parts[2],
+    }
+  }
+
+  if (parts.length === 2) {
+    return {
+      line1: parts[0],
+      line2: parts[1],
+      line3: fallback.line3,
+    }
+  }
+
+  return {
+    line1: parts[0],
+    line2: fallback.line2,
+    line3: fallback.line3,
+  }
+}
+
 function normalizeStats(
   stats: HeroSectionData["stats"],
 ): HeroStat[] | undefined {
@@ -32,21 +74,23 @@ export function DynamicHero({ data }: DynamicHeroProps) {
       ]
     : fallbackSlide
 
-  const description = data.subtitle?.trim() || undefined
+  const description =
+    data.subtitle?.trim() || "First skateboard shop & community in Laos"
+  const titleLines = resolveTitleLines(data.title)
 
   return (
     <HeroSection
       slides={slides}
       showDots={false}
-      badgeText={data.badge_text?.trim() || "SS26 COLLECTION"}
-      headingLine1={data.title?.trim() || "BUILT FOR THE"}
-      headingLine2="STREETS."
-      headingLine3="WORN BY THE CULTURE."
+      badgeText={data.badge_text?.trim() || "GOOFY LAOS"}
+      headingLine1={titleLines.line1}
+      headingLine2={titleLines.line2}
+      headingLine3={titleLines.line3}
       description={description}
       primaryAction={
         data.cta_text?.trim() && data.cta_link?.trim()
           ? { label: data.cta_text.trim(), href: data.cta_link.trim() }
-          : undefined
+          : { label: "SHOP NOW", href: "/products" }
       }
       secondaryAction={
         data.secondary_cta_text?.trim() && data.secondary_cta_link?.trim()
@@ -54,7 +98,7 @@ export function DynamicHero({ data }: DynamicHeroProps) {
               label: data.secondary_cta_text.trim(),
               href: data.secondary_cta_link.trim(),
             }
-          : undefined
+          : { label: "WATCH US SKATE \u25B6", href: "#videos" }
       }
       stats={normalizeStats(data.stats)}
     />

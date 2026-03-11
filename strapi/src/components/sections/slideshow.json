@@ -69,6 +69,10 @@
       "type": "string",
       "default": "#products"
     },
+    "bottom_note_text": {
+      "type": "string",
+      "default": "GOOFY SKATE COMMUNITY LAOS"
+    },
     "stats": {
       "type": "json",
       "default": [
@@ -79,5 +83,3 @@
     }
   }
 }
-
-

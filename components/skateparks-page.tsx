@@ -58,6 +58,14 @@ export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: Skatepar
   const [query, setQuery] = useState("")
   const [saved, setSaved] = useState<Set<string>>(new Set())
   const [shareMessage, setShareMessage] = useState<string | null>(null)
+  const openCount = useMemo(
+    () => parks.filter((park) => park.status === "open").length,
+    [parks],
+  )
+  const freeCount = useMemo(
+    () => parks.filter((park) => park.accessType === "free").length,
+    [parks],
+  )
 
   const filtered = useMemo(() => {
     const search = query.trim().toLowerCase()
@@ -151,10 +159,59 @@ export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: Skatepar
 
   return (
     <section className="mx-auto w-full max-w-[1280px] px-4 pb-14 pt-8 md:px-8">
-      <div className="inline-flex items-center border-4 border-black bg-black px-4 py-2 shadow-[4px_4px_0_#FBD000]">
-        <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#FBD000]">
-          {`* ${pageTitle}`}
-        </span>
+      <div className="grid gap-4 border-4 border-black bg-black p-5 text-white shadow-[6px_6px_0_#FBD000] lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
+        <div>
+          <p className="inline-flex border border-[#FBD000] bg-[#FBD000] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-black">
+            {pageTitle}
+          </p>
+          <h1 className="mt-4 text-[clamp(34px,5vw,58px)] font-black uppercase leading-[0.92] tracking-[-0.04em] text-white">
+            Skate spots across Laos
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/72 md:text-base">
+            Find local parks, save session spots, and open directions fast. This page should feel useful, not empty, so the important park info now starts at the top.
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=skate+parks+laos"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border-2 border-black bg-[#FBD000] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-black shadow-[2px_2px_0_#0A0A0A] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+            >
+              View full map
+            </a>
+
+            <a
+              href="mailto:parks@goofyshop.com?subject=Suggest%20a%20Skate%20Park"
+              className="border-2 border-white bg-transparent px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white"
+            >
+              Suggest a park
+            </a>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+          <div className="border-2 border-black bg-white px-4 py-4 text-black">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-black/60">
+              Listed parks
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#E70009]">{parks.length}</p>
+          </div>
+
+          <div className="border-2 border-black bg-white px-4 py-4 text-black">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-black/60">
+              Open now
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#00AA00]">{openCount}</p>
+          </div>
+
+          <div className="border-2 border-black bg-white px-4 py-4 text-black">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-black/60">
+              Free entry
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#2B7FFF]">{freeCount}</p>
+          </div>
+        </div>
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2 border-2 border-black bg-[#EFEFEF] p-2">
@@ -315,32 +372,6 @@ export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: Skatepar
             )
           })
         )}
-      </div>
-
-      <div className="mt-5 border-4 border-black bg-[#E70009] p-5 shadow-[4px_4px_0_#0A0A0A]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="font-mono text-sm font-bold uppercase text-white">
-            {filtered.length} parks found
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=skate+parks+laos"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border-2 border-black bg-[#FBD000] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-black shadow-[2px_2px_0_#0A0A0A] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
-            >
-              View Full Map
-            </a>
-
-            <a
-              href="mailto:parks@goofyshop.com?subject=Suggest%20a%20Skate%20Park"
-              className="border-2 border-black bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-black shadow-[2px_2px_0_#0A0A0A] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
-            >
-              Suggest a Park
-            </a>
-          </div>
-        </div>
       </div>
 
       {shareMessage ? (

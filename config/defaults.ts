@@ -11,7 +11,7 @@
 
 export const defaultGlobalConfig: ResolvedGlobalConfig = {
   siteName: 'GOOFY SHOP',
-  siteDescription: 'Premium streetwear and skateboard essentials. Limited drops, exclusive collabs, zero compromises.',
+  siteDescription: 'GOOFY is the first skateboard shop and skate community in Laos. Built for the streets, worn by the culture.',
   logoUrl: null,
   faviconUrl: null,
   mainMenu: [
@@ -43,6 +43,7 @@ export const defaultGlobalConfig: ResolvedGlobalConfig = {
     background: '#fafaf8',
     foreground: '#1a1a2e',
   },
+  saleEndDate: null,
   footer: {
     copyrightText: '(c) 2026 Goofy Shop. All rights reserved.',
     socialLinks: [
@@ -137,32 +138,32 @@ export const defaultHomePageSections: PageSection[] = [
     show_overlay_text: true,
     show_buttons: true,
     show_stats: true,
-    badge_text: 'SS26 Collection',
-    heading_line_1: 'BUILT FOR THE',
-    heading_highlight: 'STREETS.',
-    heading_line_2: 'WORN BY THE CULTURE.',
-    description: 'Premium skate hardware and streetwear essentials. Limited drops, exclusive collabs, zero compromises.',
-    primary_cta_text: 'Shop the Drop',
-    primary_cta_link: '/drop',
-    secondary_cta_text: 'Explore Collection',
-    secondary_cta_link: '#products',
+    badge_text: 'GOOFY LAOS',
+    heading_line_1: 'LAOS',
+    heading_highlight: 'SKATE',
+    heading_line_2: 'CULTURE',
+    description: 'First skateboard shop & community in Laos',
+    primary_cta_text: 'SHOP NOW',
+    primary_cta_link: '/products',
+    secondary_cta_text: 'WATCH US SKATE ▶',
+    secondary_cta_link: '#videos',
     stats: [
-      { value: '500+', label: 'Products', color: '#e52521' },
-      { value: '12K+', label: 'Skaters', color: '#049cd8' },
-      { value: '100%', label: 'Authentic', color: '#43b047' },
+      { value: '50+', label: 'Products', color: '#F8B800' },
+      { value: '100+', label: 'Community', color: '#F8B800' },
+      { value: '20+', label: 'Videos', color: '#F8B800' },
     ],
   },
   {
     __component: 'sections.marquee-text',
     id: 1,
     items: [
-      '* Free Shipping Over $150',
-      '* New Drop Coming Soon',
-      '* Limited Stock Available',
-      '* 1 Per Customer',
+      'NEW DROP',
+      'SS26 BRICK PACK',
+      'FREE SHIPPING',
+      'LAOS SKATE',
     ],
-    background_color: '#e52521',
-    text_color: '#ffffff',
+    background_color: '#F8B800',
+    text_color: '#1A1614',
     speed: 'normal',
   },
   {
@@ -189,8 +190,8 @@ export const defaultHomePageSections: PageSection[] = [
     __component: 'sections.streets-banner',
     id: 4,
     eyebrow: 'GOOFY SHOP',
-    title: 'BUILT FOR THE STREETS',
-    subtitle: 'High-performance gear made for daily sessions.',
+    title: 'GOOFY SKATE COMMUNITY LAOS',
+    subtitle: 'First skateboard community shop in Laos with high-performance gear for daily sessions.',
     cta_text: 'Shop The Drop',
     cta_link: '/products',
     background_image: null,
@@ -204,8 +205,32 @@ export const defaultHomePageSections: PageSection[] = [
     badge_filter: 'NEW',
   },
   {
-    __component: 'sections.testimonials',
+    __component: 'sections.new-arrivals',
     id: 6,
+    title: 'SALE',
+    subtitle: 'Limited markdowns moving now',
+    limit: 4,
+    badge_filter: 'SALE',
+  },
+  {
+    __component: 'sections.new-arrivals',
+    id: 7,
+    title: 'HOT TRENDING',
+    subtitle: 'What the community is watching most',
+    limit: 4,
+    badge_filter: 'HOT',
+  },
+  {
+    __component: 'sections.new-arrivals',
+    id: 8,
+    title: 'COLLAB',
+    subtitle: 'Limited partnerships and tight stock',
+    limit: 4,
+    badge_filter: 'COLLAB',
+  },
+  {
+    __component: 'sections.testimonials',
+    id: 9,
     title: 'THE VERDICT',
     items: [
       { quote: 'Best setup I have ridden all year. Fast shipping too.', author: 'Mason R.' },
@@ -215,7 +240,7 @@ export const defaultHomePageSections: PageSection[] = [
   },
   {
     __component: 'sections.sponsor-strip',
-    id: 7,
+    id: 10,
     title: 'TRUSTED BY THE CULTURE',
     logos: [
       { name: 'BAKER', url: 'https://www.bakerskateboards.com', logoUrl: 'https://logo.clearbit.com/bakerskateboards.com' },
@@ -230,7 +255,7 @@ export const defaultHomePageSections: PageSection[] = [
   },
   {
     __component: 'sections.youtube-links',
-    id: 8,
+    id: 11,
     title: 'YOUTUBE LINKS',
     subtitle: 'Latest edits, tutorials, and setup videos.',
     card_style: 'original-picture',
@@ -272,7 +297,7 @@ export const defaultHomePageSections: PageSection[] = [
 ];
 
 export const defaultSeoTitle = 'GOOFY SHOP - Streetwear & Skate';
-export const defaultSeoDescription = 'Premium streetwear and skateboard essentials. Limited drops, exclusive collabs, zero compromises.';
+export const defaultSeoDescription = 'GOOFY is the first skateboard shop and skate community in Laos. Premium hardware and limited drops.';
 
 export const defaultProductsPageConfig: ResolvedProductsPageConfig = {
   seoTitle: 'Products | GOOFY SHOP',

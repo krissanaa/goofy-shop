@@ -11,9 +11,9 @@ const fallbackSlides = [
 ]
 
 const fallbackStats: HeroStat[] = [
-  { value: "500+", label: "PRODUCTS", tone: "red" },
-  { value: "12K+", label: "SKATERS", tone: "blue" },
-  { value: "100%", label: "AUTHENTIC", tone: "green" },
+  { value: "50+", label: "PRODUCTS", tone: "yellow" },
+  { value: "100+", label: "COMMUNITY", tone: "yellow" },
+  { value: "20+", label: "VIDEOS", tone: "yellow" },
 ]
 
 export function DynamicSlideshow({ data }: DynamicSlideshowProps) {
@@ -36,17 +36,19 @@ export function DynamicSlideshow({ data }: DynamicSlideshowProps) {
   const showButtons = data.show_buttons ?? true
   const showStats = data.show_stats ?? true
 
-  const badgeText = data.badge_text?.trim() || "SS26 COLLECTION"
-  const headingLine1 = data.heading_line_1?.trim() || "BUILT FOR THE"
-  const headingHighlight = data.heading_highlight?.trim() || "STREETS."
-  const headingLine2 = data.heading_line_2?.trim() || "WORN BY THE CULTURE."
+  const badgeText = data.badge_text?.trim() || "GOOFY LAOS"
+  const headingLine1 = data.heading_line_1?.trim() || "LAOS"
+  const headingHighlight = data.heading_highlight?.trim() || "SKATE"
+  const headingLine2 = data.heading_line_2?.trim() || "CULTURE"
   const description =
     data.description?.trim() ||
-    "Premium skate hardware and streetwear essentials. Limited drops, exclusive collabs, zero compromises."
-  const primaryCtaText = data.primary_cta_text?.trim() || "Shop the Drop"
-  const primaryCtaLink = data.primary_cta_link?.trim() || "/drop"
-  const secondaryCtaText = data.secondary_cta_text?.trim() || "Explore Collection"
-  const secondaryCtaLink = data.secondary_cta_link?.trim() || "#products"
+    "First skateboard shop & community in Laos"
+  const primaryCtaText = data.primary_cta_text?.trim() || "SHOP NOW"
+  const primaryCtaLink = data.primary_cta_link?.trim() || "/products"
+  const secondaryCtaText = data.secondary_cta_text?.trim() || "WATCH US SKATE \u25B6"
+  const secondaryCtaLink = data.secondary_cta_link?.trim() || "#videos"
+  const bottomNoteText =
+    data.bottom_note_text?.trim() || "GOOFY SKATE COMMUNITY LAOS"
 
   const hasAnyAction = Boolean(primaryCtaText && primaryCtaLink) || Boolean(secondaryCtaText && secondaryCtaLink)
 
@@ -56,6 +58,7 @@ export function DynamicSlideshow({ data }: DynamicSlideshowProps) {
       autoplaySeconds={data.autoplay_seconds || 6}
       compact
       heightClassName="h-[calc(100svh-6.5rem)] min-h-[calc(100svh-6.5rem)]"
+      textVisibleOnFirstSlideOnly
       showDots={Boolean(data.show_dots)}
       showBadge={showOverlayText}
       showHeading={showOverlayText}
@@ -77,6 +80,7 @@ export function DynamicSlideshow({ data }: DynamicSlideshowProps) {
           ? { label: secondaryCtaText, href: secondaryCtaLink }
           : undefined
       }
+      bottomNoteText={bottomNoteText}
       stats={stats}
     />
   )

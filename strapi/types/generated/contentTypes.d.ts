@@ -477,6 +477,16 @@ export interface ApiDropEventDropEvent extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    end_date: Schema.Attribute.DateTime;
+    entered_count: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     featured_products: Schema.Attribute.Relation<
       'manyToMany',
       'api::product.product'
@@ -530,6 +540,7 @@ export interface ApiGlobalConfigGlobalConfig extends Struct.SingleTypeSchema {
     logo_pixel_art: Schema.Attribute.Media<'images'>;
     mainMenu: Schema.Attribute.Component<'shared.menu-item', true>;
     publishedAt: Schema.Attribute.DateTime;
+    saleEndDate: Schema.Attribute.DateTime;
     shopMenuCategoryLimit: Schema.Attribute.Integer &
       Schema.Attribute.SetMinMax<
         {
@@ -672,10 +683,12 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    average_rating: Schema.Attribute.Decimal;
     badge: Schema.Attribute.Enumeration<
       ['NEW', 'DROP', 'SALE', 'HOT', 'COLLAB']
     > &
       Schema.Attribute.DefaultTo<'NEW'>;
+    brand_name: Schema.Attribute.String;
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
     compare_at_price: Schema.Attribute.Decimal;
     createdAt: Schema.Attribute.DateTime;
@@ -689,6 +702,14 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     images: Schema.Attribute.Media<'images', true>;
     is_limited: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     is_sold_out: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    limit_per_customer: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<2>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -698,8 +719,17 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String & Schema.Attribute.Required;
     price: Schema.Attribute.Decimal;
     publishedAt: Schema.Attribute.DateTime;
+    sale_end_date: Schema.Attribute.DateTime;
     sku: Schema.Attribute.String & Schema.Attribute.Unique;
     slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
+    sold_count: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     specs: Schema.Attribute.JSON;
     stock_quantity: Schema.Attribute.Integer &
       Schema.Attribute.SetMinMax<
@@ -712,6 +742,22 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    views_count: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    waitlist_count: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
   };
 }
 

@@ -52,6 +52,9 @@
       "target": "api::category.category",
       "inversedBy": "products"
     },
+    "brand_name": {
+      "type": "string"
+    },
     "stock_quantity": {
       "type": "integer",
       "default": 0,
@@ -64,6 +67,32 @@
     "is_sold_out": {
       "type": "boolean",
       "default": false
+    },
+    "sale_end_date": {
+      "type": "datetime"
+    },
+    "views_count": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "sold_count": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "average_rating": {
+      "type": "decimal"
+    },
+    "limit_per_customer": {
+      "type": "integer",
+      "default": 2,
+      "min": 1
+    },
+    "waitlist_count": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
     },
     "specs": {
       "type": "json"

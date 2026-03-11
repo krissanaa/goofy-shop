@@ -1,89 +1,79 @@
-import Image from "next/image"
-import Link from "next/link"
+import { CategoryRowPanel, type CategoryRowPanelItem } from "@/components/category-row-panel"
 import { getCategories, getStrapiImageUrl } from "@/lib/strapi"
 import type { CategoryRowData } from "@/lib/strapi-types"
-import { EmptyCartBoxArt } from "@/components/ui/empty-cart-box-art"
+
+type DesiredCategoryKey =
+  | "decks"
+  | "wheels"
+  | "apparel"
+  | "trucks"
+  | "gear"
+  | "accessories"
 
 interface CategoryItem {
   title: string
   subtitle: string
   link: string
-  accentColor: string
   imageUrl?: string
 }
 
-const CATEGORY_BADGE_COLORS = ["#E70009", "#FBD000"] as const
-
-const FALLBACK_ITEMS: CategoryItem[] = [
+const DESIRED_CATEGORIES: Array<{
+  key: DesiredCategoryKey
+  title: string
+  subtitle: string
+  fallbackImageUrl: string
+}> = [
   {
-    title: "Decks",
+    key: "decks",
+    title: "DECKS",
     subtitle: "Street and park setups",
-    link: "/products?category=Decks",
-    accentColor: "#E70009",
+    fallbackImageUrl:
+      "https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    title: "Apparel",
-    subtitle: "Daily wear and skate fits",
-    link: "/products?category=Apparel",
-    accentColor: "#FBD000",
-  },
-  {
-    title: "Wheels",
+    key: "wheels",
+    title: "WHEELS",
     subtitle: "Grip, speed, and control",
-    link: "/products?category=Wheels",
-    accentColor: "#6B8CFF",
+    fallbackImageUrl:
+      "https://images.unsplash.com/photo-1547447134-cd3f5c716030?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    title: "Gear",
-    subtitle: "Trucks, tools, and extras",
-    link: "/products?category=Gear",
-    accentColor: "#00AA00",
+    key: "apparel",
+    title: "APPAREL",
+    subtitle: "Daily wear and skate fits",
+    fallbackImageUrl:
+      "https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    key: "trucks",
+    title: "TRUCKS",
+    subtitle: "Precision turning hardware",
+    fallbackImageUrl:
+      "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    key: "gear",
+    title: "GEAR",
+    subtitle: "Tools, bags, and session extras",
+    fallbackImageUrl:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    key: "accessories",
+    title: "ACCESSORIES",
+    subtitle: "Pins, wax, grip, and add-ons",
+    fallbackImageUrl:
+      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80",
   },
 ]
 
-function normalizeItems(items: CategoryRowData["items"]): CategoryItem[] {
-  if (!Array.isArray(items) || items.length === 0) return FALLBACK_ITEMS
-
-  const parsed = items
-    .map((item, index) => {
-      const obj = item as Record<string, unknown>
-      const title = typeof obj?.title === "string" ? obj.title.trim() : ""
-      if (!title) return null
-
-      const subtitle = typeof obj?.subtitle === "string" ? obj.subtitle.trim() : ""
-      const rawLink = typeof obj?.link === "string"
-        ? obj.link.trim()
-        : typeof obj?.url === "string"
-          ? obj.url.trim()
-          : ""
-      const link = rawLink
-        ? rawLink
-        : `/products?category=${encodeURIComponent(title)}`
-      const rawAccentColor = typeof obj?.accentColor === "string"
-        ? obj.accentColor.trim()
-        : typeof obj?.accent_color === "string"
-          ? obj.accent_color.trim()
-          : ""
-      const accentColor = rawAccentColor
-        ? rawAccentColor
-        : FALLBACK_ITEMS[index % FALLBACK_ITEMS.length].accentColor
-
-      return {
-        title,
-        subtitle: subtitle || "Explore products",
-        link,
-        accentColor,
-      }
-    })
-    .filter((item): item is CategoryItem => Boolean(item))
-
-  return parsed.length > 0 ? parsed : FALLBACK_ITEMS
-}
-
-function getAccentTextColor(accentColor: string): string {
-  const normalized = accentColor.toLowerCase()
-  if (normalized === "#fbd000" || normalized === "#ffffff") return "#111111"
-  return "#ffffff"
+const CATEGORY_ALIASES: Record<DesiredCategoryKey, string[]> = {
+  decks: ["deck", "decks"],
+  wheels: ["wheel", "wheels"],
+  apparel: ["apparel", "clothing", "wear"],
+  trucks: ["truck", "trucks"],
+  gear: ["gear", "hardware", "essentials"],
+  accessories: ["accessory", "accessories"],
 }
 
 function normalizeLookupKey(value: string): string {
@@ -103,40 +93,60 @@ function extractCategoryHints(link: string): string[] {
   }
 }
 
-function resolveCategoryImageUrl(
-  item: CategoryItem,
-  byTitle: Map<string, string>,
-  bySlug: Map<string, string>,
-): string | undefined {
-  const titleKey = normalizeLookupKey(item.title)
-  const fromTitle = byTitle.get(titleKey)
-  if (fromTitle) return fromTitle
+function normalizeItems(items: CategoryRowData["items"]): CategoryItem[] {
+  if (!Array.isArray(items) || items.length === 0) return []
 
-  const hints = extractCategoryHints(item.link)
-  for (const hint of hints) {
-    const fromHint = byTitle.get(hint) || bySlug.get(hint)
-    if (fromHint) return fromHint
-  }
+  return items
+    .map((item) => {
+      const obj = item as Record<string, unknown>
+      const title = typeof obj?.title === "string" ? obj.title.trim() : ""
+      if (!title) return null
 
-  return undefined
+      const subtitle = typeof obj?.subtitle === "string" ? obj.subtitle.trim() : ""
+      const rawLink =
+        typeof obj?.link === "string"
+          ? obj.link.trim()
+          : typeof obj?.url === "string"
+            ? obj.url.trim()
+            : ""
+
+      return {
+        title,
+        subtitle: subtitle || "Explore products",
+        link: rawLink || `/products?category=${encodeURIComponent(title)}`,
+      }
+    })
+    .filter((item): item is CategoryItem => Boolean(item))
 }
 
-function resolveCategorySlug(
-  item: CategoryItem,
-  byTitle: Map<string, string>,
-  bySlug: Map<string, string>,
-): string | undefined {
-  const titleKey = normalizeLookupKey(item.title)
-  const fromTitle = byTitle.get(titleKey)
-  if (fromTitle) return fromTitle
+function matchesDesiredCategory(value: string, desiredKey: DesiredCategoryKey): boolean {
+  return CATEGORY_ALIASES[desiredKey].includes(normalizeLookupKey(value))
+}
 
-  const hints = extractCategoryHints(item.link)
-  for (const hint of hints) {
-    const fromHint = byTitle.get(hint) || bySlug.get(hint)
-    if (fromHint) return fromHint
-  }
+function findConfiguredItem(
+  desiredKey: DesiredCategoryKey,
+  items: CategoryItem[],
+): CategoryItem | undefined {
+  return items.find((item) => {
+    if (matchesDesiredCategory(item.title, desiredKey)) {
+      return true
+    }
 
-  return undefined
+    return extractCategoryHints(item.link).some((hint) =>
+      matchesDesiredCategory(hint, desiredKey),
+    )
+  })
+}
+
+function findLiveCategory(
+  desiredKey: DesiredCategoryKey,
+  categories: Awaited<ReturnType<typeof getCategories>>["data"],
+) {
+  return categories.find(
+    (category) =>
+      matchesDesiredCategory(category.title, desiredKey) ||
+      matchesDesiredCategory(category.slug, desiredKey),
+  )
 }
 
 interface DynamicCategoryRowProps {
@@ -144,132 +154,43 @@ interface DynamicCategoryRowProps {
 }
 
 export async function DynamicCategoryRow({ data }: DynamicCategoryRowProps) {
-  const title = data.title?.trim() || "CATEGORY"
-  const items = normalizeItems(data.items).slice(0, 8)
+  const rawSectionTitle = data.title?.trim() || ""
+  const sectionTitle =
+    rawSectionTitle && rawSectionTitle.toUpperCase() !== "CATEGORY"
+      ? rawSectionTitle
+      : "SHOP BY CATEGORY"
+  const configuredItems = normalizeItems(data.items)
 
   let categoryList: Awaited<ReturnType<typeof getCategories>>["data"] = []
-  let categoryImageByTitle = new Map<string, string>()
-  let categoryImageBySlug = new Map<string, string>()
-  let categorySlugByTitle = new Map<string, string>()
-  let categorySlugBySlug = new Map<string, string>()
 
   try {
     const categoryResponse = await getCategories()
     categoryList = Array.isArray(categoryResponse?.data)
       ? categoryResponse.data
       : []
-
-    categoryImageByTitle = new Map(
-      categoryList
-        .filter((category) => Boolean(category.thumbnail))
-        .map((category) => [
-          normalizeLookupKey(category.title),
-          getStrapiImageUrl(category.thumbnail, "medium"),
-        ]),
-    )
-
-    categoryImageBySlug = new Map(
-      categoryList
-        .filter((category) => Boolean(category.thumbnail))
-        .map((category) => [
-          normalizeLookupKey(category.slug),
-          getStrapiImageUrl(category.thumbnail, "medium"),
-        ]),
-    )
-
-    categorySlugByTitle = new Map(
-      categoryList.map((category) => [
-        normalizeLookupKey(category.title),
-        category.slug,
-      ]),
-    )
-
-    categorySlugBySlug = new Map(
-      categoryList.map((category) => [
-        normalizeLookupKey(category.slug),
-        category.slug,
-      ]),
-    )
   } catch {
-    categoryImageByTitle = new Map()
-    categoryImageBySlug = new Map()
-    categorySlugByTitle = new Map()
-    categorySlugBySlug = new Map()
+    categoryList = []
   }
 
-  const enrichedItems = items.map((item) => {
-    const categorySlug = resolveCategorySlug(
-      item,
-      categorySlugByTitle,
-      categorySlugBySlug,
-    )
+  const displayItems: CategoryRowPanelItem[] = DESIRED_CATEGORIES.map((desired) => {
+    const configuredItem = findConfiguredItem(desired.key, configuredItems)
+    const liveCategory = findLiveCategory(desired.key, categoryList)
+
+    const imageUrl = liveCategory?.thumbnail
+      ? getStrapiImageUrl(liveCategory.thumbnail, "medium")
+      : desired.fallbackImageUrl
 
     return {
-      ...item,
-      link: categorySlug
-        ? `/products?category=${encodeURIComponent(categorySlug)}`
-        : item.link,
-      imageUrl: resolveCategoryImageUrl(item, categoryImageByTitle, categoryImageBySlug),
+      key: desired.key,
+      title: desired.title,
+      subtitle: configuredItem?.subtitle || desired.subtitle,
+      href: liveCategory
+        ? `/products?category=${encodeURIComponent(liveCategory.slug)}`
+        : `/products?category=${encodeURIComponent(desired.key)}`,
+      imageUrl,
+      imageAlt: liveCategory?.thumbnail?.alternativeText || `${desired.title} category`,
     }
   })
 
-  const liveCategoryItems: CategoryItem[] = categoryList.slice(0, 8).map((category, index) => ({
-    title: category.title,
-    subtitle: "Explore products",
-    link: `/products?category=${encodeURIComponent(category.slug)}`,
-    accentColor: FALLBACK_ITEMS[index % FALLBACK_ITEMS.length].accentColor,
-    imageUrl: category.thumbnail
-      ? getStrapiImageUrl(category.thumbnail, "medium")
-      : undefined,
-  }))
-
-  const displayItems = liveCategoryItems.length > 0 ? liveCategoryItems : enrichedItems
-
-  return (
-    <section className="bg-[#F1EEE8] py-12">
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
-        <div className="mb-5 inline-flex items-center border-4 border-black bg-black px-4 py-2 shadow-[4px_4px_0_#FBD000]">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#FBD000]">
-            {`* ${title.toUpperCase()}`}
-          </p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {displayItems.map((item, index) => (
-            <Link
-              key={`${item.title}-${item.link}`}
-              href={item.link}
-              className="group relative h-44 overflow-hidden border-4 border-black bg-[#E6E6E6] shadow-[4px_4px_0_#0A0A0A] transition-[transform,box-shadow] duration-200 [will-change:transform] hover:z-10 hover:-translate-y-1 hover:scale-[1.015] hover:shadow-[4px_4px_0_#CE1126,8px_8px_0_#002868] focus-visible:z-10 focus-visible:-translate-y-1 focus-visible:scale-[1.015] focus-visible:shadow-[4px_4px_0_#CE1126,8px_8px_0_#002868]"
-            >
-              {item.imageUrl ? (
-                <Image
-                  src={item.imageUrl}
-                  alt={`${item.title} category`}
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-200 group-hover:scale-105"
-                />
-              ) : (
-                <EmptyCartBoxArt />
-              )}
-
-              <div className="absolute bottom-3 left-3">
-                <span
-                  className="w-fit border border-black px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em]"
-                  style={{
-                    backgroundColor:
-                      CATEGORY_BADGE_COLORS[index % CATEGORY_BADGE_COLORS.length],
-                    color: getAccentTextColor(
-                      CATEGORY_BADGE_COLORS[index % CATEGORY_BADGE_COLORS.length],
-                    ),
-                  }}
-                >
-                  {item.title}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
+  return <CategoryRowPanel title={sectionTitle} items={displayItems} />
 }

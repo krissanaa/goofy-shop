@@ -1,9 +1,9 @@
-﻿"use client"
+"use client"
 
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { ArrowRight, Zap } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type HeroStatTone = "red" | "blue" | "green" | "yellow" | "black" | "gray"
@@ -30,6 +30,8 @@ export interface HeroSectionProps {
   autoplaySeconds?: number
   compact?: boolean
   heightClassName?: string
+  contentPosition?: "center" | "bottom-left"
+  textVisibleOnFirstSlideOnly?: boolean
   showDots?: boolean
   showBadge?: boolean
   showHeading?: boolean
@@ -43,21 +45,42 @@ export interface HeroSectionProps {
   description?: string
   primaryAction?: HeroAction
   secondaryAction?: HeroAction
+  bottomNoteText?: string
   stats?: HeroStat[]
   className?: string
 }
 
-const DEFAULT_HEADING_LINE_1 = "BUILT FOR THE"
-const DEFAULT_HEADING_LINE_2 = "STREETS."
-const DEFAULT_HEADING_LINE_3 = "WORN BY THE CULTURE."
-const DEFAULT_DESCRIPTION =
-  "Premium skate hardware and streetwear essentials. Limited drops, exclusive collabs, zero compromises."
+interface ParsedCountValue {
+  target: number
+  decimals: number
+  prefix: string
+  suffix: string
+}
+
+const DEFAULT_HEADING_LINE_1 = "LAOS"
+const DEFAULT_HEADING_LINE_2 = "SKATE"
+const DEFAULT_HEADING_LINE_3 = "CULTURE"
+const DEFAULT_DESCRIPTION = "First skateboard shop & community in Laos"
 
 const DEFAULT_STATS: HeroStat[] = [
-  { value: "500+", label: "PRODUCTS", tone: "red" },
-  { value: "12K+", label: "SKATERS", tone: "blue" },
-  { value: "100%", label: "AUTHENTIC", tone: "green" },
+  { value: "50+", label: "PRODUCTS", tone: "yellow" },
+  { value: "100+", label: "COMMUNITY", tone: "yellow" },
+  { value: "20+", label: "VIDEOS", tone: "yellow" },
 ]
+
+const heroHeadingFontStyle = {
+  fontFamily: "'Syne', var(--font-space-grotesk), sans-serif",
+  fontWeight: 900 as const,
+  fontStyle: "italic" as const,
+}
+
+const heroBodyFontStyle = {
+  fontFamily: "'DM Mono', var(--font-mono), ui-monospace, monospace",
+}
+
+const heroBadgeFontStyle = {
+  fontFamily: "'Press Start 2P', var(--font-mono), monospace",
+}
 
 function getToneColor(tone?: HeroStatTone): string {
   switch (tone) {
@@ -68,13 +91,68 @@ function getToneColor(tone?: HeroStatTone): string {
     case "green":
       return "var(--color-green)"
     case "yellow":
-      return "var(--color-yellow)"
+      return "#F8B800"
     case "gray":
       return "var(--color-gray)"
     case "black":
     default:
-      return "var(--color-black)"
+      return "#F5EFE0"
   }
+}
+
+function scrollToHashTarget(href: string) {
+  if (!href.startsWith("#")) return
+
+  const id = href.slice(1).trim()
+  if (!id) return
+
+  const target = document.getElementById(id)
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" })
+    return
+  }
+
+  window.location.hash = id
+}
+
+function parseCountValue(value: string): ParsedCountValue | null {
+  const normalized = value.trim()
+  if (!normalized) return null
+
+  const match = normalized.match(/-?\d+(\.\d+)?/)
+  if (!match || match.index === undefined) return null
+
+  const numberPart = match[0]
+  const prefix = normalized.slice(0, match.index)
+  const suffix = normalized.slice(match.index + numberPart.length)
+  const alphaOnly = `${prefix}${suffix}`.replace(/[+%.\s]/g, "")
+  if (/[a-z]/i.test(alphaOnly)) return null
+
+  const target = Number(numberPart)
+  if (!Number.isFinite(target)) return null
+
+  const decimals = numberPart.includes(".")
+    ? numberPart.split(".")[1].length
+    : 0
+
+  return { target, decimals, prefix, suffix }
+}
+
+function formatCountValue(parsed: ParsedCountValue, progress: number): string {
+  const nextValue = parsed.target * progress
+  const rounded =
+    parsed.decimals > 0
+      ? nextValue.toFixed(parsed.decimals)
+      : String(Math.round(nextValue))
+  return `${parsed.prefix}${rounded}${parsed.suffix}`
+}
+
+function scrollToNextViewport() {
+  if (typeof window === "undefined") return
+  window.scrollTo({
+    top: window.scrollY + window.innerHeight * 0.85,
+    behavior: "smooth",
+  })
 }
 
 export function HeroSection({
@@ -82,23 +160,28 @@ export function HeroSection({
   autoplaySeconds = 6,
   compact = false,
   heightClassName,
+  contentPosition = "bottom-left",
+  textVisibleOnFirstSlideOnly = true,
   showDots = true,
   showBadge = true,
   showHeading = true,
   showDescription = true,
   showActions = true,
   showStatsRow = true,
-  badgeText = "SS26 COLLECTION",
+  badgeText = "GOOFY LAOS",
   headingLine1 = DEFAULT_HEADING_LINE_1,
   headingLine2 = DEFAULT_HEADING_LINE_2,
   headingLine3 = DEFAULT_HEADING_LINE_3,
   description = DEFAULT_DESCRIPTION,
-  primaryAction,
-  secondaryAction,
+  primaryAction = { label: "SHOP NOW", href: "/products" },
+  secondaryAction = { label: "WATCH US SKATE \u25B6", href: "#videos" },
+  bottomNoteText,
   stats = DEFAULT_STATS,
   className,
 }: HeroSectionProps) {
   const [activeSlide, setActiveSlide] = useState(0)
+  const [parallaxY, setParallaxY] = useState(0)
+  const [titleEntered, setTitleEntered] = useState(false)
   const heroHeightClass =
     heightClassName && heightClassName.trim().length > 0
       ? heightClassName
@@ -109,6 +192,13 @@ export function HeroSection({
   const safeSlides = useMemo(
     () => slides.filter((slide) => Boolean(slide.src)),
     [slides],
+  )
+  const statsToRender = useMemo(
+    () => (stats.length > 0 ? stats : DEFAULT_STATS).slice(0, 3),
+    [stats],
+  )
+  const [animatedStatValues, setAnimatedStatValues] = useState<string[]>(
+    () => statsToRender.map((stat) => stat.value),
   )
 
   useEffect(() => {
@@ -130,15 +220,125 @@ export function HeroSection({
     }
   }, [activeSlide, safeSlides.length])
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setTitleEntered(true), 80)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    let frame = 0
+
+    const onScroll = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(() => {
+        const next = Math.max(-30, Math.min(120, window.scrollY * 0.18))
+        setParallaxY(next)
+        frame = 0
+      })
+    }
+
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame)
+      window.removeEventListener("scroll", onScroll)
+    }
+  }, [])
+
+  useEffect(() => {
+    const parsed = statsToRender.map((stat) => parseCountValue(stat.value))
+    let frame = 0
+    let startTime: number | null = null
+    const durationMs = 1150
+
+    const step = (now: number) => {
+      if (startTime === null) startTime = now
+      const progress = Math.min((now - startTime) / durationMs, 1)
+
+      setAnimatedStatValues(
+        statsToRender.map((stat, index) => {
+          const parsedValue = parsed[index]
+          return parsedValue
+            ? formatCountValue(parsedValue, progress)
+            : stat.value
+        }),
+      )
+
+      if (progress < 1) {
+        frame = window.requestAnimationFrame(step)
+      }
+    }
+
+    frame = window.requestAnimationFrame(step)
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [statsToRender])
+
+  const headingLines = [
+    {
+      text: headingLine1,
+      color: "#F5EFE0",
+      sizeClass: "text-[clamp(34px,6.6vw,92px)]",
+      delayMs: 0,
+    },
+    {
+      text: headingLine2,
+      color: "#F8B800",
+      sizeClass: "text-[clamp(46px,9.8vw,138px)]",
+      delayMs: 150,
+    },
+    {
+      text: headingLine3,
+      color: "#F5EFE0",
+      sizeClass: "text-[clamp(34px,6.6vw,92px)]",
+      delayMs: 300,
+    },
+  ]
+  const showOverlayContent =
+    !textVisibleOnFirstSlideOnly ||
+    safeSlides.length <= 1 ||
+    activeSlide === 0
+  const showCompactSlideOverlay =
+    textVisibleOnFirstSlideOnly && safeSlides.length > 1 && activeSlide > 0
+  const contentPositionClass =
+    contentPosition === "bottom-left"
+      ? "items-start justify-end text-left"
+      : "items-center justify-center text-center"
+  const contentMaxWidthClass =
+    contentPosition === "bottom-left" ? "max-w-[760px]" : "max-w-[900px]"
+  const compactSlideTitle = [headingLine1, headingLine2, headingLine3]
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .join(" ")
+  const normalizedBottomNoteText = bottomNoteText?.trim()
+
+  const renderBottomNote = (compactOverlay = false) => {
+    if (!normalizedBottomNoteText) return null
+
+    const noteClassName = compactOverlay
+      ? "mt-3 inline-flex items-center text-[10px] uppercase tracking-[0.16em] text-[#F5EFE0]/66 transition-colors hover:text-[#F8B800]"
+      : "mt-5 inline-flex items-center text-[10px] uppercase tracking-[0.16em] text-[#F5EFE0]/62 transition-colors hover:text-[#F8B800]"
+
+    return (
+      <p className={cn(noteClassName, "text-left")} style={heroBodyFontStyle}>
+        {normalizedBottomNoteText}
+      </p>
+    )
+  }
+
   return (
     <section
       className={cn(
-        "relative isolate overflow-hidden bg-[var(--color-cream)]",
+        "relative isolate overflow-hidden bg-[#0A0E1A] text-[#F5EFE0]",
         heroHeightClass,
         className,
       )}
     >
-      <div className="absolute inset-0">
+      <div
+        className="absolute inset-0"
+        style={{ transform: `translateY(${parallaxY}px)` }}
+      >
         {safeSlides.map((slide, index) => (
           <Image
             key={`${slide.src}-${index}`}
@@ -148,89 +348,206 @@ export function HeroSection({
             priority={index === 0}
             sizes="100vw"
             className={cn(
-              "object-cover transition-opacity duration-700",
+              "object-cover object-center transition-opacity duration-700 [transform:scale(1.08)]",
               activeSlide === index ? "opacity-100" : "opacity-0",
             )}
           />
         ))}
       </div>
 
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(240,237,232,0.22),rgba(240,237,232,0.08),rgba(240,237,232,0.2))]" />
-      <div className="pointer-events-none absolute -top-[18%] left-1/2 -translate-x-1/2 select-none text-[24vw] font-black uppercase leading-none tracking-[-0.05em] text-[var(--color-black)] opacity-[0.08]">
-        GOOFY
-      </div>
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,14,26,0.28),rgba(10,14,26,0.66),rgba(10,14,26,0.88))]" />
 
       <div
         className={cn(
-          "relative z-10 mx-auto flex w-full max-w-[1280px] flex-col items-center justify-center px-6 py-16 text-center md:px-12 md:py-18",
+          "relative z-10 mx-auto flex w-full max-w-[1280px] flex-col px-6 pb-20 pt-24 md:px-12 md:pb-24 md:pt-28",
+          contentPositionClass,
           heroHeightClass,
         )}
       >
-        {showBadge ? (
-          <p className="mb-5 inline-flex items-center rounded-[999px] border border-[rgba(10,10,10,0.2)] bg-[var(--color-yellow)] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--color-black)]">
-            {`* ${badgeText}`}
-          </p>
-        ) : null}
+        <div
+          className={cn(
+            "w-full transition-all duration-500",
+            contentMaxWidthClass,
+            showOverlayContent
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none translate-y-6 opacity-0",
+          )}
+        >
+          {showBadge ? (
+            <p
+              className="mb-6 inline-flex items-center border border-[#F8B800] px-4 py-2 text-[9px] uppercase tracking-[0.16em] text-[#1A1614]"
+              style={{
+                ...heroBadgeFontStyle,
+                backgroundColor: "#F8B800",
+              }}
+            >
+              {badgeText}
+            </p>
+          ) : null}
 
-        {showHeading ? (
-          <h1 className="font-black uppercase leading-[0.92] tracking-tight text-[clamp(36px,5vw,72px)]">
-            <span className="block text-[var(--color-black)]">{headingLine1}</span>
-            <span className="block text-[var(--color-red)]">{headingLine2}</span>
-            <span className="block text-[var(--color-blue)]">{headingLine3}</span>
-          </h1>
-        ) : null}
-
-        {showDescription ? (
-          <p className="mt-6 max-w-[680px] text-base leading-relaxed text-[var(--color-gray)]">
-            {description}
-          </p>
-        ) : null}
-
-        {showActions ? (
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            {primaryAction ? (
-              <Link
-                href={primaryAction.href}
-                className="inline-flex h-12 items-center justify-center gap-2 border border-[var(--color-black)] bg-[var(--color-red)] px-7 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-white)] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
-              >
-                <Zap className="h-4 w-4" />
-                {primaryAction.label}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            ) : null}
-
-            {secondaryAction ? (
-              <Link
-                href={secondaryAction.href}
-                className="inline-flex h-12 items-center justify-center border border-[var(--color-black)] bg-[var(--color-white)] px-7 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-black)] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
-              >
-                {secondaryAction.label}
-              </Link>
-            ) : null}
-          </div>
-        ) : null}
-
-        {showStatsRow ? (
-          <div className="mt-12 grid grid-cols-3 gap-8">
-            {(stats.length > 0 ? stats : DEFAULT_STATS).slice(0, 3).map((stat, index) => (
-              <div key={`${stat.label}-${index}`} className="text-center">
-                <p
-                  className="text-4xl font-black tracking-tight"
-                  style={{ color: stat.color || getToneColor(stat.tone) }}
+          {showHeading ? (
+            <h1
+              className="uppercase leading-[0.84] tracking-[-0.02em]"
+              style={heroHeadingFontStyle}
+            >
+              {headingLines.map((line) => (
+                <span
+                  key={line.text}
+                  className={cn(
+                    "block transition-all duration-700 ease-out",
+                    line.sizeClass,
+                    titleEntered
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-8 opacity-0",
+                  )}
+                  style={{
+                    color: line.color,
+                    transitionDelay: `${line.delayMs}ms`,
+                  }}
                 >
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.15em] text-[var(--color-gray)]">
-                  {stat.label}
-                </p>
+                  {line.text}
+                </span>
+              ))}
+            </h1>
+          ) : null}
+
+          {showDescription ? (
+            <p
+              className="mt-5 max-w-[680px] text-sm leading-relaxed text-[#F5EFE0]/86 md:text-base"
+              style={heroBodyFontStyle}
+            >
+              {description}
+            </p>
+          ) : null}
+
+          {showActions ? (
+            <div
+              className={cn(
+                "mt-8 flex flex-wrap items-center gap-3",
+                contentPosition === "bottom-left"
+                  ? "justify-start"
+                  : "justify-center",
+              )}
+              style={heroBodyFontStyle}
+            >
+              {primaryAction ? (
+                primaryAction.href.startsWith("#") ? (
+                  <button
+                    type="button"
+                    onClick={() => scrollToHashTarget(primaryAction.href)}
+                    className="inline-flex h-12 items-center justify-center border border-[#F8B800] bg-[#F8B800] px-7 text-xs uppercase tracking-[0.14em] text-[#1A1614] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                  >
+                    {primaryAction.label}
+                  </button>
+                ) : (
+                  <Link
+                    href={primaryAction.href}
+                    className="inline-flex h-12 items-center justify-center border border-[#F8B800] bg-[#F8B800] px-7 text-xs uppercase tracking-[0.14em] text-[#1A1614] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                  >
+                    {primaryAction.label}
+                  </Link>
+                )
+              ) : null}
+
+              {secondaryAction ? (
+                secondaryAction.href.startsWith("#") ? (
+                  <button
+                    type="button"
+                    onClick={() => scrollToHashTarget(secondaryAction.href)}
+                    className="inline-flex h-12 items-center justify-center border border-[#F5EFE0]/70 bg-transparent px-7 text-xs uppercase tracking-[0.14em] text-[#F5EFE0] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                  >
+                    {secondaryAction.label}
+                  </button>
+                ) : (
+                  <Link
+                    href={secondaryAction.href}
+                    className="inline-flex h-12 items-center justify-center border border-[#F5EFE0]/70 bg-transparent px-7 text-xs uppercase tracking-[0.14em] text-[#F5EFE0] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                  >
+                    {secondaryAction.label}
+                  </Link>
+                )
+              ) : null}
+            </div>
+          ) : null}
+
+          {showStatsRow ? (
+            <div
+              className="mt-10 grid grid-cols-3 gap-5 border-t border-[#F8B800]/35 pt-5 md:gap-9"
+              style={heroBodyFontStyle}
+            >
+              {statsToRender.map((stat, index) => (
+                <div
+                  key={`${stat.label}-${index}`}
+                  className={
+                    contentPosition === "bottom-left" ? "text-left" : "text-center"
+                  }
+                >
+                  <p
+                    className="text-[clamp(22px,3.6vw,42px)] font-bold tracking-tight"
+                    style={{ color: stat.color || getToneColor(stat.tone) }}
+                  >
+                    {animatedStatValues[index] || stat.value}
+                  </p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[#F5EFE0]/75">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {renderBottomNote()}
+        </div>
+
+        {showCompactSlideOverlay ? (
+          <div
+            className={cn(
+              "w-full transition-all duration-500",
+              contentMaxWidthClass,
+              "translate-y-0 opacity-100",
+            )}
+          >
+            <div className="w-full max-w-[420px] border border-[#F8B800]/55 bg-[#0A0E1A]/58 p-4 backdrop-blur-sm">
+              <div
+                className="flex flex-wrap items-center gap-2"
+                style={heroBodyFontStyle}
+              >
+                <span
+                  className="inline-flex items-center border border-[#F8B800] px-2.5 py-1 text-[8px] uppercase tracking-[0.14em] text-[#1A1614]"
+                  style={{
+                    ...heroBadgeFontStyle,
+                    backgroundColor: "#F8B800",
+                  }}
+                >
+                  {badgeText}
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[#F5EFE0]/72">
+                  {String(activeSlide + 1).padStart(2, "0")} / {String(safeSlides.length).padStart(2, "0")}
+                </span>
               </div>
-            ))}
+
+              <p
+                className="mt-3 text-[clamp(20px,3vw,28px)] uppercase leading-[1] tracking-[-0.03em] text-[#F5EFE0]"
+                style={heroHeadingFontStyle}
+              >
+                {compactSlideTitle}
+              </p>
+
+              <p
+                className="mt-2 max-w-[320px] text-xs leading-relaxed text-[#F5EFE0]/78"
+                style={heroBodyFontStyle}
+              >
+                {description}
+              </p>
+
+              {renderBottomNote(true)}
+            </div>
           </div>
         ) : null}
       </div>
 
       {showDots && safeSlides.length > 1 ? (
-        <div className="absolute inset-x-0 bottom-7 z-20 flex items-center justify-center gap-2">
+        <div className="absolute inset-x-0 bottom-16 z-20 flex items-center justify-center gap-2">
           {safeSlides.map((slide, index) => (
             <button
               key={`${slide.src}-dot-${index}`}
@@ -238,16 +555,22 @@ export function HeroSection({
               onClick={() => setActiveSlide(index)}
               aria-label={`Go to slide ${index + 1}`}
               className={cn(
-                "h-2.5 w-2.5 border border-[var(--color-black)] transition",
-                activeSlide === index
-                  ? "bg-[var(--color-red)]"
-                  : "bg-[var(--color-white)]/80",
+                "h-2.5 w-2.5 border border-[#F8B800] transition",
+                activeSlide === index ? "bg-[#F8B800]" : "bg-transparent",
               )}
             />
           ))}
         </div>
       ) : null}
+
+      <button
+        type="button"
+        onClick={scrollToNextViewport}
+        aria-label="Scroll down"
+        className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 text-[#F8B800] transition-colors hover:text-[#F5EFE0]"
+      >
+        <ChevronDown className="h-7 w-7 animate-bounce" />
+      </button>
     </section>
   )
 }
-

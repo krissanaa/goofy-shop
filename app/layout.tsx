@@ -7,6 +7,7 @@ import { TRPCProvider } from '@/components/trpc-provider'
 import { getResolvedGlobalConfig } from '@/lib/strapi'
 import { GlobalConfigProvider } from '@/components/global-config-provider'
 import { CookiePolicyBar } from '@/components/cookie-policy-bar'
+import { GlobalWatermark } from '@/components/global-watermark'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -47,6 +48,8 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const config = await getResolvedGlobalConfig()
+  const watermarkText =
+    config.siteDescription?.trim() || config.siteName || "GOOFY"
 
   const themeVars = `
     :root {
@@ -66,8 +69,13 @@ export default async function RootLayout({
         <TRPCProvider>
           <CartProvider>
             <GlobalConfigProvider config={config}>
-              {children}
-              <CookiePolicyBar />
+              <div className="relative min-h-screen">
+                <GlobalWatermark text={watermarkText} />
+                <div className="relative z-10">
+                  {children}
+                  <CookiePolicyBar />
+                </div>
+              </div>
             </GlobalConfigProvider>
             <Toaster />
             <Analytics />

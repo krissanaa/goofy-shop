@@ -1,23 +1,19 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   ChevronDown,
   Heart,
   Menu,
   Search,
   ShoppingBag,
-  User,
   X,
-  Star,
 } from "lucide-react"
 import { CartSheet } from "@/components/cart-sheet"
 import { useCart } from "@/hooks/use-cart"
 import { useGlobalConfig } from "@/components/global-config-provider"
-import { EmptyCartBoxArt } from "@/components/ui/empty-cart-box-art"
 
 interface NavbarProps {
   categories?: { title: string; slug: string; image?: string }[]
@@ -28,16 +24,45 @@ interface NavbarProps {
   }
 }
 
+type DesktopDropdownKey = "shop" | "products"
+
 const WISHLIST_KEY = "goofy-shop-wishlist-v1"
-const CATEGORY_BADGE_COLORS = ["#E70009", "#FBD000"] as const
-const PRODUCT_BADGE_LINKS = [
-  { label: "All", href: "/products" },
-  { label: "New", href: "/products?filter=new" },
-  { label: "Sale", href: "/products?filter=sale" },
-  { label: "Drop", href: "/products?filter=drop" },
-  { label: "Hot", href: "/products?filter=hot" },
-  { label: "Collab", href: "/products?filter=collab" },
+
+const SHOP_DROPDOWN_LINKS = [
+  { label: "All Products", href: "/products" },
+  { label: "New Arrivals", href: "/products?badge=new" },
+  { label: "Drops", href: "/products?badge=drop" },
+  { label: "Sale", href: "/products?badge=sale" },
 ]
+
+const PRODUCT_CATEGORY_BLUEPRINT = [
+  { label: "Decks", slug: "decks" },
+  { label: "Wheels", slug: "wheels" },
+  { label: "Apparel", slug: "apparel" },
+  { label: "Trucks", slug: "trucks" },
+  { label: "Gear", slug: "gear" },
+]
+
+const PRODUCT_BADGE_LINKS = [
+  { label: "New Arrivals", badge: "new" },
+  { label: "Hot", badge: "hot" },
+  { label: "Sale", badge: "sale" },
+  { label: "Collab", badge: "collab" },
+]
+
+const logoFontStyle = {
+  fontFamily: "'Syne', var(--font-space-grotesk), sans-serif",
+  fontWeight: 900 as const,
+  fontStyle: "italic" as const,
+}
+
+const navFontStyle = {
+  fontFamily: "'DM Mono', var(--font-mono), ui-monospace, monospace",
+}
+
+const badgeFontStyle = {
+  fontFamily: "'Press Start 2P', var(--font-mono), monospace",
+}
 
 function parseWishlistCount(raw: string | null): number {
   if (!raw) return 0
@@ -45,23 +70,30 @@ function parseWishlistCount(raw: string | null): number {
   try {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return 0
-    return parsed.filter((value): value is string => typeof value === "string").length
+    return parsed.filter((value): value is string => typeof value === "string")
+      .length
   } catch {
     return 0
   }
 }
 
-export function Navbar({
-  categories = [],
-  locationMenu,
-}: NavbarProps) {
+function normalizeLabel(value: string): string {
+  return value.trim().toLowerCase()
+}
+
+export function Navbar({ categories = [], locationMenu }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [wishlistCount, setWishlistCount] = useState(0)
+  const [desktopDropdown, setDesktopDropdown] =
+    useState<DesktopDropdownKey | null>(null)
   const { itemCount, isHydrated } = useCart()
   const pathname = usePathname()
   const router = useRouter()
   const config = useGlobalConfig()
+  const headerRef = useRef<HTMLElement | null>(null)
+
   const showStickyCartSidebar =
     !config.godMode.enabled || config.godMode.conversion.showStickyCartSidebar
 
@@ -69,47 +101,115 @@ export function Navbar({
     window.dispatchEvent(new Event("open-search-command"))
   }
 
-  // Priority: Admin-defined mainMenu > category-derived links > hardcoded fallback
-  const baseNavLinks = config.mainMenu.length > 0
-    ? config.mainMenu.map((item) => ({
+  const configuredMainMenu = useMemo(
+    () =>
+      config.mainMenu.map((item) => ({
+        label: normalizeLabel(item.label),
         href: item.url,
+      })),
+    [config.mainMenu],
+  )
+
+  const getConfiguredHref = (
+    key:
+      | "shop"
+      | "drops"
+      | "products"
+      | "skateparks"
+      | "about",
+    fallback: string,
+  ) => {
+    const match = configuredMainMenu.find((item) => {
+      if (key === "shop") {
+        return item.href === "/" || item.label.includes("shop")
+      }
+
+      if (key === "drops") {
+        return item.href.startsWith("/drop") || item.label.includes("drop")
+      }
+
+      if (key === "products") {
+        return item.href.startsWith("/products") || item.label.includes("product")
+      }
+
+      if (key === "skateparks") {
+        return (
+          item.href.startsWith("/skateparks") ||
+          item.label.includes("skatepark") ||
+          item.label.includes("location")
+        )
+      }
+
+      return item.href.startsWith("/about") || item.label.includes("about")
+    })
+
+    return match?.href || fallback
+  }
+
+  const navLinks: {
+    href: string
+    label: string
+    dropdown?: DesktopDropdownKey
+  }[] = useMemo(() => {
+    const skateparksHref = locationMenu?.href || "/skateparks"
+    const skateparksLabel = (locationMenu?.label || "Skateparks").toUpperCase()
+
+    return [
+      {
+        href: getConfiguredHref("shop", "/"),
+        label: "SHOP",
+        dropdown: "shop",
+      },
+      {
+        href: getConfiguredHref("drops", "/drop"),
+        label: "DROPS",
+      },
+      {
+        href: getConfiguredHref("products", "/products"),
+        label: "PRODUCTS",
+        dropdown: "products",
+      },
+      {
+        href: getConfiguredHref("skateparks", skateparksHref),
+        label: skateparksLabel,
+      },
+      {
+        href: getConfiguredHref("about", "/about"),
+        label: "ABOUT",
+      },
+    ]
+  }, [locationMenu, configuredMainMenu])
+
+  const productCategoryLinks = useMemo(
+    () =>
+      PRODUCT_CATEGORY_BLUEPRINT.map((item) => {
+        const match = categories.find((category) => {
+          const slug = normalizeLabel(category.slug)
+          const title = normalizeLabel(category.title)
+          return slug === item.slug || title === item.slug
+        })
+
+        const resolvedSlug = match?.slug || item.slug
+        return {
+          label: item.label,
+          href: `/products?category=${encodeURIComponent(resolvedSlug)}`,
+        }
+      }),
+    [categories],
+  )
+
+  const productBadgeLinks = useMemo(
+    () =>
+      PRODUCT_BADGE_LINKS.map((item) => ({
         label: item.label,
-        star: item.iconName === "star",
-      }))
-    : categories.length > 0
-      ? [
-          { href: "/", label: "Shop", star: false },
-          { href: "/drop", label: "Drops", star: true },
-          { href: "/products", label: "Products", star: false },
-          ...categories.slice(0, 3).map((c) => ({
-            href: `/products?category=${encodeURIComponent(c.slug || c.title)}`,
-            label: c.title,
-            star: false,
-          })),
-        ]
-      : [
-          { href: "/", label: "Shop", star: false },
-          { href: "/drop", label: "Drops", star: true },
-          { href: "/products", label: "Products", star: false },
-        ]
-
-  const navLinks = !locationMenu?.enabled
-    ? baseNavLinks
-    : baseNavLinks.some((link) => link.href === locationMenu.href)
-      ? baseNavLinks
-      : [...baseNavLinks, { href: locationMenu.href, label: locationMenu.label, star: false }]
-
-  const categoryLinks = categories
-    .slice(0, 6)
-    .map((category) => ({
-      label: category.title,
-      href: `/products?category=${encodeURIComponent(category.slug || category.title)}`,
-      image: category.image,
-    }))
+        href: `/products?badge=${item.badge}`,
+      })),
+    [],
+  )
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
-    return pathname.startsWith(href)
+    return pathname === href || pathname.startsWith(`${href}/`)
   }
 
   useEffect(() => {
@@ -129,199 +229,361 @@ export function Navbar({
     }
   }, [])
 
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  useEffect(() => {
+    setMobileOpen(false)
+    setDesktopDropdown(null)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!mobileOpen) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [mobileOpen])
+
+  useEffect(() => {
+    if (!desktopDropdown) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!(event.target instanceof Node)) return
+      if (!headerRef.current?.contains(event.target)) {
+        setDesktopDropdown(null)
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown)
+    return () => document.removeEventListener("pointerdown", handlePointerDown)
+  }, [desktopDropdown])
+
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card shadow-sm">
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-1 shrink-0 group">
-            {config.logoUrl ? (
-              <Image src={config.logoUrl} alt={config.siteName} width={120} height={40} className="h-8 w-auto" />
-            ) : (
-              <>
-                <span className="text-2xl font-black tracking-tighter text-foreground">
-                  {config.siteName.split(" ")[0] || "GOOFY"}
-                </span>
-                <span className="text-2xl font-black text-primary">
-                  .
-                </span>
-              </>
-            )}
+      <header
+        ref={headerRef}
+        className={`fixed left-0 right-0 top-0 z-50 border-b border-black/10 [border-bottom-width:1.5px] bg-[#F5EFE0]/95 text-[#1A1614] transition-all duration-200 ${
+          scrolled
+            ? "shadow-[0_8px_24px_rgba(0,0,0,0.09)] backdrop-blur-md"
+            : ""
+        }`}
+      >
+        <nav
+          className={`mx-auto flex max-w-7xl items-center justify-between px-4 transition-[height] duration-200 lg:px-8 ${
+            scrolled ? "h-14" : "h-16"
+          }`}
+        >
+          <Link href="/" className="shrink-0" style={logoFontStyle}>
+            <span className="text-2xl leading-none tracking-[-0.04em]">
+              {config.siteName.split(" ")[0] || "GOOFY"}
+            </span>
+            <span className="text-2xl leading-none text-[#E52222]">.</span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden items-center gap-1 md:flex">
-            {navLinks.map((link) => (
-              <div
-                key={link.href + link.label}
-                className="group relative"
-              >
-                <Link
-                  href={link.href}
-                  className={`relative flex items-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider transition-all ${
-                    isActive(link.href)
-                      ? "text-primary"
-                      : "text-foreground/60 hover:text-foreground"
-                  }`}
-                >
-                  {link.star ? (
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                  ) : null}
-                  {link.label}
-                  {(link.href.startsWith("/products") ||
-                    link.label.toLowerCase().includes("product")) ? (
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  ) : null}
-                  {isActive(link.href) ? (
-                    <span className="absolute bottom-0 left-4 right-4 h-[3px] bg-primary" />
-                  ) : null}
-                </Link>
+          <div className="hidden items-center gap-1 md:flex" style={navFontStyle}>
+            {navLinks.map((link) => {
+              const isDropdownMenu = Boolean(link.dropdown)
+              const isMenuOpen = link.dropdown
+                ? desktopDropdown === link.dropdown
+                : false
 
-                {(link.href.startsWith("/products") ||
-                  link.label.toLowerCase().includes("product")) ? (
-                  <div className="invisible pointer-events-none absolute left-0 top-full z-50 w-[340px] translate-y-1 border-2 border-black bg-[#F5F1E8] p-3 opacity-0 shadow-[4px_4px_0_#0A0A0A] transition-all duration-150 group-hover:visible group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-black/60">
-                      Category
-                    </p>
-                    <div className="mb-3 grid grid-cols-2 gap-2">
-                      {(categoryLinks.length > 0
-                        ? categoryLinks
-                        : [{ label: "All Categories", href: "/products", image: undefined }]
-                      ).map((item, index) => (
-                        <Link
-                          key={item.href + item.label}
-                          href={item.href}
-                          className="group/item relative h-20 overflow-hidden border-2 border-black bg-[#E6E6E6] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_#0A0A0A]"
-                        >
-                          {item.image ? (
-                            <Image
-                              src={item.image}
-                              alt={item.label}
-                              fill
-                              sizes="170px"
-                              className="object-cover transition-transform duration-200 group-hover/item:scale-105"
-                            />
-                          ) : (
-                            <EmptyCartBoxArt />
-                          )}
-                          <span
-                            className="absolute bottom-2 left-2 border border-black px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em]"
-                            style={{
-                              backgroundColor:
-                                CATEGORY_BADGE_COLORS[index % CATEGORY_BADGE_COLORS.length],
-                              color:
-                                index % CATEGORY_BADGE_COLORS.length === 0
-                                  ? "#FFFFFF"
-                                  : "#111111",
-                            }}
+              return (
+                <div
+                  key={`${link.href}-${link.label}`}
+                  className="relative"
+                  onMouseEnter={() => {
+                    if (link.dropdown) setDesktopDropdown(link.dropdown)
+                  }}
+                  onMouseLeave={() => {
+                    if (link.dropdown) setDesktopDropdown(null)
+                  }}
+                >
+                  <div className="flex items-center">
+                    <Link
+                      href={link.href}
+                      className={`px-3 py-2 text-xs font-medium uppercase tracking-[0.16em] transition-colors ${
+                        isActive(link.href)
+                          ? "text-[#1A1614]"
+                          : "text-[#1A1614]/72 hover:text-[#C84B0C]"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                    {isDropdownMenu ? (
+                      <button
+                        type="button"
+                        aria-label={`Toggle ${link.label} menu`}
+                        className="p-1 text-[#1A1614]/72 transition-colors hover:text-[#C84B0C]"
+                        onClick={() =>
+                          setDesktopDropdown((current) =>
+                            current === link.dropdown ? null : link.dropdown || null,
+                          )
+                        }
+                      >
+                        <ChevronDown
+                          className={`h-3.5 w-3.5 transition-transform ${
+                            isMenuOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    ) : null}
+                  </div>
+
+                  {link.dropdown === "shop" ? (
+                    <div
+                      className={`absolute left-0 top-full z-50 w-64 border border-black/15 [border-width:1.5px] bg-[#F5EFE0] p-3 shadow-[0_8px_20px_rgba(0,0,0,0.1)] transition-all duration-150 ${
+                        isMenuOpen
+                          ? "visible translate-y-0 opacity-100"
+                          : "invisible pointer-events-none translate-y-1 opacity-0"
+                      }`}
+                    >
+                      <p
+                        className="mb-3 text-[9px] uppercase tracking-[0.12em] text-[#1A1614]/70"
+                        style={badgeFontStyle}
+                      >
+                        Shop
+                      </p>
+                      <div className="space-y-2" style={navFontStyle}>
+                        {SHOP_DROPDOWN_LINKS.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className="block border border-black/15 [border-width:1.5px] bg-white px-3 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-[#1A1614] transition-colors hover:text-[#C84B0C]"
                           >
                             {item.label}
-                          </span>
-                        </Link>
-                      ))}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
+                  ) : null}
 
-                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-black/60">
-                      Badge
-                    </p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {PRODUCT_BADGE_LINKS.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="border-2 border-black bg-[#FBD000] px-2 py-1.5 text-center text-[10px] font-black uppercase tracking-[0.1em] text-black transition-colors hover:bg-[#E70009] hover:text-white"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
+                  {link.dropdown === "products" ? (
+                    <div
+                      className={`absolute left-0 top-full z-50 w-[360px] border border-black/15 [border-width:1.5px] bg-[#F5EFE0] p-3 shadow-[0_8px_20px_rgba(0,0,0,0.1)] transition-all duration-150 ${
+                        isMenuOpen
+                          ? "visible translate-y-0 opacity-100"
+                          : "invisible pointer-events-none translate-y-1 opacity-0"
+                      }`}
+                    >
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p
+                            className="mb-2 text-[9px] uppercase tracking-[0.12em] text-[#1A1614]/70"
+                            style={badgeFontStyle}
+                          >
+                            By Category
+                          </p>
+                          <div className="space-y-2" style={navFontStyle}>
+                            {productCategoryLinks.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                className="block border border-black/15 [border-width:1.5px] bg-white px-3 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-[#1A1614] transition-colors hover:text-[#C84B0C]"
+                              >
+                                {item.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p
+                            className="mb-2 text-[9px] uppercase tracking-[0.12em] text-[#1A1614]/70"
+                            style={badgeFontStyle}
+                          >
+                            By Badge
+                          </p>
+                          <div className="space-y-2" style={navFontStyle}>
+                            {productBadgeLinks.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                className="block border border-black/15 [border-width:1.5px] bg-white px-3 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-[#1A1614] transition-colors hover:text-[#C84B0C]"
+                              >
+                                {item.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ) : null}
-              </div>
-            ))}
+                  ) : null}
+                </div>
+              )
+            })}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" style={navFontStyle}>
             <button
               type="button"
               onClick={openSearch}
               aria-label="Open search"
               title="Search"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/60 transition-all hover:border-primary hover:text-primary"
+              className="flex h-10 w-10 items-center justify-center border border-black/15 [border-width:1.5px] text-[#1A1614]/80 transition-colors hover:text-[#C84B0C]"
             >
               <Search className="h-[18px] w-[18px]" />
             </button>
 
             <button
               type="button"
-              className="flex h-10 w-10 items-center justify-center text-foreground/50 transition-colors hover:text-primary"
-            >
-              <User className="h-[18px] w-[18px]" />
-            </button>
-
-            <button
-              type="button"
               onClick={() => router.push("/products?favorites=1")}
-              className="relative flex h-10 w-10 items-center justify-center text-foreground/50 transition-colors hover:text-primary"
-              aria-label="Open favorite products"
+              className="relative flex h-10 w-10 items-center justify-center border border-black/15 [border-width:1.5px] text-[#1A1614]/80 transition-colors hover:text-[#C84B0C]"
+              aria-label="Open wishlist"
             >
               <Heart className="h-[18px] w-[18px]" />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#E70009] text-[10px] font-black text-white">
+              {wishlistCount > 0 ? (
+                <span
+                  className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center bg-[#E52222] px-1 text-[8px] text-white"
+                  style={badgeFontStyle}
+                >
                   {wishlistCount > 99 ? "99+" : wishlistCount}
                 </span>
-              )}
+              ) : null}
             </button>
 
             {showStickyCartSidebar ? (
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
-                className="relative flex h-10 w-10 items-center justify-center text-foreground/50 transition-colors hover:text-primary"
+                className="relative flex h-10 w-10 items-center justify-center border border-black/15 [border-width:1.5px] text-[#1A1614]/80 transition-colors hover:text-[#C84B0C]"
+                aria-label="Open cart"
               >
                 <ShoppingBag className="h-[18px] w-[18px]" />
-                {isHydrated && itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white">
+                {isHydrated && itemCount > 0 ? (
+                  <span
+                    className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center bg-[#E52222] px-1 text-[8px] text-white"
+                    style={badgeFontStyle}
+                  >
                     {itemCount > 99 ? "99+" : itemCount}
                   </span>
-                )}
+                ) : null}
               </button>
             ) : null}
 
             <button
               type="button"
-              onClick={() => setMobileOpen((p) => !p)}
-              className="flex h-10 w-10 items-center justify-center text-foreground/50 transition-colors hover:text-primary md:hidden"
+              onClick={() => setMobileOpen((current) => !current)}
+              className="flex h-10 w-10 items-center justify-center border border-black/15 [border-width:1.5px] text-[#1A1614]/80 transition-colors hover:text-[#C84B0C] md:hidden"
+              aria-label={mobileOpen ? "Close mobile menu" : "Open mobile menu"}
             >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </nav>
+      </header>
 
-        {/* Mobile menu */}
-        {mobileOpen && (
-          <div className="border-t-[3px] border-foreground bg-card md:hidden">
-            <div className="flex flex-col px-4 py-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href + link.label}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-2 border-b border-border py-4 text-sm font-black uppercase tracking-wider last:border-0 last:pb-0 ${
-                    isActive(link.href) ? "text-primary" : "text-foreground/60"
-                  }`}
+      {mobileOpen ? (
+        <div className="fixed inset-0 z-40 bg-[#F5EFE0]/98 backdrop-blur-md md:hidden">
+          <div className="h-full overflow-y-auto px-5 pb-8 pt-20">
+            <div className="mx-auto max-w-xl border border-black/15 [border-width:1.5px] bg-[#F5EFE0] p-4">
+              <div className="space-y-1" style={navFontStyle}>
+                {navLinks.map((link) => (
+                  <Link
+                    key={`mobile-${link.href}-${link.label}`}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`block border-b border-black/10 py-3 text-sm uppercase tracking-[0.14em] ${
+                      isActive(link.href)
+                        ? "text-[#1A1614]"
+                        : "text-[#1A1614]/80"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-5 border border-black/15 [border-width:1.5px] bg-white p-3">
+                <p
+                  className="mb-3 text-[9px] uppercase tracking-[0.12em] text-[#1A1614]/70"
+                  style={badgeFontStyle}
                 >
-                  {link.star && <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />}
-                  {link.label}
-                </Link>
-              ))}
+                  Shop
+                </p>
+                <div className="grid grid-cols-2 gap-2" style={navFontStyle}>
+                  {SHOP_DROPDOWN_LINKS.map((item) => (
+                    <Link
+                      key={`mobile-shop-${item.href}`}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="border border-black/15 [border-width:1.5px] px-2.5 py-2 text-[10px] uppercase tracking-[0.1em] text-[#1A1614]"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 border border-black/15 [border-width:1.5px] bg-white p-3">
+                <p
+                  className="mb-3 text-[9px] uppercase tracking-[0.12em] text-[#1A1614]/70"
+                  style={badgeFontStyle}
+                >
+                  Products
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p
+                      className="mb-2 text-[8px] uppercase tracking-[0.1em] text-[#1A1614]/65"
+                      style={badgeFontStyle}
+                    >
+                      By Category
+                    </p>
+                    <div className="space-y-2" style={navFontStyle}>
+                      {productCategoryLinks.map((item) => (
+                        <Link
+                          key={`mobile-category-${item.href}`}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="block border border-black/15 [border-width:1.5px] px-2.5 py-2 text-[10px] uppercase tracking-[0.1em] text-[#1A1614]"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p
+                      className="mb-2 text-[8px] uppercase tracking-[0.1em] text-[#1A1614]/65"
+                      style={badgeFontStyle}
+                    >
+                      By Badge
+                    </p>
+                    <div className="space-y-2" style={navFontStyle}>
+                      {productBadgeLinks.map((item) => (
+                        <Link
+                          key={`mobile-badge-${item.href}`}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="block border border-black/15 [border-width:1.5px] px-2.5 py-2 text-[10px] uppercase tracking-[0.1em] text-[#1A1614]"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-
-      </header>
+        </div>
+      ) : null}
 
       {showStickyCartSidebar ? (
         <CartSheet open={cartOpen} onOpenChange={setCartOpen} />

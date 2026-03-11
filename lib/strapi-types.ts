@@ -98,6 +98,7 @@ export interface StrapiGlobalConfig {
   themeColorSecondary: string;
   themeBackground: string;
   themeForeground: string;
+  saleEndDate?: string | null;
   copyrightText: string;
   socialLinks: StrapiSocialLink[];
   addToCartText: string;
@@ -141,6 +142,7 @@ export interface SlideshowData {
   primary_cta_link?: string | null;
   secondary_cta_text?: string | null;
   secondary_cta_link?: string | null;
+  bottom_note_text?: string | null;
   stats?: { value: string; label: string; color: string }[] | null;
 }
 
@@ -383,6 +385,7 @@ export interface ResolvedGlobalConfig {
     background: string;
     foreground: string;
   };
+  saleEndDate: string | null;
   footer: {
     copyrightText: string;
     socialLinks: { platform: string; url: string }[];

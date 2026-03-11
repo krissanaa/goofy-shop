@@ -38,9 +38,16 @@ export interface Product {
   sku: string;
   badge?: 'NEW' | 'DROP' | 'SALE' | 'HOT' | 'COLLAB';
   images?: StrapiMedia[];
+  brand_name?: string;
   stock_quantity: number;
   is_limited: boolean;
   is_sold_out: boolean;
+  sale_end_date?: string;
+  views_count?: number;
+  sold_count?: number;
+  average_rating?: number;
+  limit_per_customer?: number;
+  waitlist_count?: number;
   specs?: ProductSpecs;
   category?: Category;
   drop_events?: DropEvent[];
@@ -63,7 +70,10 @@ export interface Category {
 export interface DropEvent {
   id: number;
   title: string;
+  description?: string;
   release_date: string;
+  end_date?: string;
+  entered_count?: number;
   is_active: boolean;
   hero_banner?: StrapiMedia;
   featured_products?: Product[];
@@ -81,9 +91,16 @@ export interface ProductAttributes {
   sku: string;
   badge?: 'NEW' | 'DROP' | 'SALE' | 'HOT' | 'COLLAB';
   images?: StrapiMedia[];
+  brand_name?: string;
   stock_quantity: number;
   is_limited: boolean;
   is_sold_out: boolean;
+  sale_end_date?: string;
+  views_count?: number;
+  sold_count?: number;
+  average_rating?: number;
+  limit_per_customer?: number;
+  waitlist_count?: number;
   specs?: ProductSpecs;
   category?: { data: { id: number; attributes: CategoryAttributes } };
   drop_events?: { data: Array<{ id: number; attributes: DropEventAttributes }> };
@@ -104,7 +121,10 @@ export interface CategoryAttributes {
 
 export interface DropEventAttributes {
   title: string;
+  description?: string;
   release_date: string;
+  end_date?: string;
+  entered_count?: number;
   is_active: boolean;
   hero_banner?: StrapiMedia;
   featured_products?: { data: Array<{ id: number; attributes: ProductAttributes }> };

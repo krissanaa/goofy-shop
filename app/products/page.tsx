@@ -27,6 +27,7 @@ interface ProductsPageProps {
   searchParams: Promise<{
     category?: string
     type?: string
+    badge?: string
     filter?: string
     q?: string
     sort?: string
@@ -91,9 +92,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     : params.type
       ? decodeURIComponent(params.type)
     : pageConfig.defaultCategory
-  const requestedFilter = params.filter
-    ? decodeURIComponent(params.filter).trim().toLowerCase()
-    : ""
+  const requestedFilter = params.badge
+    ? decodeURIComponent(params.badge).trim().toLowerCase()
+    : params.filter
+      ? decodeURIComponent(params.filter).trim().toLowerCase()
+      : ""
   const initialBadgeFilter: BadgeFilterOption =
     BADGE_FILTER_MAP[requestedFilter] ?? "ALL"
   const initialSearch = params.q ? decodeURIComponent(params.q) : ""
@@ -237,7 +240,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
         <section className="mx-auto w-full max-w-[1280px] px-4 pb-14 pt-8 md:px-8">
           <ProductGridClient
-            sectionTitle={pageConfig.pageTitle}
+            sectionTitle={showHeroScene ? "SHOP CATALOG" : pageConfig.pageTitle}
             products={products}
             categories={showCategoryTabs ? categoryNames : undefined}
             initialCategory={initialCategory}
