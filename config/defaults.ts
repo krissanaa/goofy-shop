@@ -17,6 +17,7 @@ export const defaultGlobalConfig: ResolvedGlobalConfig = {
     { label: 'Shop', url: '/', iconName: null, openInNewTab: false },
     { label: 'Drops', url: '/drop', iconName: 'star', openInNewTab: false },
     { label: 'Products', url: '/products', iconName: null, openInNewTab: false },
+    { label: 'About', url: '/about', iconName: null, openInNewTab: false },
   ],
   navigation: {
     shopMenu: {
@@ -39,8 +40,8 @@ export const defaultGlobalConfig: ResolvedGlobalConfig = {
   theme: {
     primary: '#e52521',
     secondary: '#049cd8',
-    background: '#fafaf8',
-    foreground: '#1a1a2e',
+    background: '#f7f7f5',
+    foreground: '#111111',
   },
   saleEndDate: null,
   footer: {
@@ -145,7 +146,7 @@ export const defaultHomePageSections: PageSection[] = [
     primary_cta_text: 'SHOP NOW',
     primary_cta_link: '/products',
     secondary_cta_text: 'WATCH US SKATE ▶',
-    secondary_cta_link: '#videos',
+    secondary_cta_link: '/about#videos',
     stats: [
       { value: '50+', label: 'Products', color: '#F8B800' },
       { value: '100+', label: 'Community', color: '#F8B800' },
@@ -198,25 +199,25 @@ export const defaultHomePageSections: PageSection[] = [
   {
     __component: 'sections.new-arrivals',
     id: 5,
-    title: 'NEW ARRIVALS',
-    subtitle: 'Just landed',
-    limit: 4,
+    title: 'NEW PRODUCTS',
+    subtitle: '',
+    limit: 6,
     badge_filter: 'NEW',
   },
   {
     __component: 'sections.new-arrivals',
     id: 6,
-    title: 'SALE',
-    subtitle: 'Limited markdowns moving now',
-    limit: 4,
+    title: 'PRODUCTS ON SALE',
+    subtitle: '',
+    limit: 6,
     badge_filter: 'SALE',
   },
   {
     __component: 'sections.new-arrivals',
     id: 7,
-    title: 'HOT TRENDING',
-    subtitle: 'What the community is watching most',
-    limit: 4,
+    title: 'POPULAR PRODUCTS',
+    subtitle: '',
+    limit: 6,
     badge_filter: 'HOT',
   },
   {
@@ -252,48 +253,51 @@ export const defaultHomePageSections: PageSection[] = [
       { name: 'REAL', url: 'https://www.realskateboards.com', logoUrl: 'https://logo.clearbit.com/realskateboards.com' },
     ],
   },
-  {
-    __component: 'sections.youtube-links',
-    id: 11,
-    title: 'YOUTUBE LINKS',
-    subtitle: 'Latest edits, tutorials, and setup videos.',
-    card_style: 'original-picture',
-    items: [
-      {
-        title: 'Street Session Highlights',
-        label: 'EDIT',
-        date: '2026-03-01',
-        duration: '06:42',
-        color_name: 'red',
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      },
-      {
-        title: 'Kickflip Basics in 5 Minutes',
-        label: 'TUTORIAL',
-        date: '2026-02-21',
-        duration: '05:14',
-        color_name: 'yellow',
-        url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
-      },
-      {
-        title: 'Deck Setup: Trucks + Wheels',
-        label: 'HOW TO',
-        date: '2026-02-10',
-        duration: '08:09',
-        color_name: 'blue',
-        url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
-      },
-      {
-        title: 'Best Flatground Tricks This Week',
-        label: 'WEEKLY',
-        date: '2026-01-29',
-        duration: '04:33',
-        color_name: 'green',
-        url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0',
-      },
-    ],
-  },
 ];
+
+const defaultYoutubeLinksSection: PageSection = {
+  __component: 'sections.youtube-links',
+  id: 11,
+  title: 'YOUTUBE LINKS',
+  subtitle: 'Latest edits, tutorials, and setup videos.',
+  card_style: 'original-picture',
+  items: [
+    {
+      title: 'Street Session Highlights',
+      label: 'EDIT',
+      date: '2026-03-01',
+      duration: '06:42',
+      color_name: 'red',
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    },
+    {
+      title: 'Kickflip Basics in 5 Minutes',
+      label: 'TUTORIAL',
+      date: '2026-02-21',
+      duration: '05:14',
+      color_name: 'yellow',
+      url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
+    },
+    {
+      title: 'Deck Setup: Trucks + Wheels',
+      label: 'HOW TO',
+      date: '2026-02-10',
+      duration: '08:09',
+      color_name: 'blue',
+      url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+    },
+    {
+      title: 'Best Flatground Tricks This Week',
+      label: 'WEEKLY',
+      date: '2026-01-29',
+      duration: '04:33',
+      color_name: 'green',
+      url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0',
+    },
+  ],
+} as PageSection;
+
+export const defaultAboutPageSections: PageSection[] = [defaultYoutubeLinksSection];
 
 export const defaultSeoTitle = 'GOOFY SHOP - Streetwear & Skate';
 export const defaultSeoDescription = 'GOOFY is the first skateboard shop and skate community in Laos. Premium hardware and limited drops.';

@@ -15,18 +15,21 @@ interface CategoryItem {
   subtitle: string
   link: string
   imageUrl?: string
+  accentColor?: string
 }
 
 const DESIRED_CATEGORIES: Array<{
   key: DesiredCategoryKey
   title: string
   subtitle: string
+  accentColor: string
   fallbackImageUrl: string
 }> = [
   {
     key: "decks",
     title: "DECKS",
     subtitle: "Street and park setups",
+    accentColor: "#E70009",
     fallbackImageUrl:
       "https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=1200&q=80",
   },
@@ -34,6 +37,7 @@ const DESIRED_CATEGORIES: Array<{
     key: "wheels",
     title: "WHEELS",
     subtitle: "Grip, speed, and control",
+    accentColor: "#FBD000",
     fallbackImageUrl:
       "https://images.unsplash.com/photo-1547447134-cd3f5c716030?auto=format&fit=crop&w=1200&q=80",
   },
@@ -41,6 +45,7 @@ const DESIRED_CATEGORIES: Array<{
     key: "apparel",
     title: "APPAREL",
     subtitle: "Daily wear and skate fits",
+    accentColor: "#6B8CFF",
     fallbackImageUrl:
       "https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1200&q=80",
   },
@@ -48,6 +53,7 @@ const DESIRED_CATEGORIES: Array<{
     key: "trucks",
     title: "TRUCKS",
     subtitle: "Precision turning hardware",
+    accentColor: "#00AA00",
     fallbackImageUrl:
       "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80",
   },
@@ -55,6 +61,7 @@ const DESIRED_CATEGORIES: Array<{
     key: "gear",
     title: "GEAR",
     subtitle: "Tools, bags, and session extras",
+    accentColor: "#E70009",
     fallbackImageUrl:
       "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
   },
@@ -62,6 +69,7 @@ const DESIRED_CATEGORIES: Array<{
     key: "accessories",
     title: "ACCESSORIES",
     subtitle: "Pins, wax, grip, and add-ons",
+    accentColor: "#6B8CFF",
     fallbackImageUrl:
       "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80",
   },
@@ -96,27 +104,35 @@ function extractCategoryHints(link: string): string[] {
 function normalizeItems(items: any[]): CategoryItem[] {
   if (!Array.isArray(items) || items.length === 0) return []
 
-  return items
-    .map((item) => {
-      const obj = item as Record<string, unknown>
-      const title = typeof obj?.title === "string" ? obj.title.trim() : ""
-      if (!title) return null
+  const normalizedItems: CategoryItem[] = []
 
-      const subtitle = typeof obj?.subtitle === "string" ? obj.subtitle.trim() : ""
-      const rawLink =
-        typeof obj?.link === "string"
-          ? obj.link.trim()
-          : typeof obj?.url === "string"
-            ? obj.url.trim()
-            : ""
+  for (const item of items) {
+    const obj = item as Record<string, unknown>
+    const title = typeof obj?.title === "string" ? obj.title.trim() : ""
+    if (!title) continue
 
-      return {
-        title,
-        subtitle: subtitle || "Explore products",
-        link: rawLink || `/products?category=${encodeURIComponent(title)}`,
-      }
+    const subtitle = typeof obj?.subtitle === "string" ? obj.subtitle.trim() : ""
+    const rawLink =
+      typeof obj?.link === "string"
+        ? obj.link.trim()
+        : typeof obj?.url === "string"
+          ? obj.url.trim()
+          : ""
+
+    normalizedItems.push({
+      title,
+      subtitle: subtitle || "Explore products",
+      link: rawLink || `/products?category=${encodeURIComponent(title)}`,
+      accentColor:
+        typeof obj?.accentColor === "string"
+          ? obj.accentColor.trim()
+          : typeof obj?.accent_color === "string"
+            ? obj.accent_color.trim()
+            : "",
     })
-    .filter((item): item is CategoryItem => Boolean(item))
+  }
+
+  return normalizedItems
 }
 
 function matchesDesiredCategory(value: string, desiredKey: DesiredCategoryKey): boolean {
@@ -184,6 +200,7 @@ export async function DynamicCategoryRow({ data }: DynamicCategoryRowProps) {
       key: desired.key,
       title: desired.title,
       subtitle: configuredItem?.subtitle || desired.subtitle,
+      accentColor: configuredItem?.accentColor || desired.accentColor,
       href: liveCategory
         ? `/products?category=${encodeURIComponent(liveCategory.slug)}`
         : `/products?category=${encodeURIComponent(desired.key)}`,

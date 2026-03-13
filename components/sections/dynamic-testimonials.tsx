@@ -33,7 +33,7 @@ export function DynamicTestimonials({ data }: DynamicTestimonialsProps) {
   const items = normalizeItems(data.items).slice(0, 6)
 
   return (
-    <section className="bg-[#F1EEE8] py-12">
+    <section className="bg-[#F7F7F5] py-12">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="mb-5">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-black">
@@ -45,7 +45,7 @@ export function DynamicTestimonials({ data }: DynamicTestimonialsProps) {
           {items.map((item, index) => (
             <article
               key={`${item.author}-${index}`}
-              className="border-2 border-black bg-[#F5F2EB] p-5"
+              className="border-2 border-black bg-white p-5"
             >
               <p className="text-sm leading-relaxed text-black/80">"{item.quote}"</p>
               <p className="mt-4 text-xs font-black uppercase tracking-[0.12em] text-[#E70009]">

@@ -7,10 +7,17 @@ export async function getProducts() {
   return data || []
 }
 
-export async function getProductsByBadge(badge: string, limit = 4) {
-  const { data } = await supabase
-    .from('products').select('*')
-    .eq('badge', badge).limit(limit)
+export async function getProductsByBadge(badge: string, limit: number | null = 4) {
+  let query = supabase
+    .from('products')
+    .select('*')
+    .eq('badge', badge)
+
+  if (typeof limit === 'number' && Number.isFinite(limit) && limit > 0) {
+    query = query.limit(limit)
+  }
+
+  const { data } = await query
   return data || []
 }
 

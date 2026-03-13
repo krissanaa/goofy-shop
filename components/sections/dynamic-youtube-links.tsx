@@ -198,7 +198,7 @@ function normalizeItem(raw: unknown): YoutubeCardItem | null {
   const videoId = getYoutubeVideoId(url)
   const thumbnailUrl =
     thumbnailCandidate ||
-    (videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : "/images/placeholder.jpg")
+    (videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : "")
   const accentColor = resolveAccentColor(record)
 
   return {
@@ -255,13 +255,21 @@ export function DynamicYoutubeLinks({ data }: DynamicYoutubeLinksProps) {
               style={{ ["--accent-color" as const]: item.accentColor } as CSSProperties}
             >
               <div className="relative h-[78%] overflow-hidden border-b-2 border-black bg-[#D9D9D9]">
-                <Image
-                  src={item.thumbnailUrl}
-                  alt={item.title}
-                  fill
-                  className="object-cover transition-transform duration-200 group-hover:scale-105"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
+                {item.thumbnailUrl ? (
+                  <Image
+                    src={item.thumbnailUrl}
+                    alt={item.title}
+                    fill
+                    className="object-cover transition-transform duration-200 group-hover:scale-105"
+                    sizes="(max-width: 1024px) 50vw, 25vw"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(to_right,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.04)_1px,transparent_1px)] [background-size:12px_12px]">
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-black/55">
+                      Video Preview Soon
+                    </span>
+                  </div>
+                )}
 
                 <div
                   className={

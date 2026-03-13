@@ -4,7 +4,11 @@ import {
 import { Navbar } from "@/components/navbar"
 import { defaultGlobalConfig, defaultLocationsPageConfig } from "@/config/defaults"
 
-export async function NavbarServer() {
+interface NavbarServerProps {
+  topOffset?: number
+}
+
+export async function NavbarServer({ topOffset = 0 }: NavbarServerProps = {}) {
   const config = defaultGlobalConfig
   const locationsPage = defaultLocationsPageConfig
   const shopMenuConfig = config.navigation.shopMenu
@@ -35,6 +39,7 @@ export async function NavbarServer() {
   return (
     <Navbar
       categories={categories}
+      topOffset={topOffset}
       locationMenu={{
         enabled: locationsPage.menuEnabled,
         label: locationsPage.menuLabel,

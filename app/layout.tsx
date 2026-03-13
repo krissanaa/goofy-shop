@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Grotesk, Geist_Mono } from 'next/font/google'
+import { Barlow_Condensed, DM_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/hooks/use-cart'
 import { Toaster } from '@/components/ui/toaster'
@@ -10,13 +10,16 @@ import { GlobalWatermark } from '@/components/global-watermark'
 import { defaultGlobalConfig } from '@/config/defaults'
 import './globals.css'
 
-const spaceGrotesk = Space_Grotesk({
+const barlowCondensed = Barlow_Condensed({
   subsets: ['latin'],
-  variable: '--font-space-grotesk',
+  weight: ['400', '500', '600', '700', '800', '900'],
+  style: ['normal', 'italic'],
+  variable: '--font-barlow-condensed',
 })
-const geistMono = Geist_Mono({
+const dmMono = DM_Mono({
   subsets: ['latin'],
-  variable: '--font-geist-mono',
+  weight: ['400', '500'],
+  variable: '--font-dm-mono',
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -38,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#6B8CFF',
+  themeColor: '#0A0A0A',
   userScalable: true,
 }
 
@@ -65,7 +68,7 @@ export default async function RootLayout({
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeVars }} />
       </head>
-      <body className={`${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body className={`${barlowCondensed.variable} ${dmMono.variable} font-sans antialiased`}>
         <TRPCProvider>
           <CartProvider>
             <GlobalConfigProvider config={config}>

@@ -18,7 +18,7 @@ export function DynamicStreetsBanner({ data }: DynamicStreetsBannerProps) {
     : null
 
   return (
-    <section className="relative overflow-hidden bg-[#F1EEE8] py-12">
+    <section className="relative overflow-hidden bg-[#F7F7F5] py-12">
       {bannerImageUrl ? (
         <Image
           src={bannerImageUrl}

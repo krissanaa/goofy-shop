@@ -1,7 +1,7 @@
 ﻿"use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { Heart, Search, Share2 } from "lucide-react"
+import { type CSSProperties, useEffect, useMemo, useState } from "react"
+import { Search, Share2 } from "lucide-react"
 import type { ResolvedLocationPark } from "@/lib/types/cms"
 
 type ParkFilter = "all" | "free" | "indoor" | "bowl" | "street" | "night"
@@ -11,8 +11,6 @@ interface SkateparksPageProps {
   searchPlaceholder: string
   parks: ResolvedLocationPark[]
 }
-
-const STORAGE_KEY = "goofy-shop-skateparks-saved-v1"
 
 const FILTERS: Array<{ key: ParkFilter; label: string }> = [
   { key: "all", label: "All" },
@@ -31,18 +29,6 @@ const PANEL_CLASSES = [
   "bg-[#F6DFDF]",
 ] as const
 
-function parseSavedIds(raw: string | null): string[] {
-  if (!raw) return []
-
-  try {
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return []
-    return parsed.filter((value): value is string => typeof value === "string")
-  } catch {
-    return []
-  }
-}
-
 function buildMapUrl(park: ResolvedLocationPark): string {
   const query = park.mapsQuery?.trim() || `${park.name}, ${park.address}`
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
@@ -56,8 +42,8 @@ function renderStars(rating: number): string {
 export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: SkateparksPageProps) {
   const [filter, setFilter] = useState<ParkFilter>("all")
   const [query, setQuery] = useState("")
-  const [saved, setSaved] = useState<Set<string>>(new Set())
   const [shareMessage, setShareMessage] = useState<string | null>(null)
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
   const openCount = useMemo(
     () => parks.filter((park) => park.status === "open").length,
     [parks],
@@ -101,32 +87,10 @@ export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: Skatepar
   }, [filter, parks, query])
 
   useEffect(() => {
-    if (typeof window === "undefined") return
-    setSaved(new Set(parseSavedIds(window.localStorage.getItem(STORAGE_KEY))))
-  }, [])
-
-  useEffect(() => {
     if (!shareMessage) return
     const timer = window.setTimeout(() => setShareMessage(null), 1400)
     return () => window.clearTimeout(timer)
   }, [shareMessage])
-
-  const toggleSave = (parkId: string) => {
-    setSaved((current) => {
-      const next = new Set(current)
-      if (next.has(parkId)) {
-        next.delete(parkId)
-      } else {
-        next.add(parkId)
-      }
-
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(next)))
-      }
-
-      return next
-    })
-  }
 
   const sharePark = async (park: ResolvedLocationPark) => {
     const url = buildMapUrl(park)
@@ -257,22 +221,33 @@ export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: Skatepar
           </div>
         ) : (
           filtered.map((park, index) => {
-            const isSaved = saved.has(park.id)
             const mapUrl = buildMapUrl(park)
             const ratingText = park.reviewsCount > 0 ? park.rating.toFixed(1) : "No reviews"
             const panelClass = PANEL_CLASSES[index % PANEL_CLASSES.length]
+            const accentColor = park.status === "open" ? "#00AA00" : "#E70009"
+            const hasImage = Boolean(park.imageUrl) && !imageErrors[park.id]
 
             return (
               <article
                 key={park.id}
-                className="group relative border-4 border-black bg-[#E6E6E6] shadow-[4px_4px_0_#0A0A0A] transition-[transform,box-shadow] duration-200 [will-change:transform] hover:z-10 hover:-translate-y-1 hover:scale-[1.015] hover:shadow-[4px_4px_0_#CE1126,8px_8px_0_#002868] focus-within:z-10 focus-within:-translate-y-1 focus-within:scale-[1.015] focus-within:shadow-[4px_4px_0_#CE1126,8px_8px_0_#002868]"
+                className="group relative overflow-hidden border-4 border-black bg-[#E6E6E6] shadow-[4px_4px_0_#0A0A0A] transition-[transform,box-shadow] duration-200 [will-change:transform] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--park-accent),8px_8px_0_#002868] focus-within:-translate-y-0.5 focus-within:shadow-[4px_4px_0_var(--park-accent),8px_8px_0_#002868]"
+                style={{ ["--park-accent" as const]: accentColor } as CSSProperties}
               >
-                <div className="flex items-center justify-between border-b-2 border-black bg-white px-2 py-1">
-                  <span className="border border-black bg-[#FBD000] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-black">
-                    {park.categoryLabel || "Skatepark"}
-                  </span>
+                <div className={`relative border-b-2 border-black ${panelClass}`}>
+                  <div className="absolute left-2 top-2 z-10 flex items-center gap-1">
+                    <span
+                      className={`border border-black px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-white ${
+                        park.status === "open" ? "bg-[#00AA00]" : "bg-[#E70009]"
+                      }`}
+                    >
+                      {park.status === "open" ? "Open" : "Closed"}
+                    </span>
+                    <span className="border border-black bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-black">
+                      {park.photoCount > 0 ? `${park.photoCount} photos` : "No photos"}
+                    </span>
+                  </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="absolute right-2 top-2 z-10 flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => sharePark(park)}
@@ -281,75 +256,86 @@ export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: Skatepar
                     >
                       <Share2 className="h-3.5 w-3.5" />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleSave(park.id)}
-                      className="grid h-5 w-5 place-items-center border border-black bg-white text-black transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#FBD000] active:translate-y-0.5"
-                      aria-label={isSaved ? `Remove ${park.name} from saved` : `Save ${park.name}`}
+                  </div>
+
+                  <div className="relative flex aspect-[1/1.08] items-center justify-center bg-[linear-gradient(to_right,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.04)_1px,transparent_1px)] [background-size:12px_12px]">
+                    {hasImage ? (
+                      <img
+                        src={park.imageUrl}
+                        alt={park.name}
+                        loading="lazy"
+                        onError={() => {
+                          setImageErrors((current) =>
+                            current[park.id] ? current : { ...current, [park.id]: true },
+                          )
+                        }}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04] group-focus-within:scale-[1.04]"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center px-5 text-center">
+                        <div className="space-y-1">
+                          <p className="text-[0.8rem] font-black uppercase tracking-[0.16em] text-black/55">
+                            Photo Soon
+                          </p>
+                          <p className="text-[1rem] font-black uppercase leading-[0.92] text-black">
+                            {park.placeCode || park.address || "Skate Park"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/78 via-black/20 to-transparent" />
+                  </div>
+
+                  <div className="absolute inset-x-0 bottom-0 z-10 p-3">
+                    <h3
+                      className="line-clamp-2 text-[1.4rem] font-black uppercase leading-[0.88] text-white"
+                      style={{ textShadow: "2px 2px 0 #0A0A0A" }}
                     >
-                      <Heart className={`h-3.5 w-3.5 ${isSaved ? "fill-[#E70009] text-[#E70009] scale-110" : "text-black"}`} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className={`relative border-b-2 border-black ${panelClass}`}>
-                  <div className="relative flex h-36 items-center justify-center bg-[linear-gradient(to_right,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.04)_1px,transparent_1px)] [background-size:12px_12px]">
-                    <img
-                      src={park.imageUrl}
-                      alt={park.name}
-                      loading="lazy"
-                      className="h-28 w-28 object-cover drop-shadow-[2px_2px_0_#0A0A0A]"
-                    />
+                      {park.name}
+                    </h3>
                   </div>
 
-                  <span className="absolute left-2 top-2 border border-black bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-black">
-                    {park.photoCount > 0 ? `${park.photoCount} photos` : "No photos"}
-                  </span>
-
-                  <span
-                    className={`absolute bottom-2 left-2 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white ${
-                      park.status === "open" ? "bg-[#00AA00]" : "bg-[#E70009]"
-                    }`}
-                  >
-                    {park.status === "open" ? "Open" : "Closed"}
-                  </span>
-
-                  <span className="absolute bottom-2 right-2 bg-black/75 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
+                  <span className="absolute bottom-3 right-3 z-10 border border-black bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-black">
                     {park.distance || park.placeCode || ""}
                   </span>
                 </div>
 
-                <div className="flex flex-col p-2">
-                  <h3 className="line-clamp-1 text-sm font-black uppercase tracking-[0.08em] text-black">
-                    {park.name}
-                  </h3>
+                <div className="space-y-2 px-3 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p
+                        className="text-[10px] font-bold uppercase tracking-[0.12em]"
+                        style={{ color: accentColor }}
+                      >
+                        {park.opensText || "Open hours unavailable"}
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-[0.82rem] leading-[1.2] text-black/65">
+                        {park.address}
+                      </p>
+                    </div>
 
-                  <p className="mt-1 text-xs text-black/65">
-                    {park.address}
-                  </p>
-
-                  <div className="mt-2 flex items-center gap-1">
-                    {park.reviewsCount > 0 ? (
-                      <>
-                        <span className="text-xs font-bold text-black">{ratingText}</span>
-                        <span className="text-[11px] text-[#FBD000]">{renderStars(park.rating)}</span>
-                        <span className="text-[10px] font-semibold text-black/60">({park.reviewsCount})</span>
-                      </>
-                    ) : (
-                      <span className="text-[10px] font-semibold text-black/60">No reviews</span>
-                    )}
+                    <div className="shrink-0 text-right">
+                      {park.reviewsCount > 0 ? (
+                        <>
+                          <p className="text-[1rem] font-black leading-none text-black">{ratingText}</p>
+                          <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-black/60">
+                            {park.reviewsCount} reviews
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-black/60">
+                          No reviews
+                        </p>
+                      )}
+                    </div>
                   </div>
 
-                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black/60">
-                    {park.opensText || "Open hours unavailable"}
-                  </p>
-
                   {park.reviewSnippet ? (
-                    <p className="mt-1 line-clamp-2 text-xs text-black/70">\"{park.reviewSnippet}\"</p>
+                    <p className="line-clamp-2 text-xs text-black/70">"{park.reviewSnippet}"</p>
                   ) : null}
 
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {park.tags.map((tag) => (
+                  <div className="flex flex-wrap gap-1.5">
+                    {park.tags.slice(0, 3).map((tag) => (
                       <span
                         key={`${park.id}-${tag}`}
                         className="border border-black bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-black/80"

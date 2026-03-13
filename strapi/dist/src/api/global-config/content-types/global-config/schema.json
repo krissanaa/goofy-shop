@@ -1,0 +1,109 @@
+{
+    "kind": "singleType",
+    "collectionName": "global_configs",
+    "info": {
+        "singularName": "global-config",
+        "pluralName": "global-configs",
+        "displayName": "Global Config",
+        "description": "Site-wide settings: identity, navigation, theme, footer"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "siteName": {
+            "type": "string",
+            "required": true,
+            "default": "GOOFY SHOP"
+        },
+        "siteDescription": {
+            "type": "text"
+        },
+        "favicon": {
+            "type": "media",
+            "multiple": false,
+            "allowedTypes": ["images"]
+        },
+        "logo_pixel_art": {
+            "type": "media",
+            "multiple": false,
+            "allowedTypes": ["images"]
+        },
+        "mainMenu": {
+            "type": "component",
+            "repeatable": true,
+            "component": "shared.menu-item"
+        },
+        "shopMenuGodMode": {
+            "type": "boolean",
+            "default": true
+        },
+        "shopMenuEnabled": {
+            "type": "boolean",
+            "default": true
+        },
+        "shopMenuCategoryLimit": {
+            "type": "integer",
+            "default": 4,
+            "min": 1
+        },
+        "shopMenuTrendingLimit": {
+            "type": "integer",
+            "default": 4,
+            "min": 1
+        },
+        "siteGodMode": {
+            "type": "component",
+            "repeatable": false,
+            "component": "settings.site-god-mode"
+        },
+        "topBarText": {
+            "type": "json"
+        },
+        "isAnnouncementActive": {
+            "type": "boolean",
+            "default": true
+        },
+        "barColor": {
+            "type": "string",
+            "default": "#e52521"
+        },
+        "themeColorPrimary": {
+            "type": "string",
+            "default": "#e52521"
+        },
+        "themeColorSecondary": {
+            "type": "string",
+            "default": "#049cd8"
+        },
+        "themeBackground": {
+            "type": "string",
+            "default": "#fafaf8"
+        },
+        "themeForeground": {
+            "type": "string",
+            "default": "#1a1a2e"
+        },
+        "saleEndDate": {
+            "type": "datetime"
+        },
+        "copyrightText": {
+            "type": "string",
+            "default": "© 2026 Goofy Shop. All rights reserved."
+        },
+        "socialLinks": {
+            "type": "component",
+            "repeatable": true,
+            "component": "shared.social-link"
+        },
+        "addToCartText": {
+            "type": "string",
+            "default": "Add to Cart"
+        },
+        "soldOutText": {
+            "type": "string",
+            "default": "Sold Out"
+        }
+    }
+}

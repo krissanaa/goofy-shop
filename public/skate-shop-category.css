@@ -1,0 +1,304 @@
+:root {
+  --page-bg: #0e0e0e;
+  --card-bg: #161616;
+  --gold: #c8a84b;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f4f0eb;
+  --muted: rgba(244, 240, 235, 0.62);
+  --watermark: rgba(244, 240, 235, 0.03);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: "Barlow", sans-serif;
+}
+
+.category-page {
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.page-header {
+  margin: 0 auto 28px;
+  max-width: 1440px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--gold);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(56px, 8vw, 120px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.intro {
+  margin: 8px 0 0;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(270px, 1fr));
+  gap: 2px;
+  margin: 0 auto;
+  max-width: 1440px;
+}
+
+.category-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 270px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(28px);
+  animation: fade-up 720ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+.category-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 20%, var(--tint) 0%, transparent 46%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.1)),
+    linear-gradient(180deg, #141414 0%, #050505 100%);
+  transform: scale(1);
+  transition: transform 650ms ease, filter 650ms ease;
+}
+
+.category-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.08) 0%,
+    rgba(10, 10, 10, 0.2) 42%,
+    rgba(10, 10, 10, 0.88) 100%
+  );
+  transition: background 320ms ease;
+}
+
+.category-card:hover::before,
+.category-card:focus-visible::before {
+  transform: scale(1.04);
+  filter: brightness(1.06);
+}
+
+.category-card:hover::after,
+.category-card:focus-visible::after {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.12) 0%,
+    rgba(10, 10, 10, 0.28) 42%,
+    rgba(10, 10, 10, 0.94) 100%
+  );
+}
+
+.category-card--hero {
+  grid-row: 1 / span 2;
+}
+
+.category-card--hero .category-name {
+  font-size: clamp(72px, 8vw, 108px);
+}
+
+.category-card--small .category-name {
+  font-size: clamp(48px, 5vw, 64px);
+}
+
+.watermark {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  color: var(--watermark);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(52px, 8vw, 140px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.card-number {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 3;
+  color: rgba(244, 240, 235, 0.8);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.card-content {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 3;
+  padding: 22px 22px 24px;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-tagline {
+  color: var(--muted);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.card-tagline.is-active {
+  color: var(--gold);
+}
+
+.card-count {
+  color: rgba(244, 240, 235, 0.54);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.accent-line {
+  width: 56px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.category-name {
+  margin: 0;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.card-subtitle {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.card-price {
+  margin: 10px 0 0;
+  color: var(--gold);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.card-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 280ms ease, transform 280ms ease, background-color 280ms ease;
+}
+
+.card-button .arrow {
+  display: inline-block;
+  transform: translateX(0);
+  transition: transform 280ms ease;
+}
+
+.category-card:hover .card-button,
+.category-card:focus-visible .card-button {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.category-card:hover .card-button,
+.category-card:focus-visible .card-button {
+  background: rgba(200, 168, 75, 0.16);
+}
+
+.category-card:hover .card-button .arrow,
+.category-card:focus-visible .card-button .arrow {
+  transform: translateX(4px);
+}
+
+@keyframes fade-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 920px) {
+  .category-page {
+    padding: 24px;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  .category-card,
+  .category-card--hero {
+    grid-row: auto;
+    min-height: 320px;
+  }
+
+  .card-button {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

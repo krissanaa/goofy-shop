@@ -8,6 +8,17 @@ interface DynamicNewArrivalsProps {
 export async function DynamicNewArrivals({ data }: DynamicNewArrivalsProps) {
   const globalConfig =
     data.badge_filter === "SALE" ? defaultGlobalConfig : null
+  const badgeFilter = typeof data.badge_filter === "string"
+    ? data.badge_filter.toUpperCase()
+    : "NEW"
+  const emptyMessage =
+    badgeFilter === "SALE"
+      ? "No sale items live right now"
+      : badgeFilter === "HOT"
+        ? "No trending products found right now"
+        : badgeFilter === "COLLAB"
+          ? "No collab pieces are active right now"
+          : "No new arrivals yet"
 
   return (
     <DynamicBadgeProductSlot
@@ -16,7 +27,7 @@ export async function DynamicNewArrivals({ data }: DynamicNewArrivalsProps) {
       limit={data.limit}
       badgeFilter={data.badge_filter}
       defaultBadgeFilter="NEW"
-      emptyMessage="No new arrivals yet"
+      emptyMessage={emptyMessage}
       saleEndDateOverride={globalConfig?.saleEndDate ?? null}
     />
   )

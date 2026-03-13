@@ -46,7 +46,7 @@ export function DynamicSponsorStrip({ data }: DynamicSponsorStripProps) {
   const brands = normalizeLogos(data.logos)
 
   return (
-    <section className="w-full bg-[#F1EEE8] py-8">
+    <section className="w-full bg-[#F7F7F5] py-8">
       <SponsorLogoStrip brands={brands} title={`* ${title} *`} />
     </section>
   )
