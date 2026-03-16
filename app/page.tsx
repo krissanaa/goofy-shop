@@ -21,14 +21,15 @@ import {
   type FindYourSpotItem,
 } from "@/components/homepage/find-your-spot"
 import { HeroSlider } from "@/components/homepage/hero-slider"
+import { LatestVideoMixed } from "@/components/homepage/latest-video-mixed"
 import { LiveDropBanner } from "@/components/homepage/live-drop-banner"
 import { NewArrivalsSlider } from "@/components/homepage/new-arrivals-slider"
+import { ReadyToSkate } from "@/components/homepage/ready-to-skate"
 import { NavbarServer } from "@/components/navbar-server"
 import { StaggerList } from "@/components/StaggerList"
 import { TopMarquee } from "@/components/top-marquee"
 import { SearchCommand } from "@/components/search-command"
 import { defaultSeoDescription, defaultSeoTitle } from "@/config/defaults"
-import { EASE_OUT, EASE_SNAP } from "@/lib/motion"
 import { supabase } from "@/lib/supabase"
 
 type GenericRow = Record<string, unknown>
@@ -44,6 +45,8 @@ type ProductRow = GenericRow & {
 
 const TOP_MARQUEE_TEXT =
   "First Skate Shop in Laos · New Drop Every Week · ຮ້ານສະເກັດທຳອິດໃນລາວ · Free Shipping Over ₭500,000 · Vientiane Street Culture · Shop · Community · Drops"
+
+const FEATURED_GOOFY_VIDEO_URL = "https://www.youtube.com/watch?v=2WapgjbfXNM"
 
 const HOMEPAGE_CATEGORY_TOPICS: Array<{
   key: HomeCategoryKey
@@ -679,7 +682,8 @@ export default async function HomePage() {
   const latestVideo = (videoRows[0] ?? null) as GenericRow | null
   const videoTitle = getString(latestVideo, ["title", "name"], "Latest Video")
   const videoDescription = getExcerpt(latestVideo ?? {})
-  const videoUrl = getString(latestVideo, ["youtube_url", "url", "link"])
+  const videoUrl = FEATURED_GOOFY_VIDEO_URL
+  const videoPlaybackSrc = FEATURED_GOOFY_VIDEO_URL
   const videoId = getYouTubeId(videoUrl)
   const videoThumbnail = videoId
     ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
@@ -855,114 +859,16 @@ export default async function HomePage() {
 
         <FindYourSpot spots={findYourSpotItems} />
 
-        <section className="goofy-dark-grid bg-[var(--black)] px-5 py-16 text-[var(--white)] md:px-10">
-          <FadeSection variant="in">
-          <div className="mx-auto grid max-w-[1480px] gap-10 lg:grid-cols-2 lg:items-center">
-            <FadeSection
-              variant="in"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3, ease: EASE_SNAP }}
-            >
-            <div>
-              {videoUrl ? (
-                <a
-                  href={videoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block aspect-video overflow-hidden"
-                >
-                  {videoThumbnail ? (
-                    <Image
-                      src={videoThumbnail}
-                      alt={videoTitle}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover transition duration-700 group-hover:scale-[1.03]"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[linear-gradient(135deg,#151515,#070707)]" />
-                  )}
-                  <div className="absolute inset-0 bg-black/28" />
-                  <FadeSection
-                    variant="in"
-                    className="absolute inset-0 grid place-items-center"
-                    whileHover={{ scale: 1.15 }}
-                    transition={{ duration: 0.2, ease: EASE_SNAP }}
-                  >
-                    <span className="grid h-20 w-20 place-items-center rounded-full border border-white/26 text-white transition-colors group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--black)]">
-                      ▶
-                    </span>
-                  </FadeSection>
-                </a>
-              ) : (
-                <div className="aspect-video bg-[linear-gradient(135deg,#151515,#070707)]" />
-              )}
-            </div>
-            </FadeSection>
+        <LatestVideoMixed
+          title={videoTitle}
+          description={videoDescription}
+          href={videoUrl || undefined}
+          image={videoThumbnail}
+          metaLabel="RAW EXPORT // VIENTIANE 2026"
+          videoSrc={videoPlaybackSrc || undefined}
+        />
 
-            <div className="space-y-5">
-              <p className="goofy-mono inline-flex items-center gap-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gold)]">
-                <span className="h-px w-8 bg-[var(--gold)]" />
-                <span>Latest Video</span>
-              </p>
-
-              <h2 className="goofy-display text-[clamp(38px,5vw,72px)] leading-[0.86] text-[var(--white)]">
-                {videoTitle}
-              </h2>
-
-              <p className="goofy-mono max-w-xl text-[10px] uppercase tracking-[0.16em] text-white/42">
-                {videoDescription}
-              </p>
-
-              {videoUrl ? (
-                <a
-                  href={videoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="goofy-mono inline-flex text-[10px] uppercase tracking-[0.18em] text-white/68 transition-colors hover:text-[var(--gold)] hover:underline"
-                >
-                  Watch on YouTube →
-                </a>
-              ) : null}
-            </div>
-          </div>
-          </FadeSection>
-        </section>
-
-        <section className="goofy-dark-grid relative overflow-hidden bg-[var(--black)] px-5 py-24 text-center text-[var(--white)] md:px-10">
-          <div className="goofy-display pointer-events-none absolute inset-0 flex items-center justify-center text-[clamp(120px,25vw,360px)] leading-none text-white/[0.02]">
-            Goofy
-          </div>
-          <div className="relative mx-auto max-w-[900px] space-y-6">
-            <div className="space-y-0">
-              <FadeSection variant="up">
-              <h2 className="goofy-display text-[clamp(56px,9vw,120px)] leading-[0.83] text-[var(--white)]">
-                Ready
-              </h2>
-              </FadeSection>
-              <FadeSection variant="up" delay={0.08}>
-              <h2 className="goofy-display text-[clamp(56px,9vw,120px)] leading-[0.83] text-[var(--white)]">
-                To <span className="goofy-outline">Skate</span>{" "}
-                <span className="text-[var(--gold)]">?</span>
-              </h2>
-              </FadeSection>
-            </div>
-
-            <FadeSection variant="up" delay={0.16}>
-            <p className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-white/42">
-              Shop decks, trucks, wheels, shoes, apparel and more.
-            </p>
-            </FadeSection>
-
-            <FadeSection variant="up" delay={0.24}>
-            <div>
-              <GoofyButton href="/shop" variant="gold">
-                Shop All →
-              </GoofyButton>
-            </div>
-            </FadeSection>
-          </div>
-        </section>
+        <ReadyToSkate />
       </div>
 
       <Footer />
@@ -970,3 +876,4 @@ export default async function HomePage() {
     </main>
   )
 }
+

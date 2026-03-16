@@ -139,7 +139,7 @@ export function FromTheStreets({
 
           <Link
             href="/news"
-            className="w-fit border-b border-black pb-1 font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-black transition-colors hover:text-[#F0B429]"
+            className="w-fit font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-black transition-colors duration-300 hover:text-[#F0B429]"
           >
             View All Stories -{">"}
           </Link>

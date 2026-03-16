@@ -50,6 +50,41 @@ const supportLinks = [
   { label: "Track Order", href: "/orders/track" },
 ]
 
+function FooterLink({ href, label, highlight = false }: { href: string; label: string; highlight?: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`group inline-flex w-fit items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
+        highlight ? "text-[#F0B429]" : "text-white/78 hover:text-white"
+      }`}
+    >
+      <span className="inline-block w-0 overflow-hidden text-[#F0B429] transition-all duration-300 group-hover:w-3">
+        &gt;
+      </span>
+      <span>{label}</span>
+    </Link>
+  )
+}
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string
+  links: Array<{ label: string; href: string; highlight?: boolean }>
+}) {
+  return (
+    <div className="space-y-5">
+      <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/48">{title}</p>
+      <div className="grid gap-3">
+        {links.map((item) => (
+          <FooterLink key={`${title}-${item.label}`} href={item.href} label={item.label} highlight={item.highlight} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function Footer() {
   const [email, setEmail] = useState("")
   const [isSubscribed, setIsSubscribed] = useState(false)
@@ -93,26 +128,33 @@ export function Footer() {
   const logo = (config.siteName.split(" ")[0] || "GOOFY").toUpperCase()
 
   return (
-    <footer className="border-t border-[var(--bordw)] bg-[#050505] text-[var(--white)]">
-      <div className="mx-auto max-w-[1480px] px-6 py-16 md:px-10">
+    <footer className="relative overflow-hidden border-t border-white/6 bg-[#050505] text-white">
+      <div className="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.45)_1px,transparent_0)] [background-size:13px_13px]" />
+
+      <div className="relative mx-auto max-w-[1480px] px-6 py-16 md:px-10 md:py-20">
         <div
-          className={`grid gap-12 md:grid-cols-2 xl:grid-cols-5 ${
+          className={`grid gap-14 border-b border-white/6 pb-14 md:grid-cols-2 xl:grid-cols-5 ${
             showEmailSignup ? "2xl:grid-cols-6" : ""
           }`}
         >
-          <div className="space-y-5 xl:col-span-2 2xl:col-span-2">
+          <div className="space-y-8 xl:col-span-2 2xl:col-span-2">
             <Link href="/" className="inline-flex items-end gap-1">
-              <span className="goofy-display text-[40px] leading-none tracking-[-0.05em] text-[var(--white)]">
+              <span
+                className="text-[42px] font-black uppercase leading-none tracking-[-0.05em] text-white"
+                style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+              >
                 {logo}
               </span>
-              <span className="goofy-display text-[40px] leading-none tracking-[-0.05em] text-[var(--gold)]">
+              <span
+                className="text-[42px] font-black leading-none tracking-[-0.05em] text-[#F0B429]"
+                style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+              >
                 .
               </span>
             </Link>
 
-            <p className="goofy-mono max-w-md text-[10px] uppercase tracking-[0.18em] text-white/42">
-              First skate shop and street culture hub in Laos. Built in Vientiane
-              for decks, drops, community, and movement.
+            <p className="max-w-sm font-mono text-[10px] uppercase tracking-[0.18em] text-white/42">
+              FIRST SKATE SHOP AND STREET CULTURE HUB IN LAOS.
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -127,131 +169,117 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="goofy-mono inline-flex h-10 w-10 items-center justify-center border border-[var(--bordw)] text-white/42 transition-colors hover:text-[var(--white)]"
+                    className="social-icon group inline-flex h-11 w-11 items-center justify-center border border-white/12 text-white/48 transition-all duration-200 hover:border-[#F0B429] hover:text-[#F0B429] hover:shadow-[0_0_0_1px_rgba(240,180,41,0.18)]"
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                   </a>
                 )
               })}
             </div>
+
+            {showEmailSignup ? (
+              <div className="max-w-sm space-y-4 pt-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/56">
+                  Newsletter
+                </p>
+                <form onSubmit={handleSubscribe} className="space-y-4">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="YOUR EMAIL"
+                    className="h-11 w-full border-0 border-b border-white/14 bg-transparent px-0 font-mono text-[11px] uppercase tracking-[0.22em] text-white placeholder:text-white/24 focus:border-b-[#F0B429] focus:outline-none"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex w-full items-center justify-center bg-[#F0B429] px-6 py-3 text-sm font-black uppercase italic text-black transition-colors hover:bg-white"
+                    style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                  >
+                    Notify Me
+                  </button>
+                  {isSubscribed ? (
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#F0B429]">
+                      You&apos;re on the list.
+                    </p>
+                  ) : null}
+                </form>
+              </div>
+            ) : null}
           </div>
 
-          <div className="space-y-4">
-            <p className="goofy-mono text-[9px] uppercase tracking-[0.22em] text-[var(--gray)]">
-              Shop
-            </p>
-            <div className="grid gap-3">
-              {shopLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-white/30 transition-colors hover:text-[var(--white)]"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+          <FooterColumn
+            title="Shop"
+            links={shopLinks.slice(0, 4).map((item) => ({
+              ...item,
+              highlight: item.label === "New Arrivals",
+            }))}
+          />
 
-          <div className="space-y-4">
-            <p className="goofy-mono text-[9px] uppercase tracking-[0.22em] text-[var(--gray)]">
-              Community
-            </p>
-            <div className="grid gap-3">
-              {communityLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-white/30 transition-colors hover:text-[var(--white)]"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <p className="goofy-mono text-[9px] uppercase tracking-[0.22em] text-[var(--gray)]">
-              About
-            </p>
-            <div className="grid gap-3">
-              {aboutLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-white/30 transition-colors hover:text-[var(--white)]"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <p className="goofy-mono text-[9px] uppercase tracking-[0.22em] text-[var(--gray)]">
-              Support
-            </p>
-            <div className="grid gap-3">
-              {supportLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-white/30 transition-colors hover:text-[var(--white)]"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {showEmailSignup ? (
-            <div className="space-y-4">
-              <p className="goofy-mono text-[9px] uppercase tracking-[0.22em] text-[var(--gray)]">
-                Newsletter
-              </p>
-              <p className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-white/42">
-                Early drop access, event alerts, and stories from the streets.
-              </p>
-              <form onSubmit={handleSubscribe} className="space-y-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="Your email"
-                  className="goofy-mono h-11 w-full border border-[var(--bordw)] bg-transparent px-4 text-[10px] uppercase tracking-[0.18em] text-[var(--white)] placeholder:text-white/24 focus:border-[var(--gold)] focus:outline-none"
-                  required
-                />
-                <button type="submit" className="goofy-btn goofy-btn-gold w-full">
-                  Notify Me
-                </button>
-                {isSubscribed ? (
-                  <p className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-[var(--gold)]">
-                    You&rsquo;re on the list.
-                  </p>
-                ) : null}
-              </form>
-            </div>
-          ) : null}
+          <FooterColumn title="Community" links={communityLinks} />
+          <FooterColumn title="About" links={aboutLinks} />
+          <FooterColumn title="Support" links={supportLinks} />
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-[var(--bordw)] pt-6 md:flex-row md:items-center md:justify-between">
-          <p className="goofy-mono text-[9px] uppercase tracking-[0.18em] text-white/28">
-            (c) 2026 Goofy World. All rights reserved.
-          </p>
+        <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-3 font-mono text-[9px] uppercase tracking-[0.18em] text-white/24">
+            <span>(C) 2026 GOOFY WORLD. ALL RIGHTS RESERVED.</span>
+            <span className="inline-flex items-center gap-2 text-[#F0B429]">
+              <span className="status-dot h-2 w-2 rounded-full bg-[#F0B429]" />
+              LIVE_FROM_VIENTIANE
+            </span>
+          </div>
 
           <div className="flex flex-wrap gap-5">
             {["Privacy", "Terms", "Cookie Policy"].map((label) => (
-              <Link
-                key={label}
-                href="#"
-                className="goofy-mono text-[9px] uppercase tracking-[0.18em] text-white/30 transition-colors hover:text-[var(--white)]"
-              >
-                {label}
-              </Link>
+              <FooterLink key={label} href="#" label={label} />
             ))}
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .social-icon:hover svg {
+          animation: footer-glitch 0.2s steps(2, end) 1;
+        }
+
+        .status-dot {
+          animation: footer-status 1.8s ease-in-out infinite;
+        }
+
+        @keyframes footer-glitch {
+          0% {
+            transform: translate(0, 0);
+          }
+          20% {
+            transform: translate(-1px, 1px);
+          }
+          40% {
+            transform: translate(1px, -1px);
+          }
+          60% {
+            transform: translate(-1px, -1px);
+          }
+          80% {
+            transform: translate(1px, 1px);
+          }
+          100% {
+            transform: translate(0, 0);
+          }
+        }
+
+        @keyframes footer-status {
+          0%,
+          100% {
+            opacity: 1;
+            box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.35);
+          }
+          50% {
+            opacity: 0.35;
+            box-shadow: 0 0 0 6px rgba(240, 180, 41, 0);
+          }
+        }
+      `}</style>
     </footer>
   )
 }

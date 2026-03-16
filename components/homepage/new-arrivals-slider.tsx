@@ -3,7 +3,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import { type MouseEvent, useState } from "react"
-import { GoofyButton } from "@/components/GoofyButton"
 import { useCart } from "@/hooks/use-cart"
 import type { HomeCategoryProduct } from "@/components/homepage/category-showcase"
 
@@ -120,13 +119,12 @@ export function NewArrivalsSlider({ products }: NewArrivalsSliderProps) {
             </h2>
           </div>
 
-          <GoofyButton
+          <Link
             href="/shop"
-            variant="ghost"
-            className="px-0 py-0 text-white/54 no-underline hover:text-[#F0B429]"
+            className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-colors duration-300 hover:text-[#F0B429]"
           >
-            Shop All {"->"}
-          </GoofyButton>
+            Shop All -{">"}
+          </Link>
         </div>
 
         <div

@@ -89,7 +89,7 @@ export function FindYourSpot({
 
           <Link
             href="/skateparks"
-            className="w-fit font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#F0B429] transition-opacity hover:opacity-75"
+            className="w-fit font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-colors duration-300 hover:text-[#F0B429]"
           >
             View All Spots -{">"}
           </Link>

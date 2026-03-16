@@ -169,7 +169,7 @@ export function HomeCategoryShowcase({
           <span>Shop by Category</span>
           <Link
             href="/shop"
-            className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#F0B429] transition-opacity duration-300 hover:opacity-75"
+            className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-colors duration-300 hover:text-[#F0B429]"
           >
             View Full Shop -{">"}
           </Link>
