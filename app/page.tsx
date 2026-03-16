@@ -1,7 +1,10 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
+import { FadeSection } from "@/components/FadeSection"
 import { Footer } from "@/components/footer"
+import { GoofyButton } from "@/components/GoofyButton"
+import PhysicsHero from "@/components/PhysicsHero"
 import {
   HomeCategoryShowcase,
   type HomeCategoryData,
@@ -9,12 +12,23 @@ import {
   type HomeCategoryVariant,
   type HomeCategoryProduct,
 } from "@/components/homepage/category-showcase"
+import {
+  FromTheStreets,
+  type FromTheStreetsStory,
+} from "@/components/homepage/from-the-streets"
+import {
+  FindYourSpot,
+  type FindYourSpotItem,
+} from "@/components/homepage/find-your-spot"
 import { HeroSlider } from "@/components/homepage/hero-slider"
 import { LiveDropBanner } from "@/components/homepage/live-drop-banner"
 import { NewArrivalsSlider } from "@/components/homepage/new-arrivals-slider"
 import { NavbarServer } from "@/components/navbar-server"
+import { StaggerList } from "@/components/StaggerList"
+import { TopMarquee } from "@/components/top-marquee"
 import { SearchCommand } from "@/components/search-command"
 import { defaultSeoDescription, defaultSeoTitle } from "@/config/defaults"
+import { EASE_OUT, EASE_SNAP } from "@/lib/motion"
 import { supabase } from "@/lib/supabase"
 
 type GenericRow = Record<string, unknown>
@@ -158,6 +172,21 @@ function formatDisplayDate(value?: string | null) {
     day: "numeric",
     year: "numeric",
   }).format(date)
+}
+
+function formatIssueDate(value?: string | null) {
+  if (!value) return "12.03.2026"
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "12.03.2026"
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+    .format(date)
+    .replace(/\//g, ".")
 }
 
 function estimateReadTime(post: GenericRow) {
@@ -388,102 +417,18 @@ function SectionHeading({
         </h2>
       </div>
 
-      <Link
+      <GoofyButton
         href={actionHref}
-        className={`goofy-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
+        variant="ghost"
+        className={`px-0 py-0 no-underline ${
           inverse
             ? "text-white/60 hover:text-[var(--gold)]"
             : "text-black/56 hover:text-[var(--black)]"
         }`}
       >
         {actionLabel}
-      </Link>
+      </GoofyButton>
     </div>
-  )
-}
-
-function StoryOverlayCard({
-  post,
-  featured = false,
-  showButton = false,
-}: {
-  post?: GenericRow
-  featured?: boolean
-  showButton?: boolean
-}) {
-  if (!post) {
-    return (
-      <div className="relative aspect-[3/4] overflow-hidden bg-[#d7d2ca]">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,#ddd7cf,#c8c0b6)]" />
-        <div className="absolute inset-0 goofy-card-overlay" />
-        <div className="absolute inset-x-0 bottom-0 p-5">
-          <p className="goofy-mono text-[9px] uppercase tracking-[0.18em] text-white/54">
-            Latest Stories
-          </p>
-          <h3 className="goofy-display mt-2 text-[34px] leading-[0.84] text-[var(--white)]">
-            Coming Soon
-          </h3>
-        </div>
-      </div>
-    )
-  }
-
-  const story = getStoryMeta(post, 0)
-
-  return (
-    <Link href={story.href} className="group relative block overflow-hidden">
-      <div
-        className={`relative overflow-hidden ${
-          featured ? "aspect-[3/4]" : "aspect-[4/3]"
-        }`}
-      >
-        {story.image ? (
-          <Image
-            src={story.image}
-            alt={story.title}
-            fill
-            sizes={
-              featured
-                ? "(max-width: 1024px) 100vw, 55vw"
-                : "(max-width: 1024px) 100vw, 35vw"
-            }
-            className="object-cover transition duration-700 group-hover:scale-[1.04]"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,#1b1b1b,#080808)]" />
-        )}
-        <div className="absolute inset-0 goofy-card-overlay" />
-        <div className="absolute inset-x-0 bottom-0 z-10 p-5">
-          <p className="goofy-mono inline-flex bg-[var(--gold)] px-2.5 py-1 text-[8px] uppercase tracking-[0.18em] text-[var(--black)]">
-            {story.category}
-          </p>
-          <h3
-            className={`goofy-display mt-3 text-[var(--white)] ${
-              featured ? "text-[clamp(34px,5vw,64px)]" : "text-[clamp(28px,3vw,42px)]"
-            } leading-[0.86]`}
-          >
-            {story.title}
-          </h3>
-          <p className="goofy-mono mt-3 text-[9px] uppercase tracking-[0.18em] text-white/48">
-            {story.author} · {story.date} · {story.readTime}
-          </p>
-        </div>
-
-        {showButton ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 px-5 pb-5">
-            <span className="goofy-btn bg-[var(--white)] text-[var(--black)] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-              Read Story →
-            </span>
-          </div>
-        ) : (
-          <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-5">
-            <span className="goofy-mono translate-y-4 text-[9px] uppercase tracking-[0.18em] text-[var(--gold)] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-              Read Story →
-            </span>
-          </div>
-        )}
-      </div>
-    </Link>
   )
 }
 
@@ -679,13 +624,51 @@ export default async function HomePage() {
   )
   const currentDropHref = "/drop"
 
-  const latestStories = postsRows.slice(0, 3) as GenericRow[]
   const magazineStories =
     postsRows.length >= 6
       ? (postsRows.slice(3, 6) as GenericRow[])
       : (postsRows.slice(0, 3) as GenericRow[])
   const visibleMagazineStories = magazineStories.filter(Boolean)
-  const communityStories = postsRows.slice(0, 3) as GenericRow[]
+  const fromTheStreetsStories: FromTheStreetsStory[] = (postsRows.slice(
+    0,
+    3,
+  ) as GenericRow[]).map((post, index) => {
+    const story = getStoryMeta(post, index)
+    const fallbackTags = ["FEATURE", "STORY", "SPOTLIGHT"]
+
+    return {
+      id: story.slug,
+      title: story.title,
+      date: formatIssueDate(getString(post, ["published_at", "created_at"])),
+      tag: story.category === "STORY" ? fallbackTags[index] ?? "STORY" : story.category,
+      image: story.image,
+      href: story.href,
+    }
+  })
+  const findYourSpotItems: FindYourSpotItem[] = (parkRows as GenericRow[])
+    .slice(0, 4)
+    .map((park, index) => {
+      const name = getString(park, ["name", "title"], `Spot ${index + 1}`)
+      const locationLabel = getString(park, ["city", "address"], "Vientiane, Laos")
+      const directMapUrl = getString(park, [
+        "map_url",
+        "google_maps_url",
+        "maps_url",
+        "link",
+        "url",
+      ])
+
+      return {
+        id: getString(park, ["id"], `park-${index + 1}`),
+        name,
+        mapUrl:
+          directMapUrl ||
+          `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            `${name}, ${locationLabel}`,
+          )}`,
+        image: getImage(park, ["photo", "image", "image_url", "thumbnail"]),
+      }
+    })
 
   const homepageProducts = buildHomepageProducts(productRows as ProductRow[])
   const newArrivalProducts = homepageProducts
@@ -702,33 +685,15 @@ export default async function HomePage() {
     ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
     : getImage(latestVideo)
 
-  const repeatedMarquee: string[] = Array.from(
-    { length: 3 },
-    () => TOP_MARQUEE_TEXT,
-  )
-
   return (
     <main className="min-h-screen bg-[var(--white)] text-[var(--black)]">
-      <div className="fixed inset-x-0 top-0 z-[60] h-6 overflow-hidden bg-[var(--gold)]">
-        <div
-          className="flex min-w-max whitespace-nowrap"
-          style={{ animation: "goofy-marquee 24s linear infinite" }}
-        >
-          {repeatedMarquee.map((item, index) => (
-            <span
-              key={`${item}-${index}`}
-              className="goofy-mono flex h-6 items-center px-5 text-[8px] uppercase tracking-[0.22em] text-[var(--black)]"
-            >
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
+      <TopMarquee text={TOP_MARQUEE_TEXT} />
 
       <NavbarServer topOffset={24} />
 
       <div className="pt-[76px]">
         <HeroSlider />
+        <PhysicsHero />
 
         {false ? (
         <section className="goofy-dark-grid bg-[var(--black)] text-[var(--white)]">
@@ -813,25 +778,6 @@ export default async function HomePage() {
           <NewArrivalsSlider products={newArrivalProducts} />
         ) : null}
 
-        <section id="stories" className="bg-[var(--white)] px-5 py-16 md:px-10">
-          <div className="mx-auto max-w-[1480px] space-y-8">
-            <SectionHeading
-              label="Latest Stories"
-              title="WHAT'S HAPPENING"
-              actionLabel="All Stories →"
-              actionHref="/news"
-            />
-
-            <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-              <StoryOverlayCard post={latestStories[0]} featured showButton />
-              <div className="grid gap-4">
-                <StoryOverlayCard post={latestStories[1]} />
-                <StoryOverlayCard post={latestStories[2]} />
-              </div>
-            </div>
-          </div>
-        </section>
-
         <HomeCategoryShowcase categories={categoryData} />
 
         {currentDrop ? (
@@ -905,46 +851,18 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        <section className="bg-[var(--white)] px-5 py-16 md:px-10">
-          <div className="mx-auto max-w-[1480px] space-y-8">
-            <SectionHeading
-              label="Community"
-              title="FROM THE STREETS"
-              actionLabel="All Stories →"
-              actionHref="/news"
-            />
+        <FromTheStreets stories={fromTheStreetsStories} />
 
-            <div className="grid gap-7 lg:grid-cols-3">
-              <CommunityCard post={communityStories[0]} />
-              <CommunityCard post={communityStories[1]} />
-              <CommunityCard post={communityStories[2]} />
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[var(--white)]">
-          <div className="mx-auto max-w-[1480px] px-5 py-16 md:px-10">
-            <SectionHeading
-              label="Skate Parks & Spots"
-              title="FIND YOUR SPOT"
-              actionLabel="View All →"
-              actionHref="/skateparks"
-            />
-          </div>
-
-          <div className="grid gap-[2px] md:grid-cols-2 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <SpotCard
-                key={`spot-${index}`}
-                spot={parkRows[index] as GenericRow | undefined}
-                index={index}
-              />
-            ))}
-          </div>
-        </section>
+        <FindYourSpot spots={findYourSpotItems} />
 
         <section className="goofy-dark-grid bg-[var(--black)] px-5 py-16 text-[var(--white)] md:px-10">
+          <FadeSection variant="in">
           <div className="mx-auto grid max-w-[1480px] gap-10 lg:grid-cols-2 lg:items-center">
+            <FadeSection
+              variant="in"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.3, ease: EASE_SNAP }}
+            >
             <div>
               {videoUrl ? (
                 <a
@@ -965,16 +883,22 @@ export default async function HomePage() {
                     <div className="absolute inset-0 bg-[linear-gradient(135deg,#151515,#070707)]" />
                   )}
                   <div className="absolute inset-0 bg-black/28" />
-                  <div className="absolute inset-0 grid place-items-center">
+                  <FadeSection
+                    variant="in"
+                    className="absolute inset-0 grid place-items-center"
+                    whileHover={{ scale: 1.15 }}
+                    transition={{ duration: 0.2, ease: EASE_SNAP }}
+                  >
                     <span className="grid h-20 w-20 place-items-center rounded-full border border-white/26 text-white transition-colors group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)] group-hover:text-[var(--black)]">
                       ▶
                     </span>
-                  </div>
+                  </FadeSection>
                 </a>
               ) : (
                 <div className="aspect-video bg-[linear-gradient(135deg,#151515,#070707)]" />
               )}
             </div>
+            </FadeSection>
 
             <div className="space-y-5">
               <p className="goofy-mono inline-flex items-center gap-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gold)]">
@@ -1002,6 +926,7 @@ export default async function HomePage() {
               ) : null}
             </div>
           </div>
+          </FadeSection>
         </section>
 
         <section className="goofy-dark-grid relative overflow-hidden bg-[var(--black)] px-5 py-24 text-center text-[var(--white)] md:px-10">
@@ -1010,24 +935,32 @@ export default async function HomePage() {
           </div>
           <div className="relative mx-auto max-w-[900px] space-y-6">
             <div className="space-y-0">
+              <FadeSection variant="up">
               <h2 className="goofy-display text-[clamp(56px,9vw,120px)] leading-[0.83] text-[var(--white)]">
                 Ready
               </h2>
+              </FadeSection>
+              <FadeSection variant="up" delay={0.08}>
               <h2 className="goofy-display text-[clamp(56px,9vw,120px)] leading-[0.83] text-[var(--white)]">
                 To <span className="goofy-outline">Skate</span>{" "}
                 <span className="text-[var(--gold)]">?</span>
               </h2>
+              </FadeSection>
             </div>
 
+            <FadeSection variant="up" delay={0.16}>
             <p className="goofy-mono text-[10px] uppercase tracking-[0.18em] text-white/42">
               Shop decks, trucks, wheels, shoes, apparel and more.
             </p>
+            </FadeSection>
 
+            <FadeSection variant="up" delay={0.24}>
             <div>
-              <Link href="/shop" className="goofy-btn goofy-btn-gold">
+              <GoofyButton href="/shop" variant="gold">
                 Shop All →
-              </Link>
+              </GoofyButton>
             </div>
+            </FadeSection>
           </div>
         </section>
       </div>

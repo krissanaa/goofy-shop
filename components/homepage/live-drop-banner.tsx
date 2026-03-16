@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
+import { GoofyButton } from "@/components/GoofyButton"
 
 interface LiveDropBannerProps {
   title: string
@@ -146,15 +147,17 @@ export function LiveDropBanner({
           )}
 
           <div>
-            <span
-              className={`goofy-btn transition-transform group-hover:-translate-y-[1px] ${
+            <GoofyButton
+              href={href}
+              variant={normalizedStatus === "LIVE" ? "gold" : "outline"}
+              className={
                 normalizedStatus === "LIVE"
-                  ? "goofy-btn-gold"
-                  : "border border-white/16 bg-transparent text-[var(--white)]"
-              }`}
+                  ? ""
+                  : "border-white/16 bg-transparent text-[var(--white)]"
+              }
             >
               {normalizedStatus === "LIVE" ? "Shop the Drop" : "Notify Me"} {"->"}
-            </span>
+            </GoofyButton>
           </div>
         </div>
       </div>

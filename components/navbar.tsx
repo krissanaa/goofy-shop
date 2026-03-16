@@ -3,9 +3,11 @@
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import { motion, useAnimate } from "framer-motion"
 import { ChevronDown, Menu, Search, ShoppingBag, User, X } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
 import { useGlobalConfig } from "@/components/global-config-provider"
+import { EASE_SNAP } from "@/lib/motion"
 
 interface NavbarProps {
   categories?: { title: string; slug: string; image?: string }[]
@@ -70,6 +72,8 @@ export function Navbar({
   const searchParams = useSearchParams()
   const config = useGlobalConfig()
   const headerRef = useRef<HTMLElement | null>(null)
+  const previousItemCount = useRef(0)
+  const [cartIconScope, animateCartIcon] = useAnimate()
 
   const openSearch = () => {
     window.dispatchEvent(new Event("open-search-command"))
@@ -132,6 +136,20 @@ export function Navbar({
     return () => document.removeEventListener("pointerdown", handlePointerDown)
   }, [desktopDropdown])
 
+  useEffect(() => {
+    if (!isHydrated) return
+
+    if (itemCount > previousItemCount.current) {
+      void animateCartIcon(
+        cartIconScope.current,
+        { scale: [1, 1.35, 1] },
+        { duration: 0.35, ease: "easeOut" },
+      )
+    }
+
+    previousItemCount.current = itemCount
+  }, [animateCartIcon, cartIconScope, isHydrated, itemCount])
+
   const logo = (config.siteName.split(" ")[0] || "GOOFY").toUpperCase()
 
   const navLinkClass = (active: boolean) =>
@@ -151,149 +169,161 @@ export function Navbar({
         className="fixed left-0 right-0 z-[55] border-b border-[var(--bordw)] bg-[rgba(10,10,10,0.96)] text-[var(--white)] backdrop-blur-md"
         style={{ top: topOffset }}
       >
-        <nav className="mx-auto flex h-[52px] max-w-[1480px] items-center justify-between px-4 md:px-8">
-          <div className="flex items-center gap-5">
-            <Link href="/" className="shrink-0">
-              <span className="goofy-display text-[30px] leading-none tracking-[-0.05em] text-[var(--white)]">
-                {logo}
-              </span>
-              <span className="goofy-display text-[30px] leading-none tracking-[-0.05em] text-[var(--gold)]">
-                .
-              </span>
-            </Link>
+        <nav className="mx-auto grid h-[52px] max-w-[1480px] grid-cols-[1fr_auto_1fr] items-center px-4 md:px-8">
+          <Link href="/" className="shrink-0 justify-self-start">
+            <span className="goofy-display text-[30px] leading-none tracking-[-0.05em] text-[var(--white)]">
+              {logo}
+            </span>
+            <span className="goofy-display text-[30px] leading-none tracking-[-0.05em] text-[var(--gold)]">
+              .
+            </span>
+          </Link>
 
-            <div className="hidden items-center gap-5 md:flex">
-              {NAV_LINKS.map((link) => {
-                const isDropdownMenu = Boolean(link.dropdown)
-                const isMenuOpen = link.dropdown
-                  ? desktopDropdown === link.dropdown
-                  : false
+          <div className="hidden items-center justify-self-center md:flex md:gap-5">
+            {NAV_LINKS.map((link, index) => {
+              const isDropdownMenu = Boolean(link.dropdown)
+              const isMenuOpen = link.dropdown
+                ? desktopDropdown === link.dropdown
+                : false
 
-                return (
-                  <div
-                    key={`${link.href}-${link.label}`}
-                    className="relative flex items-center gap-1"
-                    onMouseEnter={() => {
-                      if (link.dropdown) setDesktopDropdown(link.dropdown)
-                    }}
-                    onMouseLeave={() => {
-                      if (link.dropdown) setDesktopDropdown(null)
-                    }}
-                  >
-                    <Link href={link.href} className={navLinkClass(isActive(link.href))}>
-                      {link.label}
-                    </Link>
+              return (
+                <motion.div
+                  key={`${link.href}-${link.label}`}
+                  className="relative flex items-center gap-1"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.4, ease: EASE_SNAP }}
+                  onMouseEnter={() => {
+                    if (link.dropdown) setDesktopDropdown(link.dropdown)
+                  }}
+                  onMouseLeave={() => {
+                    if (link.dropdown) setDesktopDropdown(null)
+                  }}
+                >
+                  <Link href={link.href} className={`${navLinkClass(isActive(link.href))} group`}>
+                    <motion.span className="relative inline-flex pb-[2px]" whileHover="hover">
+                      <span>{link.label}</span>
+                      <motion.span
+                        className="absolute bottom-0 left-0 h-[1px] w-full bg-[var(--gold)]"
+                        variants={{
+                          initial: { scaleX: 0, originX: 0 },
+                          hover: { scaleX: 1, originX: 0 },
+                        }}
+                        initial="initial"
+                        transition={{ duration: 0.25, ease: EASE_SNAP }}
+                      />
+                    </motion.span>
+                  </Link>
 
-                    {isDropdownMenu ? (
-                      <button
-                        type="button"
-                        aria-label={`Toggle ${link.label} menu`}
-                        aria-expanded={isMenuOpen}
-                        className={`transition-colors ${
-                          isMenuOpen
-                            ? "text-[var(--white)]"
-                            : "text-white/35 hover:text-[var(--white)]"
+                  {isDropdownMenu ? (
+                    <button
+                      type="button"
+                      aria-label={`Toggle ${link.label} menu`}
+                      aria-expanded={isMenuOpen}
+                      className={`transition-colors ${
+                        isMenuOpen
+                          ? "text-[var(--white)]"
+                          : "text-white/35 hover:text-[var(--white)]"
+                      }`}
+                      onClick={() =>
+                        setDesktopDropdown((current) =>
+                          current === link.dropdown ? null : link.dropdown || null,
+                        )
+                      }
+                    >
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 transition-transform ${
+                          isMenuOpen ? "rotate-180" : ""
                         }`}
-                        onClick={() =>
-                          setDesktopDropdown((current) =>
-                            current === link.dropdown ? null : link.dropdown || null,
-                          )
-                        }
-                      >
-                        <ChevronDown
-                          className={`h-3.5 w-3.5 transition-transform ${
-                            isMenuOpen ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-                    ) : null}
+                      />
+                    </button>
+                  ) : null}
 
-                    {link.dropdown === "shop" ? (
-                      <div
-                        className={`absolute left-0 top-full mt-[1px] w-[420px] border border-[var(--bordw)] bg-[#101010] p-5 transition-all duration-150 ${
-                          isMenuOpen
-                            ? "visible translate-y-0 opacity-100"
-                            : "invisible pointer-events-none translate-y-2 opacity-0"
-                        }`}
-                      >
-                        <div className="grid grid-cols-2 gap-6">
-                          <div>
-                            <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
-                              Shop
-                            </p>
-                            <div>
-                              {SHOP_CATEGORY_LINKS.map((item) => (
-                                <Link
-                                  key={item.href}
-                                  href={item.href}
-                                  className={dropdownItemClass(
-                                    isDropdownItemActive(item.href),
-                                  )}
-                                >
-                                  <span>{item.label}</span>
-                                  <span className="text-[var(--gray)]">/</span>
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div>
-                            <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
-                              Collections
-                            </p>
-                            <div>
-                              {SHOP_COLLECTION_LINKS.map((item) => (
-                                <Link
-                                  key={item.href}
-                                  href={item.href}
-                                  className={dropdownItemClass(
-                                    isDropdownItemActive(item.href),
-                                  )}
-                                >
-                                  <span>{item.label}</span>
-                                  <span className="text-[var(--gray)]">/</span>
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {link.dropdown === "community" ? (
-                      <div
-                        className={`absolute left-0 top-full mt-[1px] w-[290px] border border-[var(--bordw)] bg-[#101010] p-5 transition-all duration-150 ${
-                          isMenuOpen
-                            ? "visible translate-y-0 opacity-100"
-                            : "invisible pointer-events-none translate-y-2 opacity-0"
-                        }`}
-                      >
-                        <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
-                          Community
-                        </p>
+                  {link.dropdown === "shop" ? (
+                    <div
+                      className={`absolute left-0 top-full mt-[1px] w-[420px] border border-[var(--bordw)] bg-[#101010] p-5 transition-all duration-150 ${
+                        isMenuOpen
+                          ? "visible translate-y-0 opacity-100"
+                          : "invisible pointer-events-none translate-y-2 opacity-0"
+                      }`}
+                    >
+                      <div className="grid grid-cols-2 gap-6">
                         <div>
-                          {COMMUNITY_LINKS.map((item) => (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              className={dropdownItemClass(
-                                isDropdownItemActive(item.href),
-                              )}
-                            >
-                              <span>{item.label}</span>
-                              <span className="text-[var(--gray)]">/</span>
-                            </Link>
-                          ))}
+                          <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
+                            Shop
+                          </p>
+                          <div>
+                            {SHOP_CATEGORY_LINKS.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                className={dropdownItemClass(
+                                  isDropdownItemActive(item.href),
+                                )}
+                              >
+                                <span>{item.label}</span>
+                                <span className="text-[var(--gray)]">/</span>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
+                            Collections
+                          </p>
+                          <div>
+                            {SHOP_COLLECTION_LINKS.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                className={dropdownItemClass(
+                                  isDropdownItemActive(item.href),
+                                )}
+                              >
+                                <span>{item.label}</span>
+                                <span className="text-[var(--gray)]">/</span>
+                              </Link>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    ) : null}
-                  </div>
-                )
-              })}
-            </div>
+                    </div>
+                  ) : null}
+
+                  {link.dropdown === "community" ? (
+                    <div
+                      className={`absolute left-0 top-full mt-[1px] w-[290px] border border-[var(--bordw)] bg-[#101010] p-5 transition-all duration-150 ${
+                        isMenuOpen
+                          ? "visible translate-y-0 opacity-100"
+                          : "invisible pointer-events-none translate-y-2 opacity-0"
+                      }`}
+                    >
+                      <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
+                        Community
+                      </p>
+                      <div>
+                        {COMMUNITY_LINKS.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className={dropdownItemClass(
+                              isDropdownItemActive(item.href),
+                            )}
+                          >
+                            <span>{item.label}</span>
+                            <span className="text-[var(--gray)]">/</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </motion.div>
+              )
+            })}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 justify-self-end">
             <button
               type="button"
               onClick={openSearch}
@@ -308,7 +338,9 @@ export function Navbar({
               aria-label="Open cart"
               className="goofy-mono relative inline-flex h-8 items-center gap-2 rounded-[2px] bg-[var(--gold)] px-3 text-[9px] font-medium uppercase tracking-[0.18em] text-[var(--black)] transition-transform hover:-translate-y-[1px]"
             >
-              <ShoppingBag className="h-4 w-4" />
+              <motion.div ref={cartIconScope}>
+                <ShoppingBag className="h-4 w-4" />
+              </motion.div>
               <span className="hidden sm:inline">Cart</span>
               <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-[var(--black)] px-1 text-[7px] text-[var(--white)]">
                 {isHydrated ? itemCount : 0}

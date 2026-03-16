@@ -140,9 +140,9 @@ export function SkateparksPage({ pageTitle, searchPlaceholder, parks }: Skatepar
               href="https://www.google.com/maps/search/?api=1&query=skate+parks+laos"
               target="_blank"
               rel="noopener noreferrer"
-              className="border-2 border-black bg-[#FBD000] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-black shadow-[2px_2px_0_#0A0A0A] transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+              className="px-0 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#FBD000] transition-opacity hover:opacity-75"
             >
-              View full map
+              VIEW ALL SPOTS -{">"}
             </a>
 
             <a

@@ -7,6 +7,7 @@ import { TRPCProvider } from '@/components/trpc-provider'
 import { GlobalConfigProvider } from '@/components/global-config-provider'
 import { CookiePolicyBar } from '@/components/cookie-policy-bar'
 import { GlobalWatermark } from '@/components/global-watermark'
+import { PageTransitionShell } from '@/components/page-transition-shell'
 import { defaultGlobalConfig } from '@/config/defaults'
 import './globals.css'
 
@@ -75,7 +76,7 @@ export default async function RootLayout({
               <div className="relative min-h-screen">
                 <GlobalWatermark text={watermarkText} />
                 <div className="relative z-10">
-                  {children}
+                  <PageTransitionShell>{children}</PageTransitionShell>
                   <CookiePolicyBar />
                 </div>
               </div>
