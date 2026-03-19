@@ -20,9 +20,9 @@ import {
   FindYourSpot,
   type FindYourSpotItem,
 } from "@/components/homepage/find-your-spot"
+import { LiveDropBanner } from "@/components/home/LiveDropBanner"
 import { HeroSlider } from "@/components/homepage/hero-slider"
 import { LatestVideoMixed } from "@/components/homepage/latest-video-mixed"
-import { LiveDropBanner } from "@/components/homepage/live-drop-banner"
 import { NewArrivalsSlider } from "@/components/homepage/new-arrivals-slider"
 import { ReadyToSkate } from "@/components/homepage/ready-to-skate"
 import { NavbarServer } from "@/components/navbar-server"
@@ -533,7 +533,7 @@ function SpotCard({ spot, index }: { spot?: GenericRow; index: number }) {
 }
 
 export default async function HomePage() {
-  const [bannerRes, postsRes, dropRes, productsRes, videoRes, parksRes] =
+  const [bannerRes, postsRes, productsRes, videoRes, parksRes] =
     await Promise.all([
       supabase
         .from("banners")
@@ -547,12 +547,6 @@ export default async function HomePage() {
         .eq("published", true)
         .order("published_at", { ascending: false })
         .limit(6),
-      supabase
-        .from("drop_events")
-        .select("*")
-        .in("status", ["LIVE", "UPCOMING"])
-        .order("drop_date", { ascending: true })
-        .limit(1),
       supabase
         .from("products")
         .select("*")
@@ -573,17 +567,6 @@ export default async function HomePage() {
 
   const bannerRows = bannerRes.data ?? []
   const postsRows = postsRes.data ?? []
-
-  let dropRows = dropRes.data ?? []
-  if (!dropRows.length && dropRes.error) {
-    const fallbackDrop = await supabase
-      .from("drop_events")
-      .select("*")
-      .gt("end_date", new Date().toISOString())
-      .order("drop_date", { ascending: true })
-      .limit(1)
-    dropRows = fallbackDrop.data ?? []
-  }
 
   let productRows = productsRes.data ?? []
   if (!productRows.length && productsRes.error) {
@@ -618,14 +601,6 @@ export default async function HomePage() {
     ["title", "headline", "name"],
     "Street Issue",
   )
-
-  const currentDrop = (dropRows[0] ?? null) as GenericRow | null
-  const currentDropTitle = getString(
-    currentDrop,
-    ["title", "name"],
-    "Spring Drop 001",
-  )
-  const currentDropHref = "/drop"
 
   const magazineStories =
     postsRows.length >= 6
@@ -698,6 +673,7 @@ export default async function HomePage() {
       <div className="pt-[76px]">
         <HeroSlider />
         <PhysicsHero />
+        <LiveDropBanner />
 
         {false ? (
         <section className="goofy-dark-grid bg-[var(--black)] text-[var(--white)]">
@@ -743,7 +719,7 @@ export default async function HomePage() {
             </div>
 
             <Link
-              href={currentDropHref}
+              href="/drops"
               className="group relative block min-h-[420px] overflow-hidden"
             >
               {heroImage ? (
@@ -770,7 +746,7 @@ export default async function HomePage() {
                   Active Drop
                 </p>
                 <h2 className="goofy-display mt-3 text-[clamp(32px,4.5vw,62px)] leading-[0.86] text-[var(--white)]">
-                  {currentDropTitle}
+                  Spring Drop 001
                 </h2>
               </div>
             </Link>
@@ -783,15 +759,6 @@ export default async function HomePage() {
         ) : null}
 
         <HomeCategoryShowcase categories={categoryData} />
-
-        {currentDrop ? (
-          <LiveDropBanner
-            title={currentDropTitle}
-            status={getString(currentDrop, ["status"], "UPCOMING")}
-            dropDate={getString(currentDrop, ["drop_date", "release_date", "start_date"])}
-            href={currentDropHref}
-          />
-        ) : null}
 
         {visibleMagazineStories.length > 0 ? (
           <section className="bg-[var(--black)]">

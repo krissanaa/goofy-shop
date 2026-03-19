@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/command"
 
 type SearchProduct = {
-  id: number
+  id: number | string
   slug: string
   name: string
   category: string
@@ -97,7 +97,7 @@ export function SearchCommand() {
               <CommandItem
                 key={product.slug}
                 onSelect={() => {
-                  router.push(`/product/${product.slug}`)
+                  router.push(`/shop/${product.slug}`)
                   setOpen(false)
                 }}
                 className="flex items-center justify-between"

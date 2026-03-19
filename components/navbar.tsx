@@ -3,10 +3,21 @@
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
-import { motion, useAnimate } from "framer-motion"
-import { ChevronDown, Menu, Search, ShoppingBag, User, X } from "lucide-react"
-import { useCart } from "@/hooks/use-cart"
+import { AnimatePresence, motion, useAnimate } from "framer-motion"
+import { ChevronDown, Heart, Menu, ShoppingBag, User, X } from "lucide-react"
+import type { ComponentType } from "react"
+import {
+  ApparelIcon,
+  BearingIcon,
+  ShoeIcon,
+  SkateDeckIcon,
+  TruckIcon,
+  WheelIcon,
+} from "@/components/icons/SkateIcons"
+import { SearchBar } from "@/components/SearchBar"
 import { useGlobalConfig } from "@/components/global-config-provider"
+import { useCart } from "@/hooks/use-cart"
+import { useWishlist } from "@/lib/stores/wishlistStore"
 import { EASE_SNAP } from "@/lib/motion"
 
 interface NavbarProps {
@@ -27,6 +38,16 @@ type NavLink = {
   dropdown?: DesktopDropdownKey
 }
 
+type ShopMenuCategory = {
+  slug: string
+  label: string
+  Icon: ComponentType<{
+    size?: number
+    color?: string
+    className?: string
+  }>
+}
+
 const NAV_LINKS: NavLink[] = [
   { href: "/", label: "HOME" },
   { href: "/shop", label: "SHOP", dropdown: "shop" },
@@ -35,28 +56,28 @@ const NAV_LINKS: NavLink[] = [
   { href: "/about", label: "ABOUT" },
 ]
 
-const SHOP_CATEGORY_LINKS = [
-  { label: "All Products", href: "/shop" },
-  { label: "Decks", href: "/shop?category=deck" },
-  { label: "Wheels", href: "/shop?category=wheel" },
-  { label: "Apparel", href: "/shop?category=apparel" },
-  { label: "Trucks", href: "/shop?category=truck" },
-  { label: "Gear", href: "/shop?category=gear" },
-  { label: "Accessories", href: "/shop?category=accessory" },
+const SHOP_MENU_CATEGORIES: ShopMenuCategory[] = [
+  { slug: "deck", label: "Decks", Icon: SkateDeckIcon },
+  { slug: "wheel", label: "Wheels", Icon: WheelIcon },
+  { slug: "truck", label: "Trucks", Icon: TruckIcon },
+  { slug: "bearing", label: "Bearings", Icon: BearingIcon },
+  { slug: "shoe", label: "Shoes", Icon: ShoeIcon },
+  { slug: "apparel", label: "Apparel", Icon: ApparelIcon },
 ]
 
-const SHOP_COLLECTION_LINKS = [
+const SHOP_FEATURED_LINKS = [
+  { label: "All Products", href: "/shop" },
   { label: "New Arrivals", href: "/shop?badge=NEW" },
   { label: "Hot Right Now", href: "/shop?badge=HOT" },
   { label: "Sale", href: "/shop?badge=SALE" },
   { label: "Collab", href: "/shop?badge=COLLAB" },
-  { label: "Drop", href: "/drops" },
+  { label: "Drops", href: "/drops" },
 ]
 
 const COMMUNITY_LINKS = [
   { label: "News & Events", href: "/news" },
   { label: "Skate Videos", href: "/videos" },
-  { label: "Skate Parks", href: "/parks" },
+  { label: "Skate Parks", href: "/skateparks" },
 ]
 
 export function Navbar({
@@ -68,6 +89,7 @@ export function Navbar({
   const [desktopDropdown, setDesktopDropdown] =
     useState<DesktopDropdownKey | null>(null)
   const { itemCount, isHydrated } = useCart()
+  const wishlist = useWishlist()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const config = useGlobalConfig()
@@ -75,15 +97,11 @@ export function Navbar({
   const previousItemCount = useRef(0)
   const [cartIconScope, animateCartIcon] = useAnimate()
 
-  const openSearch = () => {
-    window.dispatchEvent(new Event("open-search-command"))
-  }
-
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
     if (href === "/shop") return pathname === "/shop"
     if (href === "/community") {
-      return ["/community", "/news", "/videos", "/parks"].some(
+      return ["/community", "/news", "/videos", "/skateparks"].some(
         (route) => pathname === route || pathname.startsWith(`${route}/`),
       )
     }
@@ -185,6 +203,7 @@ export function Navbar({
               const isMenuOpen = link.dropdown
                 ? desktopDropdown === link.dropdown
                 : false
+              const isShopTrigger = link.dropdown === "shop"
 
               return (
                 <motion.div
@@ -197,7 +216,9 @@ export function Navbar({
                     if (link.dropdown) setDesktopDropdown(link.dropdown)
                   }}
                   onMouseLeave={() => {
-                    if (link.dropdown) setDesktopDropdown(null)
+                    if (link.dropdown === "community") {
+                      setDesktopDropdown(null)
+                    }
                   }}
                 >
                   <Link href={link.href} className={`${navLinkClass(isActive(link.href))} group`}>
@@ -239,59 +260,7 @@ export function Navbar({
                     </button>
                   ) : null}
 
-                  {link.dropdown === "shop" ? (
-                    <div
-                      className={`absolute left-0 top-full mt-[1px] w-[420px] border border-[var(--bordw)] bg-[#101010] p-5 transition-all duration-150 ${
-                        isMenuOpen
-                          ? "visible translate-y-0 opacity-100"
-                          : "invisible pointer-events-none translate-y-2 opacity-0"
-                      }`}
-                    >
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
-                            Shop
-                          </p>
-                          <div>
-                            {SHOP_CATEGORY_LINKS.map((item) => (
-                              <Link
-                                key={item.href}
-                                href={item.href}
-                                className={dropdownItemClass(
-                                  isDropdownItemActive(item.href),
-                                )}
-                              >
-                                <span>{item.label}</span>
-                                <span className="text-[var(--gray)]">/</span>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div>
-                          <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
-                            Collections
-                          </p>
-                          <div>
-                            {SHOP_COLLECTION_LINKS.map((item) => (
-                              <Link
-                                key={item.href}
-                                href={item.href}
-                                className={dropdownItemClass(
-                                  isDropdownItemActive(item.href),
-                                )}
-                              >
-                                <span>{item.label}</span>
-                                <span className="text-[var(--gray)]">/</span>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {link.dropdown === "community" ? (
+                  {!isShopTrigger && link.dropdown === "community" ? (
                     <div
                       className={`absolute left-0 top-full mt-[1px] w-[290px] border border-[var(--bordw)] bg-[#101010] p-5 transition-all duration-150 ${
                         isMenuOpen
@@ -324,14 +293,23 @@ export function Navbar({
           </div>
 
           <div className="flex items-center gap-2 justify-self-end">
-            <button
-              type="button"
-              onClick={openSearch}
-              aria-label="Open search"
-              className="grid h-8 w-8 place-items-center text-white/50 transition-colors hover:text-[var(--white)]"
+            <SearchBar />
+
+            <Link
+              href="/wishlist"
+              aria-label="Open wishlist"
+              className={`goofy-mono relative inline-flex h-8 items-center gap-2 rounded-[2px] border border-white/12 px-3 text-[9px] font-medium uppercase tracking-[0.18em] transition-colors ${
+                isActive("/wishlist")
+                  ? "border-[var(--gold)] text-[var(--gold)]"
+                  : "text-white/60 hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              }`}
             >
-              <Search className="h-4 w-4" />
-            </button>
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Wishlist</span>
+              <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-white/8 px-1 text-[7px] text-[var(--white)]">
+                {wishlist.hydrated ? wishlist.items.length : 0}
+              </span>
+            </Link>
 
             <Link
               href="/cart"
@@ -369,6 +347,51 @@ export function Navbar({
             </button>
           </div>
         </nav>
+
+        <AnimatePresence>
+          {desktopDropdown === "shop" ? (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute left-0 right-0 top-full z-50 border-b border-[var(--bordw)] bg-[var(--black)]"
+              onMouseEnter={() => setDesktopDropdown("shop")}
+              onMouseLeave={() => setDesktopDropdown(null)}
+            >
+              <div className="grid grid-cols-3 border-t border-[var(--bordw)] md:grid-cols-6">
+                {SHOP_MENU_CATEGORIES.map((category) => (
+                  <Link
+                    key={category.slug}
+                    href={`/shop?category=${category.slug}`}
+                    className="group flex flex-col items-center gap-3 border-r border-[var(--bordw)] px-4 py-8 transition-colors hover:bg-white/[0.03] last:border-r-0"
+                  >
+                    <category.Icon
+                      size={40}
+                      color="#F4F0EB"
+                      className="transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                    />
+                    <span className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-white/50 transition-colors group-hover:text-[var(--gold)]">
+                      {category.label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between border-t border-[var(--bordw)] px-8 py-3">
+                <span className="goofy-mono text-[7px] uppercase tracking-[0.2em] text-white/20">
+                  Browse by category
+                </span>
+                <Link
+                  href="/shop"
+                  className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-[var(--gold)] transition-colors hover:text-white"
+                >
+                  View All Products -{">"}
+                </Link>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </header>
 
       {mobileOpen ? (
@@ -400,10 +423,20 @@ export function Navbar({
                   Shop
                 </p>
                 <div className="grid gap-2">
-                  {[...SHOP_CATEGORY_LINKS, ...SHOP_COLLECTION_LINKS].map((item) => (
+                  {SHOP_FEATURED_LINKS.map((item) => (
                     <Link
                       key={`mobile-shop-${item.href}`}
                       href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="goofy-mono border border-white/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-white/72"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                  {SHOP_MENU_CATEGORIES.map((item) => (
+                    <Link
+                      key={`mobile-category-${item.slug}`}
+                      href={`/shop?category=${item.slug}`}
                       onClick={() => setMobileOpen(false)}
                       className="goofy-mono border border-white/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-white/72"
                     >

@@ -5,9 +5,8 @@ import { CartProvider } from '@/hooks/use-cart'
 import { Toaster } from '@/components/ui/toaster'
 import { TRPCProvider } from '@/components/trpc-provider'
 import { GlobalConfigProvider } from '@/components/global-config-provider'
-import { CookiePolicyBar } from '@/components/cookie-policy-bar'
-import { GlobalWatermark } from '@/components/global-watermark'
 import { PageTransitionShell } from '@/components/page-transition-shell'
+import { RouteChrome } from '@/components/route-chrome'
 import { defaultGlobalConfig } from '@/config/defaults'
 import './globals.css'
 
@@ -65,7 +64,7 @@ export default async function RootLayout({
   `
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-theme="dark">
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeVars }} />
       </head>
@@ -74,10 +73,9 @@ export default async function RootLayout({
           <CartProvider>
             <GlobalConfigProvider config={config}>
               <div className="relative min-h-screen">
-                <GlobalWatermark text={watermarkText} />
+                <RouteChrome watermarkText={watermarkText} />
                 <div className="relative z-10">
                   <PageTransitionShell>{children}</PageTransitionShell>
-                  <CookiePolicyBar />
                 </div>
               </div>
             </GlobalConfigProvider>

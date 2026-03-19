@@ -1,15 +1,25 @@
-﻿"use client"
+"use client"
 
 import Image from "next/image"
 import Link from "next/link"
-import { ChangeEvent, FormEvent, useMemo, useState } from "react"
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { ArrowLeft, Lock, ShieldCheck, Truck } from "lucide-react"
-import { useCart } from "@/hooks/use-cart"
-import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { validateDiscountAction } from "@/lib/actions/discountActions"
+import { formatPrice } from "@/lib/utils/format"
+import { useCart } from "@/hooks/use-cart"
+import { useToast } from "@/hooks/use-toast"
 
 interface CheckoutFormState {
   firstName: string
@@ -23,6 +33,14 @@ interface CheckoutFormState {
   country: string
 }
 
+interface DiscountApplyState {
+  status: string
+  message: string
+  code: string
+  amount: number
+  cartTotal: number
+}
+
 type PaymentMethod = "card" | "paypal" | "apple-pay" | "bank-transfer"
 
 const initialForm: CheckoutFormState = {
@@ -34,7 +52,15 @@ const initialForm: CheckoutFormState = {
   city: "",
   state: "",
   zipCode: "",
-  country: "United States",
+  country: "Laos",
+}
+
+const initialDiscountState: DiscountApplyState = {
+  status: "idle",
+  message: "",
+  code: "",
+  amount: 0,
+  cartTotal: 0,
 }
 
 const paymentMethodLabel: Record<PaymentMethod, string> = {
@@ -55,14 +81,34 @@ export function CheckoutPage() {
   const [cardName, setCardName] = useState("")
   const [cardExpiry, setCardExpiry] = useState("")
   const [cardCvc, setCardCvc] = useState("")
+  const [discountCode, setDiscountCode] = useState("")
+  const [discountState, applyDiscountAction, isApplyingDiscount] = useActionState(
+    validateDiscountAction,
+    initialDiscountState,
+  )
+  const lastDiscountMessageRef = useRef<string>("")
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [items],
   )
-  const shipping = subtotal === 0 || subtotal >= 150 ? 0 : 12
-  const tax = subtotal * 0.0825
-  const total = subtotal + shipping + tax
+  const shipping = subtotal === 0 || subtotal >= 500000 ? 0 : 30000
+  const discountAmount = discountState.status === "success" ? discountState.amount : 0
+  const total = Math.max(0, subtotal - discountAmount + shipping)
+
+  useEffect(() => {
+    if (!discountState.message || discountState.message === lastDiscountMessageRef.current) {
+      return
+    }
+
+    lastDiscountMessageRef.current = discountState.message
+
+    toast({
+      title: discountState.status === "success" ? "Discount applied" : "Discount unavailable",
+      description: discountState.message,
+      variant: discountState.status === "error" ? "destructive" : "default",
+    })
+  }, [discountState, toast])
 
   const onChange = (field: keyof CheckoutFormState) => (event: ChangeEvent<HTMLInputElement>) => {
     setForm((current) => ({ ...current, [field]: event.target.value }))
@@ -78,14 +124,16 @@ export function CheckoutPage() {
     setIsSubmitting(true)
     await new Promise((resolve) => setTimeout(resolve, 800))
 
-    const nextOrder = `GS-${Date.now().toString().slice(-8)}`
+    const nextOrder = `GFW-${Date.now().toString().slice(-6)}`
     setOrderNumber(nextOrder)
     clearCart()
 
     setIsSubmitting(false)
     toast({
       title: "Order placed",
-      description: `Order ${nextOrder} placed with ${paymentMethodLabel[paymentMethod]} (frontend workflow).`,
+      description: `${nextOrder} placed with ${paymentMethodLabel[paymentMethod]}.${
+        discountAmount > 0 ? ` Discount applied: ${discountState.code}.` : ""
+      }`,
     })
   }
 
@@ -97,8 +145,15 @@ export function CheckoutPage() {
           <h1 className="mt-3 text-3xl font-bold tracking-tight">Thanks for your order.</h1>
           <p className="mt-2 text-sm text-muted-foreground">Reference number: {orderNumber}</p>
           <p className="mt-1 text-sm text-muted-foreground">Payment method: {paymentMethodLabel[paymentMethod]}</p>
+          <p className="mt-1 text-sm text-muted-foreground">Order total: {formatPrice(total)}</p>
+          {discountAmount > 0 ? (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Discount applied: {discountState.code} (-{formatPrice(discountAmount)})
+            </p>
+          ) : null}
           <p className="mt-4 text-sm text-muted-foreground">
-            This checkout is frontend mode for development. You can now continue building payment and backend flows.
+            This checkout is still frontend workflow mode. Discount validation is live, but order
+            persistence and discount usage counting still need the full backend checkout flow.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild className="rounded-none px-6">
@@ -183,12 +238,12 @@ export function CheckoutPage() {
                 <Input id="city" value={form.city} onChange={onChange("city")} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="state">State</Label>
+                <Label htmlFor="state">State / Province</Label>
                 <Input id="state" value={form.state} onChange={onChange("state")} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="zip">Zip Code</Label>
-                <Input id="zip" value={form.zipCode} onChange={onChange("zipCode")} required />
+                <Input id="zip" value={form.zipCode} onChange={onChange("zipCode")} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">Country</Label>
@@ -284,7 +339,11 @@ export function CheckoutPage() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full rounded-none py-6 text-sm font-bold uppercase tracking-widest" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full rounded-none py-6 text-sm font-bold uppercase tracking-widest"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Placing Order..." : "Place Order"}
           </Button>
         </form>
@@ -306,38 +365,74 @@ export function CheckoutPage() {
                     {item.color ? ` | ${item.color}` : ""}
                   </p>
                 </div>
-                <p className="text-sm font-semibold tabular-nums">${(item.price * item.quantity).toFixed(2)}</p>
+                <p className="text-sm font-semibold tabular-nums">{formatPrice(item.price * item.quantity)}</p>
               </article>
             ))}
           </div>
 
+          <form action={applyDiscountAction} className="space-y-3 border-t border-border pt-4">
+            <input type="hidden" name="cartTotal" value={subtotal} />
+            <div className="space-y-2">
+              <Label htmlFor="discount-code">Discount Code</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="discount-code"
+                  name="code"
+                  value={discountCode}
+                  onChange={(event) => setDiscountCode(event.target.value.toUpperCase())}
+                  placeholder="ENTER CODE"
+                  className="uppercase"
+                />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="rounded-none px-4"
+                  disabled={isApplyingDiscount || discountCode.trim().length === 0}
+                >
+                  {isApplyingDiscount ? "Applying..." : "Apply"}
+                </Button>
+              </div>
+              {discountState.message ? (
+                <p
+                  className={`text-xs ${
+                    discountState.status === "success" ? "text-emerald-500" : "text-destructive"
+                  }`}
+                >
+                  {discountState.message}
+                </p>
+              ) : null}
+            </div>
+          </form>
+
           <div className="space-y-2 border-t border-border pt-4 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="tabular-nums">${subtotal.toFixed(2)}</span>
+              <span className="tabular-nums">{formatPrice(subtotal)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Discount</span>
+              <span className="tabular-nums">
+                {discountAmount > 0 ? `-${formatPrice(discountAmount)}` : formatPrice(0)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Shipping</span>
-              <span className="tabular-nums">{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Estimated Tax</span>
-              <span className="tabular-nums">${tax.toFixed(2)}</span>
+              <span className="tabular-nums">{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
             </div>
             <div className="flex items-center justify-between border-t border-border pt-2 text-base font-bold">
               <span>Total</span>
-              <span className="tabular-nums">${total.toFixed(2)}</span>
+              <span className="tabular-nums">{formatPrice(total)}</span>
             </div>
           </div>
 
           <div className="space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
             <p className="flex items-center gap-2">
               <Truck className="h-3.5 w-3.5" />
-              Ships within 1-2 business days.
+              Shipping is free over {formatPrice(500000)}.
             </p>
             <p className="flex items-center gap-2">
               <ShieldCheck className="h-3.5 w-3.5" />
-              14-day return policy for unworn items.
+              Discount codes are validated live before checkout submission.
             </p>
           </div>
         </aside>
