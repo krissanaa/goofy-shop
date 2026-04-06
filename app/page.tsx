@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { ScrollMotionSection } from "@/components/ScrollMotionSection"
+import { ScrollMotionSection } from "@/components/FadeSection"
 import { Footer } from "@/components/footer"
 import { GoofyButton } from "@/components/GoofyButton"
 import PhysicsHero from "@/components/PhysicsHero"
@@ -21,7 +21,6 @@ import {
   type FindYourSpotItem,
 } from "@/components/homepage/find-your-spot"
 import { HomepageMotionShell } from "@/components/homepage/homepage-motion-shell"
-import { HomepageStickyTransition } from "@/components/homepage/homepage-sticky-transition"
 import { LiveDropBanner } from "@/components/home/LiveDropBanner"
 import { HeroSlider } from "@/components/homepage/hero-slider"
 import { LatestVideoMixed } from "@/components/homepage/latest-video-mixed"
@@ -681,11 +680,6 @@ export default async function HomePage() {
     findYourSpotItems[0]?.image ||
     homepageContent.readyToSkate.backgroundImage ||
     null
-  const stickyTransitionImage =
-    homepageContent.heroSlides[3]?.rightImage ||
-    heroImage ||
-    homepageContent.heroSlides[0]?.rightImage ||
-    null
 
   return (
     <main className="relative min-h-screen overflow-x-clip bg-transparent transition-colors duration-500">
@@ -695,8 +689,6 @@ export default async function HomePage() {
         <NavbarServer topOffset={24} />
 
         <div className="relative z-10 pt-[76px]">
-          <HomepageStickyTransition image={stickyTransitionImage} />
-
           <div data-homepage-depth="2.1">
             <HeroSlider fallbackSlides={homepageContent.heroSlides} />
           </div>
