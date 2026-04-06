@@ -69,17 +69,17 @@ const DEFAULT_STATS: HeroStat[] = [
 ]
 
 const heroHeadingFontStyle = {
-  fontFamily: "'Syne', var(--font-space-grotesk), sans-serif",
+  fontFamily: "var(--font-ui-sans)",
   fontWeight: 900 as const,
   fontStyle: "italic" as const,
 }
 
 const heroBodyFontStyle = {
-  fontFamily: "'DM Mono', var(--font-mono), ui-monospace, monospace",
+  fontFamily: "var(--font-ui-sans)",
 }
 
 const heroBadgeFontStyle = {
-  fontFamily: "'Press Start 2P', var(--font-mono), monospace",
+  fontFamily: "var(--font-ui-sans)",
 }
 
 function getToneColor(tone?: HeroStatTone): string {

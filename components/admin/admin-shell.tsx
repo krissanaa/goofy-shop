@@ -17,12 +17,14 @@ import {
   Bell,
   BarChart3,
   Boxes,
+  House,
   Users,
   TicketPercent,
   MapPinned,
   Clapperboard,
   Star,
   ListChecks,
+  type LucideIcon,
 } from "lucide-react"
 import { logoutAction } from "@/app/(admin)/admin/actions"
 import { ThemeToggle } from "@/components/admin/theme-toggle"
@@ -33,7 +35,17 @@ interface AdminShellProps {
   children: React.ReactNode
 }
 
-const navSections = [
+type AdminNavItem = {
+  href: string
+  label: string
+  icon: LucideIcon
+  badgeKey?: "pendingOrders"
+}
+
+const navSections: Array<{
+  label: string
+  items: AdminNavItem[]
+}> = [
   {
     label: "Overview",
     items: [
@@ -61,7 +73,9 @@ const navSections = [
   {
     label: "Content",
     items: [
+      { href: "/admin/homepage", label: "Homepage", icon: House },
       { href: "/admin/posts", label: "Posts", icon: Newspaper },
+      { href: "/admin/teams", label: "Teams", icon: Users },
       { href: "/admin/parks", label: "Parks", icon: MapPinned },
       { href: "/admin/videos", label: "Videos", icon: Clapperboard },
       { href: "/admin/banners", label: "Banners", icon: PanelsTopLeft },
@@ -93,6 +107,8 @@ function getPageTitle(pathname: string): string {
   if (pathname === "/admin/posts/new") return "Create Post"
   if (pathname.startsWith("/admin/posts/")) return "Edit Post"
   if (pathname === "/admin/posts") return "Posts"
+  if (pathname === "/admin/homepage") return "Homepage"
+  if (pathname === "/admin/teams") return "Teams"
   if (pathname === "/admin/parks") return "Parks"
   if (pathname === "/admin/videos") return "Videos"
   if (pathname === "/admin/banners") return "Hero Banners"

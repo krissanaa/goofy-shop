@@ -17,7 +17,7 @@ export function GlobalWatermark({ text = "GOOFY" }: GlobalWatermarkProps) {
       <div
         className="watermark-float absolute bottom-[-5%] right-[-1.5%] select-none leading-none tracking-[-0.04em] text-[rgba(245,239,224,0.055)]"
         style={{
-          fontFamily: "'Barlow Condensed', var(--font-barlow-condensed), sans-serif",
+          fontFamily: "var(--font-ui-sans)",
           fontWeight: 900,
           fontStyle: "italic",
           fontSize: "clamp(96px, 18vw, 260px)",
@@ -30,7 +30,7 @@ export function GlobalWatermark({ text = "GOOFY" }: GlobalWatermarkProps) {
       <div
         className="watermark-float absolute bottom-5 left-5 max-w-[min(92vw,960px)] select-none overflow-hidden text-ellipsis whitespace-nowrap text-[rgba(244,240,235,0.08)]"
         style={{
-          fontFamily: "'DM Mono', var(--font-dm-mono), ui-monospace, monospace",
+          fontFamily: "var(--font-ui-sans)",
           fontSize: "clamp(9px, 0.82vw, 12px)",
           letterSpacing: "0.14em",
           textTransform: "uppercase",

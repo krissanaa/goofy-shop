@@ -173,11 +173,11 @@ const SHOP_COLLECTION_META: Record<ShopCollectionOption, { label: string; color:
 }
 
 const barlowFontStyle = {
-  fontFamily: "'Barlow Condensed', var(--font-barlow-condensed), sans-serif",
+  fontFamily: "var(--font-ui-sans)",
 }
 
 const monoFontStyle = {
-  fontFamily: "'DM Mono', var(--font-mono), ui-monospace, monospace",
+  fontFamily: "var(--font-ui-sans)",
 }
 
 const graphPaperStyle: CSSProperties = {

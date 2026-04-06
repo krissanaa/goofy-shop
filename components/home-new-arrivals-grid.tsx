@@ -62,7 +62,7 @@ interface HomeNewArrivalsGridProps {
 }
 
 const textFontStyle = {
-  fontFamily: "var(--font-barlow-condensed), var(--font-space-grotesk), sans-serif",
+  fontFamily: "var(--font-ui-sans)",
 }
 
 const headingFontStyle = {

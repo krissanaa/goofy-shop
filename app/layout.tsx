@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Barlow_Condensed, DM_Mono } from 'next/font/google'
+import { Noto_Sans, Noto_Sans_Lao } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/hooks/use-cart'
 import { Toaster } from '@/components/ui/toaster'
@@ -10,16 +10,16 @@ import { RouteChrome } from '@/components/route-chrome'
 import { defaultGlobalConfig } from '@/config/defaults'
 import './globals.css'
 
-const barlowCondensed = Barlow_Condensed({
+const notoSans = Noto_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800', '900'],
   style: ['normal', 'italic'],
-  variable: '--font-barlow-condensed',
+  variable: '--font-noto-sans',
 })
-const dmMono = DM_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-dm-mono',
+const notoSansLao = Noto_Sans_Lao({
+  subsets: ['lao'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-lao',
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -68,11 +68,11 @@ export default async function RootLayout({
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeVars }} />
       </head>
-      <body className={`${barlowCondensed.variable} ${dmMono.variable} font-sans antialiased`}>
+      <body className={`${notoSans.variable} ${notoSansLao.variable} bg-[#050505] font-sans antialiased`}>
         <TRPCProvider>
           <CartProvider>
             <GlobalConfigProvider config={config}>
-              <div className="relative min-h-screen">
+              <div className="relative min-h-screen bg-[#050505]">
                 <RouteChrome watermarkText={watermarkText} />
                 <div className="relative z-10">
                   <PageTransitionShell>{children}</PageTransitionShell>

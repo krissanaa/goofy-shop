@@ -128,7 +128,7 @@ export function Footer() {
   const logo = (config.siteName.split(" ")[0] || "GOOFY").toUpperCase()
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/6 bg-[#050505] text-white">
+    <footer className="relative overflow-hidden border-t border-white/6 bg-transparent text-white">
       <div className="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.45)_1px,transparent_0)] [background-size:13px_13px]" />
 
       <div className="relative mx-auto max-w-[1480px] px-6 py-16 md:px-10 md:py-20">
@@ -141,13 +141,13 @@ export function Footer() {
             <Link href="/" className="inline-flex items-end gap-1">
               <span
                 className="text-[42px] font-black uppercase leading-none tracking-[-0.05em] text-white"
-                style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                style={{ fontFamily: "var(--font-ui-sans)" }}
               >
                 {logo}
               </span>
               <span
                 className="text-[42px] font-black leading-none tracking-[-0.05em] text-[#F0B429]"
-                style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                style={{ fontFamily: "var(--font-ui-sans)" }}
               >
                 .
               </span>
@@ -194,7 +194,7 @@ export function Footer() {
                   <button
                     type="submit"
                     className="inline-flex w-full items-center justify-center bg-[#F0B429] px-6 py-3 text-sm font-black uppercase italic text-black transition-colors hover:bg-white"
-                    style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                    style={{ fontFamily: "var(--font-ui-sans)" }}
                   >
                     Notify Me
                   </button>

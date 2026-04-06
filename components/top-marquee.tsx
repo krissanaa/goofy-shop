@@ -11,7 +11,7 @@ export function TopMarquee({ text }: { text: string }) {
 
   return (
     <div
-      className="fixed inset-x-0 top-0 z-[60] h-6 overflow-hidden bg-[var(--gold)]"
+      className="fixed inset-x-0 top-0 z-[60] h-6 overflow-hidden bg-white/92 transition-colors duration-500 dark:bg-[var(--gold)]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -25,7 +25,7 @@ export function TopMarquee({ text }: { text: string }) {
         {repeatedMarquee.map((item, index) => (
           <span
             key={`${item}-${index}`}
-            className="goofy-mono flex h-6 items-center px-5 text-[8px] uppercase tracking-[0.22em] text-[var(--black)]"
+            className="goofy-mono flex h-6 items-center px-5 text-[8px] uppercase tracking-[0.22em] text-black transition-colors duration-500 dark:text-[var(--black)]"
           >
             {item}
           </span>

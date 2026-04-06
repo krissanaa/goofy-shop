@@ -163,13 +163,13 @@ export function HomeCategoryShowcase({
   if (!categories.length) return null
 
   return (
-    <section className="relative z-10 w-full bg-[#050505] px-4 py-24 text-white md:px-12">
+    <section className="relative z-10 w-full bg-transparent px-4 py-24 text-black transition-colors duration-500 dark:text-white md:px-12">
       <div className="mx-auto max-w-[1480px]">
-        <div className="mb-8 flex items-end justify-between gap-4 goofy-mono text-[10px] uppercase tracking-widest text-white/50">
+        <div className="mb-8 flex items-end justify-between gap-4 goofy-mono text-[10px] uppercase tracking-widest text-black/48 transition-colors duration-500 dark:text-white/50">
           <span>Shop by Category</span>
           <Link
             href="/shop"
-            className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-colors duration-300 hover:text-[#F0B429]"
+            className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-black/72 transition-colors duration-300 hover:text-black dark:text-white dark:hover:text-[#F0B429]"
           >
             View Full Shop -{">"}
           </Link>
@@ -194,7 +194,7 @@ export function HomeCategoryShowcase({
               >
                 <Link
                   href={getCardHref(category)}
-                  className="group relative block h-full w-full overflow-hidden rounded-md border border-white/10 bg-[#0A0A0C] p-5 transition-colors duration-300 hover:border-[#F0B429] md:p-6"
+                  className="group relative block h-full w-full overflow-hidden rounded-md border border-black/10 bg-white/35 p-5 shadow-[0_16px_40px_rgba(5,5,5,0.08)] transition-colors duration-300 hover:border-[#F0B429] dark:border-white/10 dark:bg-[#0A0A0C] dark:shadow-none md:p-6"
                 >
                   <div className="absolute inset-0 z-0 h-full w-full overflow-hidden">
                     <Image
@@ -204,7 +204,7 @@ export function HomeCategoryShowcase({
                       sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       className="origin-center object-cover brightness-50 grayscale transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110 group-hover:brightness-90 group-hover:grayscale-0"
                     />
-                    <div className="absolute inset-0 bg-black/40 transition-colors duration-500 group-hover:bg-transparent" />
+                    <div className="absolute inset-0 bg-black/52 transition-colors duration-500 group-hover:bg-black/18 dark:bg-black/40 dark:group-hover:bg-transparent" />
                   </div>
 
                   <div className="relative z-10 flex h-full flex-col justify-between">
@@ -219,7 +219,7 @@ export function HomeCategoryShowcase({
                         {category.name}
                       </h2>
 
-                      <span className="inline-flex items-center gap-3 rounded-full border border-[#F0B429]/30 bg-black/35 px-3 py-1.5 translate-y-4 goofy-mono text-[10px] font-bold uppercase tracking-[0.24em] text-transparent opacity-0 backdrop-blur-[2px] transition-all duration-500 delay-100 group-hover:translate-y-0 group-hover:text-[#F0B429] group-hover:opacity-100 md:px-4 md:py-2 md:text-xs">
+                      <span className="inline-flex items-center gap-3 rounded-full border border-[#F0B429]/30 bg-white/88 px-3 py-1.5 translate-y-4 goofy-mono text-[10px] font-bold uppercase tracking-[0.24em] text-transparent opacity-0 backdrop-blur-[2px] transition-all duration-500 delay-100 group-hover:translate-y-0 group-hover:text-[#8a6200] group-hover:opacity-100 dark:bg-black/35 dark:group-hover:text-[#F0B429] md:px-4 md:py-2 md:text-xs">
                         Browse Products -{">"}
                       </span>
                     </div>

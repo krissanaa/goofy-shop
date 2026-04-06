@@ -3,13 +3,22 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
 import { AnimatePresence, motion } from "framer-motion"
+import { ArrowRight } from "lucide-react"
 import UseAnimations from "react-useanimations"
 import activity from "react-useanimations/lib/activity"
 import arrowUp from "react-useanimations/lib/arrowUp"
 import explore from "react-useanimations/lib/explore"
 import star from "react-useanimations/lib/star"
 import { type CSSProperties, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+  DEFAULT_HOMEPAGE_CONTENT,
+  type HomepageHeroSlide,
+} from "@/lib/homepage-content"
+import { attachMagneticEffect } from "@/lib/gsap-magnetic"
 import { supabase } from "@/lib/supabase"
 
 type HeroSlide = {
@@ -101,6 +110,8 @@ const SLIDES: HeroSlide[] = [
 
 const editorialEase = [0.16, 1, 0.3, 1] as const
 
+gsap.registerPlugin(ScrollTrigger, useGSAP)
+
 function splitTitleIntoLines(title: string) {
   const words = title
     .replace(/[_-]+/g, " ")
@@ -125,6 +136,40 @@ function splitTitleIntoLines(title: string) {
 
   return ["The", "Streets", "Are", "Ours"]
 }
+
+function mapHomepageSlideToHeroSlide(
+  slide: HomepageHeroSlide,
+  index: number,
+): HeroSlide {
+  const leftLines =
+    slide.leftTitleLines.length > 0
+      ? slide.leftTitleLines
+      : splitTitleIntoLines(slide.rightTitle)
+
+  return {
+    id: index + 1,
+    tag: slide.tag,
+    leftLines,
+    leftHighlight: Math.max(0, leftLines.length - 1),
+    leftOutline: leftLines.length > 1 ? 1 : 0,
+    leftSub: slide.leftSubtitle,
+    leftCTA: {
+      label: slide.leftCtaLabel,
+      href: slide.leftCtaHref,
+    },
+    leftMeta: slide.leftMeta,
+    rightBg: slide.rightImage ?? undefined,
+    rightTag: slide.rightTag,
+    rightTitle: slide.rightTitle,
+    rightCTA: {
+      label: slide.rightCtaLabel,
+      href: slide.rightCtaHref,
+    },
+    rightCTAGold: slide.rightCtaGold,
+  }
+}
+
+const DEFAULT_SLIDES = DEFAULT_HOMEPAGE_CONTENT.heroSlides.map(mapHomepageSlideToHeroSlide)
 
 function mapBannerToSlide(row: BannerRow, index: number): HeroSlide {
   const title = row.title?.trim() || `Banner ${index + 1}`
@@ -157,7 +202,7 @@ function getOutlineStyle(isOutline: boolean): CSSProperties | undefined {
   if (!isOutline) return undefined
 
   return {
-    WebkitTextStroke: "1.5px var(--white)",
+    WebkitTextStroke: "1.5px var(--hero-outline-color, var(--white))",
     color: "transparent",
   }
 }
@@ -195,11 +240,139 @@ function ChevronIcon({ mirrored = false }: { mirrored?: boolean }) {
   )
 }
 
-export function HeroSlider() {
+function NudgeArrow() {
+  return (
+    <motion.span
+      aria-hidden="true"
+      className="inline-flex"
+      animate={{ x: [0, 12, 0] }}
+      transition={{ duration: 1.15, ease: "easeInOut", repeat: Infinity }}
+      style={{ willChange: "transform" }}
+    >
+      <ArrowRight className="h-4 w-4" strokeWidth={2.4} />
+    </motion.span>
+  )
+}
+
+export function HeroSlider({
+  fallbackSlides = DEFAULT_HOMEPAGE_CONTENT.heroSlides,
+}: {
+  fallbackSlides?: HomepageHeroSlide[]
+}) {
   const router = useRouter()
   const timer = useRef<NodeJS.Timeout | null>(null)
-  const [slides, setSlides] = useState<HeroSlide[]>(SLIDES)
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const resolvedFallbackSlides = useMemo(
+    () =>
+      (fallbackSlides.length > 0 ? fallbackSlides : DEFAULT_HOMEPAGE_CONTENT.heroSlides).map(
+        mapHomepageSlideToHeroSlide,
+      ),
+    [fallbackSlides],
+  )
+  const [slides, setSlides] = useState<HeroSlide[]>(resolvedFallbackSlides.length > 0 ? resolvedFallbackSlides : SLIDES)
   const [current, setCurrent] = useState(0)
+
+  useGSAP(
+    () => {
+      const section = sectionRef.current
+      if (!section) return
+
+      const heroCopy = section.querySelector<HTMLElement>("[data-hero-copy]")
+      const heroMedia = section.querySelector<HTMLElement>("[data-hero-media]")
+      const heroBackground = section.querySelector<HTMLElement>("[data-hero-background]")
+      const heroGhost = section.querySelector<HTMLElement>("[data-hero-ghost]")
+      const magneticTargets = gsap.utils.toArray<HTMLElement>("[data-magnetic]", section)
+
+      const magneticCleanups = magneticTargets.map((element) =>
+        attachMagneticEffect(element, { strength: 0.18, duration: 0.28 }),
+      )
+
+      gsap.set(
+        [heroCopy, heroMedia, heroBackground, heroGhost].filter(Boolean),
+        { force3D: true },
+      )
+
+      if (heroCopy) {
+        gsap.fromTo(
+          heroCopy,
+          { y: 0, opacity: 1 },
+          {
+            y: -220,
+            opacity: 0.36,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: "bottom top",
+              scrub: 1.8,
+            },
+          },
+        )
+      }
+
+      if (heroGhost) {
+        gsap.fromTo(
+          heroGhost,
+          { y: 0, scale: 1, rotate: 0 },
+          {
+            y: 120,
+            scale: 1.12,
+            rotate: -3,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: "bottom top",
+              scrub: 1.8,
+            },
+          },
+        )
+      }
+
+      if (heroBackground) {
+        gsap.fromTo(
+          heroBackground,
+          { y: 0, scale: 1.06 },
+          {
+            y: 140,
+            scale: 1.2,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: "bottom top",
+              scrub: 1.8,
+            },
+          },
+        )
+      }
+
+      if (heroMedia) {
+        gsap.fromTo(
+          heroMedia,
+          { y: 0, rotate: 0 },
+          {
+            y: -84,
+            rotate: -1.2,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: "bottom top",
+              scrub: 1.8,
+            },
+          },
+        )
+      }
+
+      ScrollTrigger.refresh()
+
+      return () => {
+        magneticCleanups.forEach((cleanup) => cleanup())
+      }
+    },
+    { scope: sectionRef, dependencies: [current] },
+  )
 
   const clearTimer = useCallback(() => {
     if (timer.current) {
@@ -229,6 +402,11 @@ export function HeroSlider() {
     },
     [clearTimer, slides.length, startTimer],
   )
+
+  useEffect(() => {
+    setSlides(resolvedFallbackSlides)
+    setCurrent(0)
+  }, [resolvedFallbackSlides])
 
   useEffect(() => {
     startTimer()
@@ -272,15 +450,20 @@ export function HeroSlider() {
     return () => clearTimer()
   }, [clearTimer])
 
-  const activeSlide = useMemo(() => slides[current] ?? SLIDES[0], [current, slides])
+  const activeSlide = useMemo(
+    () => slides[current] ?? resolvedFallbackSlides[0] ?? SLIDES[0] ?? DEFAULT_SLIDES[0],
+    [current, resolvedFallbackSlides, slides],
+  )
   const isCollabSlide = activeSlide.id === 3
 
   return (
     <motion.section
-      className="group relative overflow-hidden bg-[var(--black)] text-[var(--white)]"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      ref={sectionRef}
+      className="group relative overflow-hidden bg-transparent text-black [--hero-outline-color:#050505] transition-colors duration-500 dark:text-[var(--white)] dark:[--hero-outline-color:var(--white)]"
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.9, ease: editorialEase }}
+      style={{ willChange: "transform, opacity" }}
     >
       <div className="grid min-h-[calc(100vh-76px)] lg:grid-cols-2">
         <motion.div
@@ -288,23 +471,33 @@ export function HeroSlider() {
           initial={{ x: -30, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.7, ease: editorialEase, delay: 0.1 }}
+          style={{ willChange: "transform, opacity" }}
         >
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSlide.id}
+              data-hero-copy
               className="absolute inset-0 flex flex-col justify-between px-5 py-8 md:px-10 lg:py-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
+              style={{ willChange: "transform, opacity" }}
             >
+              <div
+                data-hero-ghost
+                className="pointer-events-none absolute right-[-8%] top-1/2 hidden -translate-y-1/2 select-none goofy-display text-[clamp(7rem,19vw,18rem)] leading-none tracking-[-0.08em] text-black/[0.07] transition-colors duration-500 dark:text-white/[0.045] lg:block"
+              >
+                GOOFY
+              </div>
+
               <div className="space-y-8">
                 <motion.div
                   className="goofy-mono inline-flex items-center gap-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gold)]"
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.4, ease: editorialEase, delay: 0.05 }}
+                  initial={{ opacity: 0, y: 28 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -18 }}
+                  transition={{ duration: 0.55, ease: editorialEase, delay: 0.08 }}
                 >
                   <span className="h-px w-8 bg-[var(--gold)]" />
                   {getTagIcon(activeSlide.id)}
@@ -320,16 +513,18 @@ export function HeroSlider() {
                       <motion.h1
                         key={`${activeSlide.id}-${index}-${line}`}
                         className={`goofy-display text-[clamp(64px,9vw,140px)] leading-[0.83] ${
-                          isHighlight ? "text-[var(--gold)]" : "text-[var(--white)]"
+                          isHighlight
+                            ? "text-[var(--gold)]"
+                            : "text-black transition-colors duration-500 dark:text-[var(--white)]"
                         }`}
                         style={getOutlineStyle(isOutline)}
-                        initial={{ opacity: 0, y: 32, skewY: 2 }}
+                        initial={{ opacity: 0, y: 88, skewY: 4 }}
                         animate={{ opacity: 1, y: 0, skewY: 0 }}
-                        exit={{ opacity: 0, y: -12 }}
+                        exit={{ opacity: 0, y: -28 }}
                         transition={{
-                          duration: 0.55,
+                          duration: 0.72,
                           ease: editorialEase,
-                          delay: 0.1 + index * 0.07,
+                          delay: 0.12 + index * 0.09,
                         }}
                       >
                         {line || "\u00A0"}
@@ -339,7 +534,7 @@ export function HeroSlider() {
                 </div>
 
                 <motion.p
-                  className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-white/12"
+                  className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-black/42 transition-colors duration-500 dark:text-white/12"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -356,16 +551,17 @@ export function HeroSlider() {
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.4, ease: "easeOut", delay: 0.42 }}
               >
-                <p className="goofy-mono text-[9px] uppercase tracking-[0.18em] text-white/38">
+                <p className="goofy-mono text-[9px] uppercase tracking-[0.18em] text-black/62 transition-colors duration-500 dark:text-white/38">
                   {activeSlide.leftMeta}
                 </p>
 
                 <Link href={activeSlide.leftCTA.href}>
                   <motion.span
+                    data-magnetic
                     className={`goofy-btn inline-flex ${
                       isCollabSlide
                         ? "bg-[var(--gold)] text-[var(--black)] hover:bg-[var(--white)]"
-                        : "bg-[var(--white)] text-[var(--black)] hover:bg-[var(--gold)]"
+                        : "bg-black text-white hover:bg-[var(--gold)] hover:text-[var(--black)] dark:bg-[var(--white)] dark:text-[var(--black)] dark:hover:bg-[var(--gold)]"
                     }`}
                     whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.96 }}
@@ -373,9 +569,7 @@ export function HeroSlider() {
                   >
                     <span className="inline-flex items-center gap-2">
                       <span>{activeSlide.leftCTA.label}</span>
-                      <span className="inline-flex rotate-90">
-                        <UseAnimations animation={arrowUp} size={16} strokeColor="currentColor" autoplay />
-                      </span>
+                      <NudgeArrow />
                     </span>
                   </motion.span>
                 </Link>
@@ -385,10 +579,12 @@ export function HeroSlider() {
         </motion.div>
 
         <motion.div
+          data-hero-media
           className="relative hidden overflow-hidden lg:block"
           initial={{ x: 30, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.7, ease: editorialEase, delay: 0.2 }}
+          style={{ willChange: "transform, opacity" }}
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -403,11 +599,13 @@ export function HeroSlider() {
               {activeSlide.rightBg ? (
                 <>
                   <motion.div
-                    className="absolute inset-0"
+                    data-hero-background
+                    className="homepage-media-fade absolute inset-0"
                     initial={{ scale: 1.08, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.75, ease: "easeOut" }}
+                    style={{ willChange: "transform, opacity" }}
                   >
                     <Image
                       src={activeSlide.rightBg}
@@ -424,12 +622,17 @@ export function HeroSlider() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
+                    style={{ willChange: "opacity" }}
                   />
                 </>
               ) : (
-                <div className="absolute inset-0 bg-[linear-gradient(135deg,#1a1208,#080808)]">
+                <div
+                  data-hero-background
+                  className="homepage-media-fade absolute inset-0 bg-[linear-gradient(135deg,#1a1208,#080808)]"
+                  style={{ willChange: "transform" }}
+                >
                   <motion.div
-                    className="goofy-display absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[clamp(100px,18vw,260px)] leading-none text-white/[0.025]"
+                    className="goofy-display absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[clamp(100px,18vw,260px)] leading-none text-black/[0.08] transition-colors duration-500 dark:text-white/[0.025]"
                     initial={{ opacity: 0, scale: 0.94 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
@@ -466,6 +669,7 @@ export function HeroSlider() {
 
                 <motion.button
                   type="button"
+                  data-magnetic
                   className={`goofy-btn mt-5 inline-flex ${
                     activeSlide.rightCTAGold
                       ? "bg-[var(--gold)] text-[var(--black)] hover:bg-[var(--white)]"
@@ -484,9 +688,7 @@ export function HeroSlider() {
                 >
                   <span className="inline-flex items-center gap-2">
                     <span>{activeSlide.rightCTA.label}</span>
-                    <span className="inline-flex rotate-90">
-                      <UseAnimations animation={arrowUp} size={16} strokeColor="currentColor" autoplay />
-                    </span>
+                    <NudgeArrow />
                   </span>
                 </motion.button>
               </div>
@@ -503,7 +705,7 @@ export function HeroSlider() {
             <motion.button
               key={slide.id}
               type="button"
-              className="relative h-[2px] w-7 cursor-pointer overflow-hidden rounded-sm bg-white/20"
+              className="relative h-[2px] w-7 cursor-pointer overflow-hidden rounded-sm bg-black/24 transition-colors duration-500 dark:bg-white/20"
               style={{ transformOrigin: "center" }}
               whileHover={{ scaleY: 2 }}
               transition={{ duration: 0.2 }}
@@ -533,7 +735,8 @@ export function HeroSlider() {
 
       <motion.button
         type="button"
-        className="absolute left-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm border border-white/10 bg-white/[0.07] text-white/55 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/15 hover:text-white"
+        data-magnetic
+        className="absolute left-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm border border-black/10 bg-white/78 text-black/55 opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white hover:text-black dark:border-white/10 dark:bg-white/[0.07] dark:text-white/55 dark:hover:bg-white/15 dark:hover:text-white"
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.88 }}
         transition={{ duration: 0.18 }}
@@ -544,7 +747,8 @@ export function HeroSlider() {
 
       <motion.button
         type="button"
-        className="absolute right-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm border border-white/10 bg-white/[0.07] text-white/55 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/15 hover:text-white"
+        data-magnetic
+        className="absolute right-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm border border-black/10 bg-white/78 text-black/55 opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-white hover:text-black dark:border-white/10 dark:bg-white/[0.07] dark:text-white/55 dark:hover:bg-white/15 dark:hover:text-white"
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.88 }}
         transition={{ duration: 0.18 }}

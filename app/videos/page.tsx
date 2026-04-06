@@ -189,7 +189,7 @@ export default async function VideosPage() {
               <div>
                 <h1
                   className="text-[clamp(3.2rem,8vw,7.5rem)] font-black uppercase italic leading-[0.88] tracking-[-0.06em]"
-                  style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                  style={{ fontFamily: "var(--font-ui-sans)" }}
                 >
                   Watch Goofy TV
                 </h1>
@@ -204,7 +204,7 @@ export default async function VideosPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center bg-[#F0B429] px-8 py-3 text-lg font-black uppercase italic text-black transition-colors hover:bg-white"
-                  style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                  style={{ fontFamily: "var(--font-ui-sans)" }}
                 >
                   YouTube Channel {"↗"}
                 </a>
@@ -244,7 +244,7 @@ export default async function VideosPage() {
                 </p>
                 <h2
                   className="mt-3 text-[clamp(2rem,4vw,3.6rem)] font-black uppercase italic leading-[0.9] tracking-[-0.05em]"
-                  style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                  style={{ fontFamily: "var(--font-ui-sans)" }}
                 >
                   {featured.title}
                 </h2>
@@ -286,7 +286,7 @@ export default async function VideosPage() {
                       </p>
                       <h3
                         className="mt-2 text-[1.6rem] font-black uppercase italic leading-[0.9] tracking-[-0.04em] text-white transition-colors group-hover:text-[#F0B429]"
-                        style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                        style={{ fontFamily: "var(--font-ui-sans)" }}
                       >
                         {card.title}
                       </h3>

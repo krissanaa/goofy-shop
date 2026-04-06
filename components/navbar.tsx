@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
 import { AnimatePresence, motion, useAnimate } from "framer-motion"
 import { ChevronDown, Heart, Menu, ShoppingBag, User, X } from "lucide-react"
 import type { ComponentType } from "react"
@@ -17,6 +19,7 @@ import {
 import { SearchBar } from "@/components/SearchBar"
 import { useGlobalConfig } from "@/components/global-config-provider"
 import { useCart } from "@/hooks/use-cart"
+import { attachMagneticEffect } from "@/lib/gsap-magnetic"
 import { useWishlist } from "@/lib/stores/wishlistStore"
 import { EASE_SNAP } from "@/lib/motion"
 
@@ -52,6 +55,7 @@ const NAV_LINKS: NavLink[] = [
   { href: "/", label: "HOME" },
   { href: "/shop", label: "SHOP", dropdown: "shop" },
   { href: "/drops", label: "DROPS" },
+  { href: "/teams", label: "TEAM" },
   { href: "/community", label: "COMMUNITY", dropdown: "community" },
   { href: "/about", label: "ABOUT" },
 ]
@@ -172,24 +176,48 @@ export function Navbar({
 
   const navLinkClass = (active: boolean) =>
     `goofy-mono text-[9px] tracking-[0.18em] transition-colors ${
-      active ? "text-[var(--white)]" : "text-white/35 hover:text-[var(--white)]"
+      active
+        ? "text-black dark:text-[var(--white)]"
+        : "text-black/45 hover:text-black dark:text-white/35 dark:hover:text-[var(--white)]"
     }`
 
   const dropdownItemClass = (active: boolean) =>
-    `goofy-mono flex items-center justify-between border-b border-white/6 py-3 text-[10px] uppercase tracking-[0.18em] transition-colors ${
-      active ? "text-[var(--white)]" : "text-white/52 hover:text-[var(--gold)]"
+    `goofy-mono flex items-center justify-between border-b border-black/8 py-3 text-[10px] uppercase tracking-[0.18em] transition-colors dark:border-white/6 ${
+      active
+        ? "text-black dark:text-[var(--white)]"
+        : "text-black/58 hover:text-black dark:text-white/52 dark:hover:text-[var(--gold)]"
     }`
+
+  useGSAP(
+    () => {
+      const header = headerRef.current
+      if (!header) return
+
+      const magneticTargets = gsap.utils.toArray<HTMLElement>(
+        "[data-magnetic-nav]",
+        header,
+      )
+      const cleanups = magneticTargets.map((element) =>
+        attachMagneticEffect(element, { strength: 0.16, duration: 0.26 }),
+      )
+
+      return () => {
+        cleanups.forEach((cleanup) => cleanup())
+      }
+    },
+    { scope: headerRef, dependencies: [desktopDropdown, pathname, searchParams] },
+  )
 
   return (
     <>
       <header
         ref={headerRef}
-        className="fixed left-0 right-0 z-[55] border-b border-[var(--bordw)] bg-[rgba(10,10,10,0.96)] text-[var(--white)] backdrop-blur-md"
+        className="fixed left-0 right-0 z-[55] border-b border-black/8 bg-[rgba(245,245,245,0.94)] text-black backdrop-blur-md transition-colors duration-500 dark:border-[var(--bordw)] dark:bg-[rgba(10,10,10,0.96)] dark:text-[var(--white)]"
         style={{ top: topOffset }}
       >
         <nav className="mx-auto grid h-[52px] max-w-[1480px] grid-cols-[1fr_auto_1fr] items-center px-4 md:px-8">
           <Link href="/" className="shrink-0 justify-self-start">
-            <span className="goofy-display text-[30px] leading-none tracking-[-0.05em] text-[var(--white)]">
+            <span className="goofy-display text-[30px] leading-none tracking-[-0.05em] text-black transition-colors duration-500 dark:text-[var(--white)]">
               {logo}
             </span>
             <span className="goofy-display text-[30px] leading-none tracking-[-0.05em] text-[var(--gold)]">
@@ -221,7 +249,11 @@ export function Navbar({
                     }
                   }}
                 >
-                  <Link href={link.href} className={`${navLinkClass(isActive(link.href))} group`}>
+                  <Link
+                    href={link.href}
+                    data-magnetic-nav
+                    className={`${navLinkClass(isActive(link.href))} group`}
+                  >
                     <motion.span className="relative inline-flex pb-[2px]" whileHover="hover">
                       <span>{link.label}</span>
                       <motion.span
@@ -239,12 +271,13 @@ export function Navbar({
                   {isDropdownMenu ? (
                     <button
                       type="button"
+                      data-magnetic-nav
                       aria-label={`Toggle ${link.label} menu`}
                       aria-expanded={isMenuOpen}
                       className={`transition-colors ${
                         isMenuOpen
-                          ? "text-[var(--white)]"
-                          : "text-white/35 hover:text-[var(--white)]"
+                          ? "text-black dark:text-[var(--white)]"
+                          : "text-black/45 hover:text-black dark:text-white/35 dark:hover:text-[var(--white)]"
                       }`}
                       onClick={() =>
                         setDesktopDropdown((current) =>
@@ -262,13 +295,13 @@ export function Navbar({
 
                   {!isShopTrigger && link.dropdown === "community" ? (
                     <div
-                      className={`absolute left-0 top-full mt-[1px] w-[290px] border border-[var(--bordw)] bg-[#101010] p-5 transition-all duration-150 ${
+                      className={`absolute left-0 top-full mt-[1px] w-[290px] border border-black/8 bg-white/96 p-5 text-black transition-all duration-150 dark:border-[var(--bordw)] dark:bg-[#101010] dark:text-white ${
                         isMenuOpen
                           ? "visible translate-y-0 opacity-100"
                           : "invisible pointer-events-none translate-y-2 opacity-0"
                       }`}
                     >
-                      <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
+                      <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-black/42 transition-colors duration-500 dark:text-[var(--gray)]">
                         Community
                       </p>
                       <div>
@@ -297,22 +330,24 @@ export function Navbar({
 
             <Link
               href="/wishlist"
+              data-magnetic-nav
               aria-label="Open wishlist"
-              className={`goofy-mono relative inline-flex h-8 items-center gap-2 rounded-[2px] border border-white/12 px-3 text-[9px] font-medium uppercase tracking-[0.18em] transition-colors ${
+              className={`goofy-mono relative inline-flex h-8 items-center gap-2 rounded-[2px] border border-black/10 px-3 text-[9px] font-medium uppercase tracking-[0.18em] transition-colors dark:border-white/12 ${
                 isActive("/wishlist")
                   ? "border-[var(--gold)] text-[var(--gold)]"
-                  : "text-white/60 hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                  : "text-black/62 hover:border-black hover:text-black dark:text-white/60 dark:hover:border-[var(--gold)] dark:hover:text-[var(--gold)]"
               }`}
             >
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Wishlist</span>
-              <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-white/8 px-1 text-[7px] text-[var(--white)]">
+              <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-black/8 px-1 text-[7px] text-black transition-colors duration-500 dark:bg-white/8 dark:text-[var(--white)]">
                 {wishlist.hydrated ? wishlist.items.length : 0}
               </span>
             </Link>
 
             <Link
               href="/cart"
+              data-magnetic-nav
               aria-label="Open cart"
               className="goofy-mono relative inline-flex h-8 items-center gap-2 rounded-[2px] bg-[var(--gold)] px-3 text-[9px] font-medium uppercase tracking-[0.18em] text-[var(--black)] transition-transform hover:-translate-y-[1px]"
             >
@@ -327,11 +362,12 @@ export function Navbar({
 
             <Link
               href="/account"
+              data-magnetic-nav
               aria-label="Open account"
               className={`grid h-8 w-8 place-items-center transition-colors ${
                 isActive("/account")
-                  ? "text-[var(--white)]"
-                  : "text-white/50 hover:text-[var(--white)]"
+                  ? "text-black dark:text-[var(--white)]"
+                  : "text-black/55 hover:text-black dark:text-white/50 dark:hover:text-[var(--white)]"
               }`}
             >
               <User className="h-4 w-4" />
@@ -340,7 +376,7 @@ export function Navbar({
             <button
               type="button"
               onClick={() => setMobileOpen((current) => !current)}
-              className="grid h-8 w-8 place-items-center text-white/50 transition-colors hover:text-[var(--white)] md:hidden"
+              className="grid h-8 w-8 place-items-center text-black/55 transition-colors hover:text-black dark:text-white/50 dark:hover:text-[var(--white)] md:hidden"
               aria-label={mobileOpen ? "Close mobile menu" : "Open mobile menu"}
             >
               {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -355,36 +391,37 @@ export function Navbar({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute left-0 right-0 top-full z-50 border-b border-[var(--bordw)] bg-[var(--black)]"
+              className="absolute left-0 right-0 top-full z-50 border-b border-black/8 bg-white/96 text-black transition-colors duration-500 dark:border-[var(--bordw)] dark:bg-[var(--black)] dark:text-white"
               onMouseEnter={() => setDesktopDropdown("shop")}
               onMouseLeave={() => setDesktopDropdown(null)}
             >
-              <div className="grid grid-cols-3 border-t border-[var(--bordw)] md:grid-cols-6">
+              <div className="grid grid-cols-3 border-t border-black/8 dark:border-[var(--bordw)] md:grid-cols-6">
                 {SHOP_MENU_CATEGORIES.map((category) => (
                   <Link
                     key={category.slug}
                     href={`/shop?category=${category.slug}`}
-                    className="group flex flex-col items-center gap-3 border-r border-[var(--bordw)] px-4 py-8 transition-colors hover:bg-white/[0.03] last:border-r-0"
+                    className="group flex flex-col items-center gap-3 border-r border-black/8 px-4 py-8 transition-colors hover:bg-black/[0.03] dark:border-[var(--bordw)] dark:hover:bg-white/[0.03] last:border-r-0"
                   >
                     <category.Icon
                       size={40}
-                      color="#F4F0EB"
-                      className="transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                      color="currentColor"
+                      className="text-black/82 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 dark:text-[#F4F0EB]"
                     />
-                    <span className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-white/50 transition-colors group-hover:text-[var(--gold)]">
+                    <span className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-black/54 transition-colors group-hover:text-black dark:text-white/50 dark:group-hover:text-[var(--gold)]">
                       {category.label}
                     </span>
                   </Link>
                 ))}
               </div>
 
-              <div className="flex items-center justify-between border-t border-[var(--bordw)] px-8 py-3">
-                <span className="goofy-mono text-[7px] uppercase tracking-[0.2em] text-white/20">
+              <div className="flex items-center justify-between border-t border-black/8 px-8 py-3 dark:border-[var(--bordw)]">
+                <span className="goofy-mono text-[7px] uppercase tracking-[0.2em] text-black/28 transition-colors duration-500 dark:text-white/20">
                   Browse by category
                 </span>
                 <Link
                   href="/shop"
-                  className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-[var(--gold)] transition-colors hover:text-white"
+                  data-magnetic-nav
+                  className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-[var(--gold)] transition-colors hover:text-black dark:hover:text-white"
                 >
                   View All Products -{">"}
                 </Link>
@@ -396,20 +433,20 @@ export function Navbar({
 
       {mobileOpen ? (
         <div
-          className="fixed inset-x-0 bottom-0 z-[54] overflow-y-auto bg-[rgba(10,10,10,0.98)] px-5 pb-8 pt-6 md:hidden"
+          className="fixed inset-x-0 bottom-0 z-[54] overflow-y-auto bg-[rgba(245,245,245,0.98)] px-5 pb-8 pt-6 text-black transition-colors duration-500 dark:bg-[rgba(10,10,10,0.98)] dark:text-white md:hidden"
           style={{ top: topOffset + 52 }}
         >
-          <div className="mx-auto max-w-xl border border-[var(--bordw)] bg-[#101010] p-5">
+          <div className="mx-auto max-w-xl border border-black/8 bg-white/96 p-5 transition-colors duration-500 dark:border-[var(--bordw)] dark:bg-[#101010]">
             <div className="space-y-4">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={`mobile-${link.href}-${link.label}`}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`goofy-mono block border-b border-white/8 pb-4 text-[10px] uppercase tracking-[0.22em] ${
+                  className={`goofy-mono block border-b border-black/8 pb-4 text-[10px] uppercase tracking-[0.22em] dark:border-white/8 ${
                     isActive(link.href)
-                      ? "text-[var(--white)]"
-                      : "text-white/58"
+                      ? "text-black dark:text-[var(--white)]"
+                      : "text-black/62 dark:text-white/58"
                   }`}
                 >
                   {link.label}
@@ -419,7 +456,7 @@ export function Navbar({
 
             <div className="mt-6 grid gap-6">
               <div>
-                <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
+                <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-black/42 transition-colors duration-500 dark:text-[var(--gray)]">
                   Shop
                 </p>
                 <div className="grid gap-2">
@@ -428,7 +465,7 @@ export function Navbar({
                       key={`mobile-shop-${item.href}`}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
-                      className="goofy-mono border border-white/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-white/72"
+                      className="goofy-mono border border-black/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-black/72 transition-colors duration-500 dark:border-white/8 dark:text-white/72"
                     >
                       {item.label}
                     </Link>
@@ -438,7 +475,7 @@ export function Navbar({
                       key={`mobile-category-${item.slug}`}
                       href={`/shop?category=${item.slug}`}
                       onClick={() => setMobileOpen(false)}
-                      className="goofy-mono border border-white/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-white/72"
+                      className="goofy-mono border border-black/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-black/72 transition-colors duration-500 dark:border-white/8 dark:text-white/72"
                     >
                       {item.label}
                     </Link>
@@ -447,7 +484,7 @@ export function Navbar({
               </div>
 
               <div>
-                <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-[var(--gray)]">
+                <p className="goofy-mono mb-3 text-[8px] uppercase tracking-[0.22em] text-black/42 transition-colors duration-500 dark:text-[var(--gray)]">
                   Community
                 </p>
                 <div className="grid gap-2">
@@ -456,7 +493,7 @@ export function Navbar({
                       key={`mobile-community-${item.href}`}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
-                      className="goofy-mono border border-white/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-white/72"
+                      className="goofy-mono border border-black/8 px-3 py-3 text-[10px] uppercase tracking-[0.18em] text-black/72 transition-colors duration-500 dark:border-white/8 dark:text-white/72"
                     >
                       {item.label}
                     </Link>

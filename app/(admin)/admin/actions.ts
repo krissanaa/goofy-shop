@@ -17,6 +17,19 @@ import {
   ADMIN_DROP_STATUSES,
   ADMIN_POST_CATEGORIES,
 } from "@/lib/admin-content"
+import {
+  deleteTeamRosterMember,
+  saveTeamRosterMember,
+} from "@/lib/team-roster.server"
+import {
+  cloneDefaultHomepageContent,
+  type HomepageContent,
+} from "@/lib/homepage-content"
+import { saveHomepageContent } from "@/lib/homepage-content.server"
+import {
+  TEAM_STATUS_OPTIONS,
+  type TeamStatus,
+} from "@/lib/team-roster"
 import { extractYouTubeVideoId, getYouTubeThumbnailUrl } from "@/lib/video"
 
 type GenericRow = Record<string, unknown>
@@ -2250,6 +2263,224 @@ export async function deleteParkAction(formData: FormData) {
 
   revalidatePaths(["/admin/parks", "/skateparks", "/"])
   redirect("/admin/parks")
+}
+
+export async function saveTeamMemberAction(
+  _prevState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const id = normalizeOptionalString(formData.get("id"))
+  const name = normalizeRequiredString(formData.get("name"))
+  const status = normalizeRequiredString(formData.get("status")).toUpperCase()
+  const image = normalizeRequiredString(formData.get("image"))
+  const video = normalizeRequiredString(formData.get("video"))
+  const published = formData.has("published")
+  const sortOrder = Math.max(0, normalizeNumber(formData.get("sortOrder")))
+
+  if (!name) {
+    return {
+      status: "error",
+      message: "Team member name is required.",
+    }
+  }
+
+  if (!TEAM_STATUS_OPTIONS.includes(status as TeamStatus)) {
+    return {
+      status: "error",
+      message: "Status must be PRO, AM, or FLOW.",
+    }
+  }
+
+  if (!image) {
+    return {
+      status: "error",
+      message: "Image URL is required.",
+    }
+  }
+
+  if (!video) {
+    return {
+      status: "error",
+      message: "Video URL is required.",
+    }
+  }
+
+  const result = await saveTeamRosterMember({
+    id,
+    name,
+    status: status as TeamStatus,
+    image,
+    video,
+    published,
+    sortOrder,
+  })
+
+  if (result.errorMessage) {
+    return {
+      status: "error",
+      message: result.errorMessage,
+    }
+  }
+
+  revalidatePaths(["/admin/teams", "/teams", "/"])
+
+  return {
+    status: "success",
+    message: id ? "Team member updated." : "Team member created.",
+    redirectTo: result.memberId ? `/admin/teams?id=${result.memberId}` : "/admin/teams",
+  }
+}
+
+export async function deleteTeamMemberAction(formData: FormData) {
+  const id = normalizeRequiredString(formData.get("id"))
+
+  if (!id) {
+    redirect("/admin/teams")
+  }
+
+  const result = await deleteTeamRosterMember(id)
+
+  if (result.errorMessage) {
+    redirect(`/admin/teams?error=${encodeURIComponent(result.errorMessage)}`)
+  }
+
+  revalidatePaths(["/admin/teams", "/teams", "/"])
+  redirect("/admin/teams")
+}
+
+export async function saveHomepageContentAction(
+  _prevState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const content: HomepageContent = cloneDefaultHomepageContent()
+
+  const topMarqueeText = normalizeRequiredString(formData.get("topMarqueeText"))
+  if (!topMarqueeText) {
+    return {
+      status: "error",
+      message: "Top marquee text is required.",
+    }
+  }
+
+  content.topMarqueeText = topMarqueeText
+
+  content.heroSlides = content.heroSlides.map((slide, index) => {
+    const leftTitleLines = normalizeRequiredString(formData.get(`heroSlides.${index}.leftTitleLines`))
+      .split(/\r?\n/)
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+
+    return {
+      ...slide,
+      id: normalizeRequiredString(formData.get(`heroSlides.${index}.id`)) || slide.id,
+      tag: normalizeRequiredString(formData.get(`heroSlides.${index}.tag`)),
+      leftTitleLines,
+      leftSubtitle: normalizeRequiredString(formData.get(`heroSlides.${index}.leftSubtitle`)),
+      leftMeta: normalizeRequiredString(formData.get(`heroSlides.${index}.leftMeta`)),
+      leftCtaLabel: normalizeRequiredString(formData.get(`heroSlides.${index}.leftCtaLabel`)),
+      leftCtaHref: normalizeRequiredString(formData.get(`heroSlides.${index}.leftCtaHref`)),
+      rightImage: normalizeOptionalString(formData.get(`heroSlides.${index}.rightImage`)),
+      rightTag: normalizeRequiredString(formData.get(`heroSlides.${index}.rightTag`)),
+      rightTitle: normalizeRequiredString(formData.get(`heroSlides.${index}.rightTitle`)),
+      rightCtaLabel: normalizeRequiredString(formData.get(`heroSlides.${index}.rightCtaLabel`)),
+      rightCtaHref: normalizeRequiredString(formData.get(`heroSlides.${index}.rightCtaHref`)),
+      rightCtaGold: formData.has(`heroSlides.${index}.rightCtaGold`),
+    }
+  })
+
+  for (const [index, slide] of content.heroSlides.entries()) {
+    if (!slide.tag || slide.leftTitleLines.length === 0 || !slide.leftCtaLabel || !slide.leftCtaHref) {
+      return {
+        status: "error",
+        message: `Hero slide ${index + 1} is missing required content.`,
+      }
+    }
+  }
+
+  content.fallbackStories = content.fallbackStories.map((story, index) => ({
+    ...story,
+    id: normalizeRequiredString(formData.get(`fallbackStories.${index}.id`)) || story.id,
+    title: normalizeRequiredString(formData.get(`fallbackStories.${index}.title`)),
+    date: normalizeRequiredString(formData.get(`fallbackStories.${index}.date`)),
+    tag: normalizeRequiredString(formData.get(`fallbackStories.${index}.tag`)),
+    image: normalizeOptionalString(formData.get(`fallbackStories.${index}.image`)),
+    href: normalizeRequiredString(formData.get(`fallbackStories.${index}.href`)),
+  }))
+
+  for (const [index, story] of content.fallbackStories.entries()) {
+    if (!story.title || !story.date || !story.tag || !story.href) {
+      return {
+        status: "error",
+        message: `Fallback story ${index + 1} is missing required content.`,
+      }
+    }
+  }
+
+  content.fallbackSpots = content.fallbackSpots.map((spot, index) => ({
+    ...spot,
+    id: normalizeRequiredString(formData.get(`fallbackSpots.${index}.id`)) || spot.id,
+    name: normalizeRequiredString(formData.get(`fallbackSpots.${index}.name`)),
+    mapUrl: normalizeRequiredString(formData.get(`fallbackSpots.${index}.mapUrl`)),
+    image: normalizeOptionalString(formData.get(`fallbackSpots.${index}.image`)),
+  }))
+
+  for (const [index, spot] of content.fallbackSpots.entries()) {
+    if (!spot.name || !spot.mapUrl) {
+      return {
+        status: "error",
+        message: `Fallback spot ${index + 1} is missing required content.`,
+      }
+    }
+  }
+
+  content.featuredVideo = {
+    videoUrl: normalizeRequiredString(formData.get("featuredVideo.videoUrl")),
+    metaLabel: normalizeRequiredString(formData.get("featuredVideo.metaLabel")),
+    primaryButtonLabel: normalizeRequiredString(formData.get("featuredVideo.primaryButtonLabel")),
+    primaryButtonHref: normalizeRequiredString(formData.get("featuredVideo.primaryButtonHref")),
+    secondaryButtonLabel: normalizeRequiredString(formData.get("featuredVideo.secondaryButtonLabel")),
+    secondaryButtonHref: normalizeRequiredString(formData.get("featuredVideo.secondaryButtonHref")),
+    footerHint: normalizeRequiredString(formData.get("featuredVideo.footerHint")),
+  }
+
+  if (!content.featuredVideo.videoUrl || !content.featuredVideo.metaLabel) {
+    return {
+      status: "error",
+      message: "Featured video content is incomplete.",
+    }
+  }
+
+  content.readyToSkate = {
+    backgroundImage: normalizeRequiredString(formData.get("readyToSkate.backgroundImage")),
+    titleLeading: normalizeRequiredString(formData.get("readyToSkate.titleLeading")),
+    titleAccent: normalizeRequiredString(formData.get("readyToSkate.titleAccent")),
+    subheading: normalizeRequiredString(formData.get("readyToSkate.subheading")),
+    ctaLabel: normalizeRequiredString(formData.get("readyToSkate.ctaLabel")),
+    ctaHref: normalizeRequiredString(formData.get("readyToSkate.ctaHref")),
+  }
+
+  if (!content.readyToSkate.backgroundImage || !content.readyToSkate.ctaHref) {
+    return {
+      status: "error",
+      message: "Ready To Skate content is incomplete.",
+    }
+  }
+
+  const result = await saveHomepageContent(content)
+
+  if (result.errorMessage) {
+    return {
+      status: "error",
+      message: result.errorMessage,
+    }
+  }
+
+  revalidatePaths(["/admin", "/admin/homepage", "/"])
+
+  return {
+    status: "success",
+    message: "Homepage content saved.",
+  }
 }
 
 export async function saveVideoAction(

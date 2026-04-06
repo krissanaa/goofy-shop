@@ -11,7 +11,7 @@ export function AdminToast() {
           background: "var(--surface)",
           color: "var(--text)",
           border: "1px solid var(--border)",
-          fontFamily: "'DM Mono', var(--font-dm-mono), ui-monospace, monospace",
+          fontFamily: "var(--font-ui-sans)",
           fontSize: "11px",
         },
         success: {

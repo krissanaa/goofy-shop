@@ -208,6 +208,11 @@ export function LatestVideoMixed({
   image,
   metaLabel,
   videoSrc,
+  primaryButtonLabel,
+  primaryButtonHref,
+  secondaryButtonLabel,
+  secondaryButtonHref,
+  footerHint,
 }: {
   title: string
   description: string
@@ -215,6 +220,11 @@ export function LatestVideoMixed({
   image?: string | null
   metaLabel?: string
   videoSrc?: string | null
+  primaryButtonLabel?: string
+  primaryButtonHref?: string
+  secondaryButtonLabel?: string
+  secondaryButtonHref?: string
+  footerHint?: string
 }) {
   const sectionRef = useRef<HTMLElement | null>(null)
   const mainVideoRef = useRef<HTMLVideoElement | null>(null)
@@ -283,13 +293,13 @@ export function LatestVideoMixed({
   }, [videoSrc])
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-[#050505] py-28 md:py-40">
+    <section ref={sectionRef} className="relative overflow-hidden bg-transparent py-28 md:py-40">
       <div className="pointer-events-none absolute inset-0 opacity-[0.05] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.38)_1px,transparent_0)] [background-size:14px_14px]" />
 
       <div className="relative z-10 w-full">
         <motion.div
           style={{ width: stripWidth, y: stripY, borderRadius: stripRadius }}
-          className="group relative mx-auto overflow-hidden border-y border-white/10 bg-[#0b0b0b] shadow-[0_30px_120px_rgba(0,0,0,0.55)]"
+          className="homepage-media-fade group relative mx-auto overflow-hidden border-y border-black/10 bg-[#111111] shadow-[0_30px_120px_rgba(0,0,0,0.28)] transition-colors duration-500 dark:border-white/10 dark:bg-[#050505] dark:shadow-[0_30px_120px_rgba(0,0,0,0.55)]"
         >
           <div className="relative h-[260px] md:h-[430px] lg:h-[520px]">
             <FeedSurface
@@ -308,7 +318,7 @@ export function LatestVideoMixed({
             <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.12)_0,rgba(255,255,255,0.12)_1px,transparent_1px,transparent_4px)] [background-size:100%_4px]" />
             <div className="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.52)_1px,transparent_0)] [background-size:12px_12px]" />
 
-            <div className="absolute left-4 top-4 z-30 flex items-center gap-2 rounded-full border border-white/10 bg-black/55 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-white/75 backdrop-blur-sm">
+            <div className="absolute left-4 top-4 z-30 flex items-center gap-2 rounded-full border border-black/10 bg-white/82 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-black/78 backdrop-blur-sm transition-colors duration-500 dark:border-white/10 dark:bg-black/55 dark:text-white/75">
               <motion.span
                 animate={{ opacity: [1, 0.25, 1], scale: [1, 0.72, 1] }}
                 transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
@@ -317,15 +327,15 @@ export function LatestVideoMixed({
               REC
             </div>
 
-            <div className="absolute right-4 top-4 z-30 rounded-full border border-white/10 bg-black/45 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.26em] text-white/58 backdrop-blur-sm md:right-6 md:top-6">
+            <div className="absolute right-4 top-4 z-30 rounded-full border border-black/10 bg-white/78 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.26em] text-black/62 backdrop-blur-sm transition-colors duration-500 dark:border-white/10 dark:bg-black/45 dark:text-white/58 md:right-6 md:top-6">
               FPS: 60 // ISO: 800
             </div>
 
-            <div className="absolute bottom-5 left-4 z-30 rounded-full border border-white/10 bg-black/45 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.24em] text-white/52 backdrop-blur-sm md:left-6">
+            <div className="absolute bottom-5 left-4 z-30 rounded-full border border-black/10 bg-white/78 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.24em] text-black/64 backdrop-blur-sm transition-colors duration-500 dark:border-white/10 dark:bg-black/45 dark:text-white/52 md:left-6">
               {metaLabel ?? "RAW EXPORT // VIENTIANE 2026"}
             </div>
 
-            <div className="absolute bottom-5 right-4 z-30 rounded-full border border-white/10 bg-black/45 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.24em] text-[#F0B429] backdrop-blur-sm md:right-6">
+            <div className="absolute bottom-5 right-4 z-30 rounded-full border border-black/10 bg-white/78 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.24em] text-[#8a6200] backdrop-blur-sm transition-colors duration-500 dark:border-white/10 dark:bg-black/45 dark:text-[#F0B429] md:right-6">
               TC: {timecode}
             </div>
 
@@ -377,46 +387,46 @@ export function LatestVideoMixed({
         </motion.div>
 
         <div className="mx-auto mt-14 max-w-[1040px] px-6 text-center md:px-12">
-          <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.5em] text-white/34">
+          <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.5em] text-black/42 transition-colors duration-500 dark:text-white/34">
             {metaLabel ?? "RAW EXPORT // VIENTIANE 2026"}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
               <Link
-                href={COMMUNITY_VIDEO_HREF}
+                href={primaryButtonHref ?? COMMUNITY_VIDEO_HREF}
                 className="inline-flex items-center justify-center bg-[#F0B429] px-10 py-4 text-xl font-black uppercase italic text-black transition-colors hover:bg-white"
-                style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                style={{ fontFamily: "var(--font-ui-sans)" }}
               >
-                Watch On Goofy TV {"↗"}
+                {primaryButtonLabel ?? "Watch On Goofy TV"} {"↗"}
               </Link>
             </motion.div>
 
             <motion.a
-              href={YOUTUBE_CHANNEL_HREF}
+              href={secondaryButtonHref ?? YOUTUBE_CHANNEL_HREF}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ opacity: 0.7 }}
-              className="inline-flex items-center gap-2 border-b border-white/10 pb-1 font-mono text-[10px] uppercase tracking-[0.28em] text-white/40"
+              className="inline-flex items-center gap-2 border-b border-black/10 pb-1 font-mono text-[10px] uppercase tracking-[0.28em] text-black/58 transition-colors duration-500 dark:border-white/10 dark:text-white/40"
             >
               <svg className="h-4 w-4 text-red-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 4-8 4z" />
               </svg>
-              YouTube Channel
+              {secondaryButtonLabel ?? "YouTube Channel"}
             </motion.a>
           </div>
 
-          <p className="mt-6 font-mono text-[9px] uppercase tracking-[0.28em] text-white/26">
-            Stay on site for exclusive content
+          <p className="mt-6 font-mono text-[9px] uppercase tracking-[0.28em] text-black/38 transition-colors duration-500 dark:text-white/26">
+            {footerHint ?? "Stay on site for exclusive content"}
           </p>
           {youtubeId ? null : (
             <>
               <h3
-                className="mx-auto mt-8 max-w-[920px] text-[clamp(2.4rem,5vw,5rem)] font-black uppercase italic leading-[0.9] tracking-[-0.05em] text-white"
-                style={{ fontFamily: "Impact, Arial Black, sans-serif" }}
+                className="mx-auto mt-8 max-w-[920px] text-[clamp(2.4rem,5vw,5rem)] font-black uppercase italic leading-[0.9] tracking-[-0.05em] text-black transition-colors duration-500 dark:text-white"
+                style={{ fontFamily: "var(--font-ui-sans)" }}
               >
                 {title}
               </h3>
-              <p className="mx-auto mt-4 max-w-[760px] font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
+              <p className="mx-auto mt-4 max-w-[760px] font-mono text-[11px] uppercase tracking-[0.18em] text-black/58 transition-colors duration-500 dark:text-white/40">
                 {description}
               </p>
             </>

@@ -50,8 +50,8 @@ export async function LiveDropBanner() {
 
   if (featuredDrop.status === "active") {
     return (
-      <section className="bg-[var(--gold)] text-[var(--black)]">
-        <div className="mx-auto flex max-w-[1480px] flex-col gap-5 px-5 py-4 md:px-10 lg:flex-row lg:items-center lg:justify-between">
+      <section className="bg-transparent text-[var(--black)]">
+        <div className="mx-auto flex max-w-[1480px] flex-col gap-5 bg-[var(--gold)] px-5 py-4 md:px-10 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             <span className="h-2.5 w-2.5 rounded-full bg-red-600 sale-dot-pulse" />
             <span className="goofy-mono text-[8px] uppercase tracking-[0.22em]">
@@ -74,7 +74,7 @@ export async function LiveDropBanner() {
   }
 
   return (
-    <section className="border-y border-[var(--bordw)] bg-[var(--black)] text-[var(--white)]">
+    <section className="bg-transparent text-[var(--white)]">
       <div className="mx-auto flex max-w-[1480px] flex-col gap-5 px-5 py-5 md:px-10 xl:grid xl:grid-cols-[minmax(0,1fr)_auto_auto] xl:items-center">
         <div>
           <p className="goofy-mono text-[8px] uppercase tracking-[0.22em] text-[var(--gold)]">

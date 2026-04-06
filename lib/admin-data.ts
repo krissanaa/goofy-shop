@@ -21,6 +21,8 @@ import {
   type AdminSettingsData,
 } from "@/lib/admin-content"
 import { normalizeReview, type ProductReview } from "@/lib/reviews"
+import { getTeamRoster } from "@/lib/team-roster.server"
+import { type TeamRosterMember } from "@/lib/team-roster"
 import { getYouTubeThumbnailUrl } from "@/lib/video"
 
 type GenericRow = Record<string, unknown>
@@ -776,6 +778,12 @@ export async function getAdminVideos(): Promise<AdminVideo[]> {
   }
 
   return (primary.data ?? []).map((row) => normalizeAdminVideo(row as GenericRow))
+}
+
+export async function getAdminTeamMembers(): Promise<TeamRosterMember[]> {
+  return getTeamRoster({
+    includeUnpublished: true,
+  })
 }
 
 export async function getAdminReviews(): Promise<AdminReviewEntry[]> {

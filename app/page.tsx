@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { FadeSection } from "@/components/FadeSection"
+import { ScrollMotionSection } from "@/components/ScrollMotionSection"
 import { Footer } from "@/components/footer"
 import { GoofyButton } from "@/components/GoofyButton"
 import PhysicsHero from "@/components/PhysicsHero"
@@ -20,6 +20,8 @@ import {
   FindYourSpot,
   type FindYourSpotItem,
 } from "@/components/homepage/find-your-spot"
+import { HomepageMotionShell } from "@/components/homepage/homepage-motion-shell"
+import { HomepageStickyTransition } from "@/components/homepage/homepage-sticky-transition"
 import { LiveDropBanner } from "@/components/home/LiveDropBanner"
 import { HeroSlider } from "@/components/homepage/hero-slider"
 import { LatestVideoMixed } from "@/components/homepage/latest-video-mixed"
@@ -30,6 +32,7 @@ import { StaggerList } from "@/components/StaggerList"
 import { TopMarquee } from "@/components/top-marquee"
 import { SearchCommand } from "@/components/search-command"
 import { defaultSeoDescription, defaultSeoTitle } from "@/config/defaults"
+import { getHomepageContent } from "@/lib/homepage-content.server"
 import { supabase } from "@/lib/supabase"
 
 type GenericRow = Record<string, unknown>
@@ -533,7 +536,14 @@ function SpotCard({ spot, index }: { spot?: GenericRow; index: number }) {
 }
 
 export default async function HomePage() {
-  const [bannerRes, postsRes, productsRes, videoRes, parksRes] =
+  const [
+    bannerRes,
+    postsRes,
+    productsRes,
+    videoRes,
+    parksRes,
+    homepageContent,
+  ] =
     await Promise.all([
       supabase
         .from("banners")
@@ -563,6 +573,7 @@ export default async function HomePage() {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(4),
+      getHomepageContent(),
     ])
 
   const bannerRows = bannerRes.data ?? []
@@ -657,23 +668,50 @@ export default async function HomePage() {
   const latestVideo = (videoRows[0] ?? null) as GenericRow | null
   const videoTitle = getString(latestVideo, ["title", "name"], "Latest Video")
   const videoDescription = getExcerpt(latestVideo ?? {})
-  const videoUrl = FEATURED_GOOFY_VIDEO_URL
-  const videoPlaybackSrc = FEATURED_GOOFY_VIDEO_URL
+  const videoUrl = homepageContent.featuredVideo.videoUrl || FEATURED_GOOFY_VIDEO_URL
+  const videoPlaybackSrc = homepageContent.featuredVideo.videoUrl || FEATURED_GOOFY_VIDEO_URL
   const videoId = getYouTubeId(videoUrl)
   const videoThumbnail = videoId
     ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
     : getImage(latestVideo)
+  const parallaxBackdrop =
+    heroImage ||
+    homepageContent.heroSlides[0]?.rightImage ||
+    fromTheStreetsStories[0]?.image ||
+    findYourSpotItems[0]?.image ||
+    homepageContent.readyToSkate.backgroundImage ||
+    null
+  const stickyTransitionImage =
+    homepageContent.heroSlides[3]?.rightImage ||
+    heroImage ||
+    homepageContent.heroSlides[0]?.rightImage ||
+    null
 
   return (
-    <main className="min-h-screen bg-[var(--white)] text-[var(--black)]">
-      <TopMarquee text={TOP_MARQUEE_TEXT} />
+    <main className="relative min-h-screen overflow-x-clip bg-transparent transition-colors duration-500">
+      <HomepageMotionShell parallaxImage={parallaxBackdrop}>
+        <TopMarquee text={homepageContent.topMarqueeText || TOP_MARQUEE_TEXT} />
 
-      <NavbarServer topOffset={24} />
+        <NavbarServer topOffset={24} />
 
-      <div className="pt-[76px]">
-        <HeroSlider />
-        <PhysicsHero />
-        <LiveDropBanner />
+        <div className="relative z-10 pt-[76px]">
+          <HomepageStickyTransition image={stickyTransitionImage} />
+
+          <div data-homepage-depth="2.1">
+            <HeroSlider fallbackSlides={homepageContent.heroSlides} />
+          </div>
+
+          <div data-homepage-depth="0.9">
+            <ScrollMotionSection distance={84} exitDistance={22}>
+              <PhysicsHero />
+            </ScrollMotionSection>
+          </div>
+
+          <div data-homepage-depth="0.7">
+            <ScrollMotionSection distance={108} exitDistance={28}>
+              <LiveDropBanner />
+            </ScrollMotionSection>
+          </div>
 
         {false ? (
         <section className="goofy-dark-grid bg-[var(--black)] text-[var(--white)]">
@@ -754,92 +792,137 @@ export default async function HomePage() {
         </section>
         ) : null}
 
-        {newArrivalProducts.length > 0 ? (
-          <NewArrivalsSlider products={newArrivalProducts} />
-        ) : null}
-
-        <HomeCategoryShowcase categories={categoryData} />
-
-        {visibleMagazineStories.length > 0 ? (
-          <section className="bg-[var(--black)]">
-            <div
-              className={`grid gap-[2px] ${
-                visibleMagazineStories.length === 1
-                  ? "grid-cols-1"
-                  : visibleMagazineStories.length === 2
-                    ? "md:grid-cols-[1.35fr_1fr]"
-                    : "md:grid-cols-[2fr_1fr_1fr]"
-              }`}
-            >
-              {visibleMagazineStories.map((post, index) => {
-                const story = getStoryMeta(post, index)
-
-                return (
-                  <Link
-                    key={story.slug}
-                    href={story.href}
-                    className="group relative block min-h-[280px] overflow-hidden md:h-[400px]"
-                  >
-                    {story.image ? (
-                      <Image
-                        src={story.image}
-                        alt={story.title}
-                        fill
-                        sizes={
-                          visibleMagazineStories.length === 1
-                            ? "100vw"
-                            : index === 0
-                              ? "(max-width: 1024px) 100vw, 50vw"
-                              : "(max-width: 1024px) 100vw, 25vw"
-                        }
-                        className="object-cover grayscale transition duration-700 group-hover:scale-[1.03] group-hover:grayscale-0"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-[linear-gradient(135deg,#171717,#060606)]" />
-                    )}
-                    <div className="absolute inset-0 goofy-card-overlay" />
-                    <div className="absolute inset-x-0 bottom-0 z-10 p-5">
-                      <p className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-white/54">
-                        {story.category}
-                      </p>
-                      <h3
-                        className={`goofy-display mt-3 leading-[0.86] text-[var(--white)] ${
-                          index === 0
-                            ? "text-[clamp(32px,4.5vw,56px)]"
-                            : "text-[clamp(24px,2.8vw,36px)]"
-                        }`}
-                      >
-                        {story.title}
-                      </h3>
-                      <span className="goofy-btn mt-5 bg-[var(--white)] text-[var(--black)] opacity-0 transition-all duration-300 group-hover:opacity-100">
-                        Read More {"->"}
-                      </span>
-                    </div>
-                  </Link>
-                )
-              })}
+          {newArrivalProducts.length > 0 ? (
+            <div data-homepage-depth="1.1">
+              <ScrollMotionSection distance={156} exitDistance={44}>
+                <NewArrivalsSlider products={newArrivalProducts} />
+              </ScrollMotionSection>
             </div>
-          </section>
-        ) : null}
+          ) : null}
 
-        <FromTheStreets stories={fromTheStreetsStories} />
+          <div data-homepage-depth="1.2">
+            <ScrollMotionSection distance={148} exitDistance={42}>
+              <HomeCategoryShowcase categories={categoryData} />
+            </ScrollMotionSection>
+          </div>
 
-        <FindYourSpot spots={findYourSpotItems} />
+          {visibleMagazineStories.length > 0 ? (
+            <div data-homepage-depth="1.5">
+              <ScrollMotionSection distance={172} exitDistance={48}>
+                <section className="bg-transparent">
+                  <StaggerList
+                    delay={0.08}
+                    className={`grid gap-[2px] ${
+                      visibleMagazineStories.length === 1
+                        ? "grid-cols-1"
+                        : visibleMagazineStories.length === 2
+                          ? "md:grid-cols-[1.35fr_1fr]"
+                          : "md:grid-cols-[2fr_1fr_1fr]"
+                    }`}
+                  >
+                    {visibleMagazineStories.map((post, index) => {
+                      const story = getStoryMeta(post, index)
 
-        <LatestVideoMixed
-          title={videoTitle}
-          description={videoDescription}
-          href={videoUrl || undefined}
-          image={videoThumbnail}
-          metaLabel="RAW EXPORT // VIENTIANE 2026"
-          videoSrc={videoPlaybackSrc || undefined}
-        />
+                      return (
+                        <Link
+                          key={story.slug}
+                          href={story.href}
+                          className="group relative block min-h-[280px] overflow-hidden md:h-[400px]"
+                        >
+                          {story.image ? (
+                            <Image
+                              src={story.image}
+                              alt={story.title}
+                              fill
+                              sizes={
+                                visibleMagazineStories.length === 1
+                                  ? "100vw"
+                                  : index === 0
+                                    ? "(max-width: 1024px) 100vw, 50vw"
+                                    : "(max-width: 1024px) 100vw, 25vw"
+                              }
+                              className="homepage-media-fade object-cover grayscale transition duration-700 group-hover:scale-[1.03] group-hover:grayscale-0"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-[linear-gradient(135deg,#171717,#060606)]" />
+                          )}
+                          <div className="absolute inset-0 goofy-card-overlay" />
+                          <div className="absolute inset-x-0 bottom-0 z-10 p-5">
+                            <p className="goofy-mono text-[8px] uppercase tracking-[0.18em] text-white/54">
+                              {story.category}
+                            </p>
+                            <h3
+                              className={`goofy-display mt-3 leading-[0.86] text-[var(--white)] ${
+                                index === 0
+                                  ? "text-[clamp(32px,4.5vw,56px)]"
+                                  : "text-[clamp(24px,2.8vw,36px)]"
+                              }`}
+                            >
+                              {story.title}
+                            </h3>
+                            <span className="goofy-btn mt-5 bg-[var(--white)] text-[var(--black)] opacity-0 transition-all duration-300 group-hover:opacity-100">
+                              Read More {"->"}
+                            </span>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </StaggerList>
+                </section>
+              </ScrollMotionSection>
+            </div>
+          ) : null}
 
-        <ReadyToSkate />
-      </div>
+          <div data-homepage-depth="1.15">
+            <ScrollMotionSection distance={162} exitDistance={46}>
+              <FromTheStreets
+                stories={fromTheStreetsStories}
+                fallbackStories={homepageContent.fallbackStories}
+              />
+            </ScrollMotionSection>
+          </div>
 
-      <Footer />
-      <SearchCommand />
+          <div data-homepage-depth="0.95">
+            <ScrollMotionSection distance={156} exitDistance={42}>
+              <FindYourSpot
+                spots={findYourSpotItems}
+                fallbackSpots={homepageContent.fallbackSpots}
+              />
+            </ScrollMotionSection>
+          </div>
+
+          <div data-homepage-depth="1.1">
+            <ScrollMotionSection distance={148} exitDistance={40}>
+              <LatestVideoMixed
+                title={videoTitle}
+                description={videoDescription}
+                href={videoUrl || undefined}
+                image={videoThumbnail}
+                metaLabel={homepageContent.featuredVideo.metaLabel}
+                videoSrc={videoPlaybackSrc || undefined}
+                primaryButtonLabel={homepageContent.featuredVideo.primaryButtonLabel}
+                primaryButtonHref={homepageContent.featuredVideo.primaryButtonHref}
+                secondaryButtonLabel={homepageContent.featuredVideo.secondaryButtonLabel}
+                secondaryButtonHref={homepageContent.featuredVideo.secondaryButtonHref}
+                footerHint={homepageContent.featuredVideo.footerHint}
+              />
+            </ScrollMotionSection>
+          </div>
+
+          <div data-homepage-depth="1.25">
+            <ScrollMotionSection distance={136} exitDistance={34}>
+              <ReadyToSkate content={homepageContent.readyToSkate} />
+            </ScrollMotionSection>
+          </div>
+        </div>
+
+        <div data-homepage-depth="0.55">
+          <ScrollMotionSection distance={96} exitDistance={18}>
+            <Footer />
+          </ScrollMotionSection>
+        </div>
+        <SearchCommand />
+      </HomepageMotionShell>
     </main>
   )
 }

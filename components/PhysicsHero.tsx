@@ -605,7 +605,7 @@ export default function PhysicsHero() {
   return (
     <section
       ref={containerRef}
-      className="relative h-screen min-h-[400px] w-full overflow-hidden bg-[#0A0A0A] md:min-h-[600px]"
+      className="relative h-screen min-h-[400px] w-full overflow-hidden bg-transparent md:min-h-[600px]"
     >
       <h1 className="sr-only">GOOFY SKATE - First Skateboard Shop in Laos</h1>
       <canvas

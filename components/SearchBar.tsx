@@ -122,8 +122,8 @@ export function SearchBar() {
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className="relative overflow-visible"
           >
-            <div className="flex h-9 items-center border border-[var(--bordw)] bg-[var(--black)]">
-              <Search className="ml-3 h-4 w-4 shrink-0 text-white/35" />
+            <div className="flex h-9 items-center border border-black/12 bg-white/88 text-black transition-colors duration-500 dark:border-white/10 dark:bg-[var(--black)] dark:text-white">
+              <Search className="ml-3 h-4 w-4 shrink-0 text-black/38 transition-colors duration-500 dark:text-white/35" />
               <input
                 ref={inputRef}
                 value={query}
@@ -135,12 +135,12 @@ export function SearchBar() {
                   }
                 }}
                 placeholder="Search products"
-                className="h-full w-full bg-transparent px-3 goofy-mono text-[10px] uppercase tracking-[0.16em] text-[var(--white)] outline-none placeholder:text-white/24"
+                className="h-full w-full bg-transparent px-3 goofy-mono text-[10px] uppercase tracking-[0.16em] text-black outline-none placeholder:text-black/26 transition-colors duration-500 dark:text-[var(--white)] dark:placeholder:text-white/24"
               />
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="mr-2 grid h-7 w-7 place-items-center text-white/35 transition-colors hover:text-[var(--white)]"
+                className="mr-2 grid h-7 w-7 place-items-center text-black/38 transition-colors hover:text-black dark:text-white/35 dark:hover:text-[var(--white)]"
                 aria-label="Close search"
               >
                 <X className="h-4 w-4" />
@@ -161,7 +161,7 @@ export function SearchBar() {
             type="button"
             onClick={() => setOpen(true)}
             aria-label="Open search"
-            className="grid h-8 w-8 place-items-center text-white/50 transition-colors hover:text-[var(--white)]"
+            className="grid h-8 w-8 place-items-center text-black/55 transition-colors hover:text-black dark:text-white/50 dark:hover:text-[var(--white)]"
           >
             <Search className="h-4 w-4" />
           </motion.button>

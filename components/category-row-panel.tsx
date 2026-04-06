@@ -21,17 +21,17 @@ interface CategoryRowPanelProps {
 }
 
 const headingFontStyle = {
-  fontFamily: "var(--font-barlow-condensed), var(--font-space-grotesk), sans-serif",
+  fontFamily: "var(--font-ui-sans)",
   fontWeight: 700 as const,
 }
 
 const bodyFontStyle = {
-  fontFamily: "var(--font-barlow-condensed), var(--font-space-grotesk), sans-serif",
+  fontFamily: "var(--font-ui-sans)",
   fontWeight: 500 as const,
 }
 
 const overlayTitleFontStyle = {
-  fontFamily: "var(--font-barlow-condensed), var(--font-space-grotesk), sans-serif",
+  fontFamily: "var(--font-ui-sans)",
   fontWeight: 700 as const,
 }
 
