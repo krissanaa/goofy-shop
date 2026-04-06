@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import {
   getCategories,
 } from "@/lib/api"
@@ -37,14 +38,16 @@ export async function NavbarServer({ topOffset = 0 }: NavbarServerProps = {}) {
   }
 
   return (
-    <Navbar
-      categories={categories}
-      topOffset={topOffset}
-      locationMenu={{
-        enabled: locationsPage.menuEnabled,
-        label: locationsPage.menuLabel,
-        href: "/skateparks",
-      }}
-    />
+    <Suspense fallback={null}>
+      <Navbar
+        categories={categories}
+        topOffset={topOffset}
+        locationMenu={{
+          enabled: locationsPage.menuEnabled,
+          label: locationsPage.menuLabel,
+          href: "/skateparks",
+        }}
+      />
+    </Suspense>
   )
 }
