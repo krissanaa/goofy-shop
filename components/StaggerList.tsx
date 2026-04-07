@@ -1,52 +1,56 @@
 "use client"
 
-import { Children, type ReactNode } from "react"
-import {
-  motion,
-  type TargetAndTransition,
-  type Transition,
-} from "framer-motion"
-import { staggerContainer, staggerItem } from "@/lib/motion"
+import { Children, useRef, type ReactNode } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
+
+gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 interface StaggerListProps {
-  className?: string
-  itemClassName?: string
-  children: ReactNode
-  delay?: number
-  itemWhileHover?: TargetAndTransition
-  itemTransition?: Transition
+    className?: string
+    itemClassName?: string
+    children: ReactNode
+    delay?: number
 }
 
 export function StaggerList({
-  className,
-  itemClassName,
-  children,
-  delay = 0,
-  itemWhileHover,
-  itemTransition,
-}: StaggerListProps) {
-  const items = Children.toArray(children)
+                                className,
+                                itemClassName,
+                                children,
+                                delay = 0,
+                            }: StaggerListProps) {
+    const containerRef = useRef<HTMLDivElement | null>(null)
+    const items = Children.toArray(children)
 
-  return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ delayChildren: 0.05 + delay, staggerChildren: 0.08 }}
-      className={className}
-    >
-      {items.map((child, index) => (
-        <motion.div
-          key={index}
-          variants={staggerItem}
-          className={itemClassName}
-          whileHover={itemWhileHover}
-          transition={itemTransition}
-        >
-          {child}
-        </motion.div>
-      ))}
-    </motion.div>
-  )
+    useGSAP(
+        () => {
+            const el = containerRef.current
+            if (!el) return
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+            const childElements = gsap.utils.toArray<HTMLElement>("[data-stagger-item]", el)
+            if (!childElements.length) return
+
+            gsap.set(childElements, { opacity: 0, y: 48, scale: 0.96 })
+
+            gsap.to(childElements, {
+                opacity: 1, y: 0, scale: 1,
+                duration: 0.68, ease: "power3.out",
+                stagger: 0.08, delay: 0.05 + delay,
+                scrollTrigger: { trigger: el, start: "top 85%", once: true },
+            })
+        },
+        { scope: containerRef, dependencies: [delay, items.length] },
+    )
+
+    return (
+        <div ref={containerRef} className={className}>
+            {items.map((child, index) => (
+                <div key={index} data-stagger-item className={itemClassName}>
+                    {child}
+                </div>
+            ))}
+        </div>
+    )
 }
