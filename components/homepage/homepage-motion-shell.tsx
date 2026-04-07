@@ -87,7 +87,7 @@ export function HomepageMotionShell({
           }
         />
         <div className="absolute inset-0 bg-[#050505]/74" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(240,180,41,0.12),transparent_34%),linear-gradient(180deg,rgba(5,5,5,0.18)_0%,rgba(5,5,5,0.98)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(238,58,36,0.12),transparent_34%),linear-gradient(180deg,rgba(5,5,5,0.18)_0%,rgba(5,5,5,0.98)_100%)]" />
         <div className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.28)_1px,transparent_0)] [background-size:15px_15px]" />
       </div>
 

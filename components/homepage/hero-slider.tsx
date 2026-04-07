@@ -683,9 +683,9 @@ export function HeroSlider({
                           animate={{
                             width: "100%",
                             boxShadow: [
-                              "0 0 0px #F0B429",
-                              "0 0 8px #F0B429",
-                              "0 0 0px #F0B429",
+                              "0 0 0px #EE3A24",
+                              "0 0 8px #EE3A24",
+                              "0 0 0px #EE3A24",
                             ],
                           }}
                           transition={{

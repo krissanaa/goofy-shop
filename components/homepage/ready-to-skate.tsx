@@ -116,7 +116,7 @@ export function ReadyToSkate({
 
           /* Subtle glow pulse loop */
           gsap.to(cta, {
-            boxShadow: "0 0 40px rgba(240,180,41,0.35)",
+            boxShadow: "0 0 40px rgba(238,58,36,0.35)",
             duration: 1.5,
             ease: "sine.inOut",
             yoyo: true,

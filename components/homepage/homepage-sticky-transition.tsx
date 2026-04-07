@@ -122,7 +122,7 @@ export function HomepageStickyTransition({
           ref={secondaryRef}
           className="absolute inset-0 opacity-0"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(240,180,41,0.28),transparent_44%),linear-gradient(180deg,rgba(255,255,255,0.18),rgba(245,245,245,0.92))] transition-colors duration-500 dark:bg-[radial-gradient(circle_at_top,rgba(240,180,41,0.18),transparent_42%),linear-gradient(180deg,rgba(5,5,5,0.04),rgba(5,5,5,0.96))]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(238,58,36,0.28),transparent_44%),linear-gradient(180deg,rgba(255,255,255,0.18),rgba(245,245,245,0.92))] transition-colors duration-500 dark:bg-[radial-gradient(circle_at_top,rgba(238,58,36,0.18),transparent_42%),linear-gradient(180deg,rgba(5,5,5,0.04),rgba(5,5,5,0.96))]" />
         </div>
 
         <div className="absolute inset-0 z-10 flex items-center justify-center px-6">

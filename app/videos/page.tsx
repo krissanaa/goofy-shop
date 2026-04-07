@@ -182,7 +182,7 @@ export default async function VideosPage() {
       <div className="pt-16">
         <section className="border-b border-white/10 px-6 py-14 md:px-10 md:py-20">
           <div className="mx-auto max-w-[1380px]">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.36em] text-[#F0B429]">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.36em] text-[#EE3A24]">
               Community // Skate Videos
             </p>
             <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
@@ -203,7 +203,7 @@ export default async function VideosPage() {
                   href={YOUTUBE_CHANNEL_HREF}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center bg-[#F0B429] px-8 py-3 text-lg font-black uppercase italic text-black transition-colors hover:bg-white"
+                  className="inline-flex items-center justify-center bg-[#EE3A24] px-8 py-3 text-lg font-black uppercase italic text-black transition-colors hover:bg-white"
                   style={{ fontFamily: "var(--font-ui-sans)" }}
                 >
                   YouTube Channel {"↗"}
@@ -239,7 +239,7 @@ export default async function VideosPage() {
               </div>
 
               <div className="border-t border-white/10 px-6 py-6">
-                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#F0B429]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#EE3A24]">
                   {featured.label} // {featured.date}
                 </p>
                 <h2
@@ -255,7 +255,7 @@ export default async function VideosPage() {
             </div>
 
             <div className="border border-white/10 bg-[#090909] p-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#F0B429]">
+              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#EE3A24]">
                 Watchlist
               </p>
               <div className="mt-5 space-y-4">
@@ -285,7 +285,7 @@ export default async function VideosPage() {
                         {card.label} // {card.date}
                       </p>
                       <h3
-                        className="mt-2 text-[1.6rem] font-black uppercase italic leading-[0.9] tracking-[-0.04em] text-white transition-colors group-hover:text-[#F0B429]"
+                        className="mt-2 text-[1.6rem] font-black uppercase italic leading-[0.9] tracking-[-0.04em] text-white transition-colors group-hover:text-[#EE3A24]"
                         style={{ fontFamily: "var(--font-ui-sans)" }}
                       >
                         {card.title}

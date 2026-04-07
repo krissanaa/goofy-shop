@@ -55,10 +55,10 @@ function FooterLink({ href, label, highlight = false }: { href: string; label: s
     <Link
       href={href}
       className={`group inline-flex w-fit items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
-        highlight ? "text-[#F0B429]" : "text-white/78 hover:text-white"
+        highlight ? "text-[#EE3A24]" : "text-white/78 hover:text-white"
       }`}
     >
-      <span className="inline-block w-0 overflow-hidden text-[#F0B429] transition-all duration-300 group-hover:w-3">
+      <span className="inline-block w-0 overflow-hidden text-[#EE3A24] transition-all duration-300 group-hover:w-3">
         &gt;
       </span>
       <span>{label}</span>
@@ -146,7 +146,7 @@ export function Footer() {
                 {logo}
               </span>
               <span
-                className="text-[42px] font-black leading-none tracking-[-0.05em] text-[#F0B429]"
+                className="text-[42px] font-black leading-none tracking-[-0.05em] text-[#EE3A24]"
                 style={{ fontFamily: "var(--font-ui-sans)" }}
               >
                 .
@@ -169,7 +169,7 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="social-icon group inline-flex h-11 w-11 items-center justify-center border border-white/12 text-white/48 transition-all duration-200 hover:border-[#F0B429] hover:text-[#F0B429] hover:shadow-[0_0_0_1px_rgba(240,180,41,0.18)]"
+                    className="social-icon group inline-flex h-11 w-11 items-center justify-center border border-white/12 text-white/48 transition-all duration-200 hover:border-[#EE3A24] hover:text-[#EE3A24] hover:shadow-[0_0_0_1px_rgba(238,58,36,0.18)]"
                   >
                     <Icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                   </a>
@@ -188,18 +188,18 @@ export function Footer() {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="YOUR EMAIL"
-                    className="h-11 w-full border-0 border-b border-white/14 bg-transparent px-0 font-mono text-[11px] uppercase tracking-[0.22em] text-white placeholder:text-white/24 focus:border-b-[#F0B429] focus:outline-none"
+                    className="h-11 w-full border-0 border-b border-white/14 bg-transparent px-0 font-mono text-[11px] uppercase tracking-[0.22em] text-white placeholder:text-white/24 focus:border-b-[#EE3A24] focus:outline-none"
                     required
                   />
                   <button
                     type="submit"
-                    className="inline-flex w-full items-center justify-center bg-[#F0B429] px-6 py-3 text-sm font-black uppercase italic text-black transition-colors hover:bg-white"
+                    className="inline-flex w-full items-center justify-center bg-[#EE3A24] px-6 py-3 text-sm font-black uppercase italic text-black transition-colors hover:bg-white"
                     style={{ fontFamily: "var(--font-ui-sans)" }}
                   >
                     Notify Me
                   </button>
                   {isSubscribed ? (
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#F0B429]">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#EE3A24]">
                       You&apos;re on the list.
                     </p>
                   ) : null}
@@ -224,8 +224,8 @@ export function Footer() {
         <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-3 font-mono text-[9px] uppercase tracking-[0.18em] text-white/24">
             <span>(C) 2026 GOOFY WORLD. ALL RIGHTS RESERVED.</span>
-            <span className="inline-flex items-center gap-2 text-[#F0B429]">
-              <span className="status-dot h-2 w-2 rounded-full bg-[#F0B429]" />
+            <span className="inline-flex items-center gap-2 text-[#EE3A24]">
+              <span className="status-dot h-2 w-2 rounded-full bg-[#EE3A24]" />
               LIVE_FROM_VIENTIANE
             </span>
           </div>
@@ -272,11 +272,11 @@ export function Footer() {
           0%,
           100% {
             opacity: 1;
-            box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.35);
+            box-shadow: 0 0 0 0 rgba(238,58,36, 0.35);
           }
           50% {
             opacity: 0.35;
-            box-shadow: 0 0 0 6px rgba(240, 180, 41, 0);
+            box-shadow: 0 0 0 6px rgba(238,58,36, 0);
           }
         }
       `}</style>

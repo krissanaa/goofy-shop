@@ -12,7 +12,7 @@ export function GlobalWatermark({ text = "GOOFY" }: GlobalWatermarkProps) {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_62%,rgba(240,180,41,0.035),transparent_56%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_62%,rgba(238,58,36,0.035),transparent_56%)]" />
 
       <div
         className="watermark-float absolute bottom-[-5%] right-[-1.5%] select-none leading-none tracking-[-0.04em] text-[rgba(245,239,224,0.055)]"

@@ -15,12 +15,12 @@ const STATUS_STYLES: Record<
   PRO: {
     borderColor: "#ff0000",
     boxClassName: "bg-[#ff0000]",
-    textClassName: "text-[#F0B429]",
+    textClassName: "text-[#EE3A24]",
   },
   AM: {
     borderColor: "#0055ff",
     boxClassName: "bg-[#0055ff]",
-    textClassName: "text-[#F0B429]",
+    textClassName: "text-[#EE3A24]",
   },
   FLOW: {
     borderColor: "#ffffff",

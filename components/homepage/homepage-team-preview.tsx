@@ -51,7 +51,7 @@ export function HomepageTeamPreview({
       <div className="mx-auto max-w-[1480px]">
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-3">
-            <p className="goofy-mono text-[10px] uppercase tracking-[0.32em] text-black/58 transition-colors duration-500 dark:text-[#F0B429]">
+            <p className="goofy-mono text-[10px] uppercase tracking-[0.32em] text-black/58 transition-colors duration-500 dark:text-[#EE3A24]">
               TEAM / LOCAL MOTION / GOOFY
             </p>
             <h2 className="goofy-display text-[clamp(42px,6vw,82px)] italic leading-[0.84] text-black transition-colors duration-500 dark:text-white">
@@ -64,7 +64,7 @@ export function HomepageTeamPreview({
             className="goofy-mono inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.28em] text-black/62 transition-colors duration-300 hover:text-black dark:text-white/58 dark:hover:text-white"
           >
             View Full Roster
-            <span className="text-[#F0B429]">{"->"}</span>
+            <span className="text-[#EE3A24]">{"->"}</span>
           </Link>
         </div>
 

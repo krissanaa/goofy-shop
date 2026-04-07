@@ -271,8 +271,8 @@ export default function PhysicsHero() {
         ctx.save()
         const beamGrad = ctx.createLinearGradient(beamSourceX, 0, lightX, height)
         beamGrad.addColorStop(0, "rgba(255, 232, 160, 0.18)")
-        beamGrad.addColorStop(0.45, "rgba(240, 180, 41, 0.14)")
-        beamGrad.addColorStop(1, "rgba(240, 180, 41, 0)")
+        beamGrad.addColorStop(0.45, "rgba(238,58,36, 0.14)")
+        beamGrad.addColorStop(1, "rgba(238,58,36, 0)")
 
         ctx.fillStyle = beamGrad
         ctx.beginPath()
@@ -365,7 +365,7 @@ export default function PhysicsHero() {
       const deckOne = Bodies.rectangle(0, 0, BOARD_WIDTH, BOARD_HEIGHT, {
         isStatic: true,
         chamfer: { radius: 10 },
-        render: { fillStyle: "#F0B429" },
+        render: { fillStyle: "#EE3A24" },
         label: "skateboard_one_deck",
       })
       const wheelOneL = Bodies.circle(0, 0, WHEEL_RADIUS, {
@@ -381,7 +381,7 @@ export default function PhysicsHero() {
       const deckTwo = Bodies.rectangle(0, 0, BOARD_WIDTH, BOARD_HEIGHT, {
         isStatic: true,
         chamfer: { radius: 10 },
-        render: { fillStyle: "#F0B429" },
+        render: { fillStyle: "#EE3A24" },
         label: "skateboard_two_deck",
       })
       const wheelTwoL = Bodies.circle(0, 0, WHEEL_RADIUS, {
@@ -615,7 +615,7 @@ export default function PhysicsHero() {
       />
       <div className="pointer-events-none absolute inset-0 z-10">
         <div className="absolute left-8 top-8">
-          <span className="font-mono text-[8px] uppercase tracking-[0.28em] text-[#F0B429]">
+          <span className="font-mono text-[8px] uppercase tracking-[0.28em] text-[#EE3A24]">
             GOOFY. SKATE SHOP / VIENTIANE
           </span>
         </div>
@@ -633,7 +633,7 @@ export default function PhysicsHero() {
           <div className="pointer-events-auto flex gap-4">
             <Link
               href="/shop"
-              className="rounded-sm bg-[#F0B429] px-6 py-3 text-xs font-bold uppercase tracking-wide text-[#0A0A0A] transition-colors hover:bg-[#F4F0EB]"
+              className="rounded-sm bg-[#EE3A24] px-6 py-3 text-xs font-bold uppercase tracking-wide text-[#0A0A0A] transition-colors hover:bg-[#F4F0EB]"
             >
               Shop All Parts
             </Link>

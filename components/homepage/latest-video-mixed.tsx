@@ -28,8 +28,8 @@ const GLITCH_FEEDS = [
         frameClassName: "absolute bottom-[-18px] left-4 z-20 hidden h-28 w-48 overflow-hidden border border-[#EE3A24] bg-black md:block lg:bottom-[-28px] lg:left-10 lg:h-36 lg:w-64",
         mediaClassName: "absolute inset-0 h-full w-full object-cover opacity-70 sepia saturate-[1.4] contrast-[1.15] brightness-[0.88]",
         textClassName: "absolute bottom-3 left-3 font-mono text-[8px] uppercase tracking-[0.28em] text-[#F4F0EB]",
-        overlayClassName: "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(240,180,41,0.12),rgba(120,72,8,0.12)_38%,rgba(0,0,0,0.34)_100%)] mix-blend-screen",
-        scanlineClassName: "pointer-events-none absolute inset-0 opacity-[0.14] [background-image:linear-gradient(to_bottom,rgba(240,180,41,0.24)_0,rgba(240,180,41,0.24)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]",
+        overlayClassName: "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(238,58,36,0.12),rgba(120,72,8,0.12)_38%,rgba(0,0,0,0.34)_100%)] mix-blend-screen",
+        scanlineClassName: "pointer-events-none absolute inset-0 opacity-[0.14] [background-image:linear-gradient(to_bottom,rgba(238,58,36,0.24)_0,rgba(238,58,36,0.24)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]",
     },
     {
         id: "CAM_04", label: "ARCHIVE_BUFFER", offset: 2.08,
@@ -259,7 +259,7 @@ export function LatestVideoMixed({
                             data-scan-sweep
                             className="pointer-events-none absolute inset-0 opacity-[0.04]"
                             style={{
-                                backgroundImage: "linear-gradient(180deg, transparent 0%, rgba(240,180,41,0.3) 2%, transparent 4%)",
+                                backgroundImage: "linear-gradient(180deg, transparent 0%, rgba(238,58,36,0.3) 2%, transparent 4%)",
                                 backgroundSize: "100% 300%",
                                 backgroundPosition: "0 0",
                             }}

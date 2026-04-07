@@ -82,7 +82,7 @@ function getStories(
 function RippedBadge({ label }: { label: string }) {
   return (
     <span
-      className="inline-flex w-fit bg-[#F0B429] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.26em] text-black goofy-mono"
+      className="inline-flex w-fit bg-[#EE3A24] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.26em] text-black goofy-mono"
       style={{
         clipPath:
           "polygon(0 0, 95% 0, 100% 35%, 97% 100%, 5% 100%, 0 68%, 2% 38%)",
@@ -199,7 +199,7 @@ export function FromTheStreets({
       ref={sectionRef}
       className="relative overflow-hidden border-y border-white/6 bg-transparent px-6 py-24 md:px-12"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0)_28%),radial-gradient(circle_at_top_left,rgba(240,180,41,0.12),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0)_28%),radial-gradient(circle_at_top_left,rgba(238,58,36,0.12),transparent_34%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.4)_1px,transparent_0)] [background-size:12px_12px]" />
       <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-white/8" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-white/8" />
@@ -221,7 +221,7 @@ export function FromTheStreets({
           <Link
             href="/news"
             data-magnetic
-            className="w-fit font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-black/72 transition-colors duration-300 hover:text-black dark:text-white/72 dark:hover:text-[#F0B429]"
+            className="w-fit font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-black/72 transition-colors duration-300 hover:text-black dark:text-white/72 dark:hover:text-[#EE3A24]"
           >
             View All Stories -{">"}
           </Link>
@@ -243,7 +243,7 @@ export function FromTheStreets({
                 data-bento-card
                 variants={bentoRevealItem}
                 style={{ rotate: layout.rotation }}
-                className={`group relative transform-gpu border border-white/10 bg-[#0c0c0c] p-4 shadow-[10px_10px_0px_rgba(240,180,41,0.12)] md:p-5 ${layout.gridClasses}`}
+                className={`group relative transform-gpu border border-white/10 bg-[#0c0c0c] p-4 shadow-[10px_10px_0px_rgba(238,58,36,0.12)] md:p-5 ${layout.gridClasses}`}
               >
                 <Link href={story.href} className="absolute inset-0 z-30" aria-label={story.title} />
 
@@ -281,7 +281,7 @@ export function FromTheStreets({
 
                     <h3
                       data-card-title
-                      className={`mt-4 font-black uppercase italic leading-[0.92] tracking-[-0.04em] text-white transition-colors group-hover:text-[#F0B429] ${layout.titleClasses}`}
+                      className={`mt-4 font-black uppercase italic leading-[0.92] tracking-[-0.04em] text-white transition-colors group-hover:text-[#EE3A24] ${layout.titleClasses}`}
                       style={{ fontFamily: "var(--font-ui-sans)" }}
                     >
                       {story.title}

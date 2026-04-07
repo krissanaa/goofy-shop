@@ -27,7 +27,7 @@ export default async function TeamsPage() {
       <div className="pt-16">
         <section className="border-b border-white/10 px-6 py-14 md:px-10 md:py-20">
           <div className="mx-auto max-w-[1480px]">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.36em] text-[#F0B429]">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.36em] text-[#EE3A24]">
               Team // Roster Grid
             </p>
 
@@ -46,7 +46,7 @@ export default async function TeamsPage() {
               </div>
 
               <div className="border border-white/10 bg-white/[0.03] px-5 py-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#F0B429]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#EE3A24]">
                   Hover Notes
                 </p>
                 <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-white/42">

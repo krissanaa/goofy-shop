@@ -164,7 +164,7 @@ export function NewArrivalsSlider({ products }: NewArrivalsSliderProps) {
               rotateY: xPct * 6,
               rotateX: yPct * -6,
               scale: 1.04,
-              boxShadow: `${xPct * -20}px ${yPct * 20}px 40px rgba(240,180,41,0.15)`,
+              boxShadow: `${xPct * -20}px ${yPct * 20}px 40px rgba(238,58,36,0.15)`,
               duration: 0.4, ease: "power2.out", overwrite: true,
             })
           }
@@ -208,7 +208,7 @@ export function NewArrivalsSlider({ products }: NewArrivalsSliderProps) {
         {/* ── Background textures ── */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(245,245,245,0)_100%)] transition-colors duration-500 dark:bg-[linear-gradient(180deg,#050505_0%,#0a0a0c_100%)]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay [background-image:radial-gradient(circle_at_20%_20%,rgba(0,0,0,0.8)_0.6px,transparent_0.8px)] [background-size:9px_9px] dark:[background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.9)_0.6px,transparent_0.8px)]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top,rgba(240,180,41,0.14),transparent_62%)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top,rgba(238,58,36,0.14),transparent_62%)]" />
 
         <div className="mx-auto max-w-[1480px]">
           {/* ── Header ── */}
