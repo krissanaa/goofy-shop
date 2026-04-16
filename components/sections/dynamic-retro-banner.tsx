@@ -2,7 +2,24 @@ import Image from "next/image"
 import Link from "next/link"
 
 interface DynamicRetroBannerProps {
-  data: any
+  data: RetroBannerData
+}
+
+interface RetroBannerData {
+  [key: string]: unknown
+  style?: string | null
+  banner_style?: string | null
+  color_code?: string | null
+  color_name?: string | null
+  title?: string | null
+  subtitle?: string | null
+  cta_text?: string | null
+  cta_link?: string | null
+  image?: {
+    url?: string | null
+    width?: number | null
+    height?: number | null
+  } | null
 }
 
 const styleMap: Record<string, { bg: string; text: string; border: string }> = {
@@ -81,7 +98,8 @@ function resolveBaseColor(data: RetroBannerData, fallbackColor: string): string 
 }
 
 export function DynamicRetroBanner({ data }: DynamicRetroBannerProps) {
-  const presetColors = styleMap[data.style] || styleMap["mario-red"]
+  const styleKey = typeof data.style === "string" ? data.style : "mario-red"
+  const presetColors = styleMap[styleKey] || styleMap["mario-red"]
   const imageUrl = data.image ? data.image.url : null
   const mode =
     data.banner_style === "original-picture" && imageUrl

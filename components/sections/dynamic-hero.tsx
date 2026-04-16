@@ -1,5 +1,25 @@
 import { HeroSection, type HeroStat } from "@/components/sections/HeroSection"
 
+interface HeroSectionData {
+  [key: string]: unknown
+  title?: string | null
+  subtitle?: string | null
+  badge_text?: string | null
+  cta_text?: string | null
+  cta_link?: string | null
+  secondary_cta_text?: string | null
+  secondary_cta_link?: string | null
+  background_image?: {
+    url?: string | null
+    alternativeText?: string | null
+  } | null
+  stats?: Array<{
+    value?: string | null
+    label?: string | null
+    color?: string | null
+  }> | null
+}
+
 interface DynamicHeroProps {
   data: HeroSectionData
 }
@@ -63,18 +83,18 @@ function normalizeStats(
 }
 
 export function DynamicHero({ data }: DynamicHeroProps) {
-  const slides = (data as any).background_image
+  const slides = data.background_image?.url
     ? [
         {
-          src: (data as any).background_image.url,
-          alt: (data as any).background_image.alternativeText || data.title,
+          src: data.background_image.url,
+          alt: data.background_image.alternativeText || data.title || "Hero image",
         },
       ]
     : fallbackSlide
 
   const description =
     data.subtitle?.trim() || "First skateboard shop & community in Laos"
-  const titleLines = resolveTitleLines(data.title)
+  const titleLines = resolveTitleLines(data.title ?? null)
 
   return (
     <HeroSection

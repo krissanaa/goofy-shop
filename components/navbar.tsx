@@ -92,6 +92,7 @@ export function Navbar({
   const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopDropdown, setDesktopDropdown] =
     useState<DesktopDropdownKey | null>(null)
+  const [hasMounted, setHasMounted] = useState(false)
   const { itemCount, isHydrated } = useCart()
   const wishlist = useWishlist()
   const pathname = usePathname()
@@ -127,6 +128,10 @@ export function Navbar({
 
     return true
   }
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   useEffect(() => {
     setMobileOpen(false)
@@ -173,6 +178,8 @@ export function Navbar({
   }, [animateCartIcon, cartIconScope, isHydrated, itemCount])
 
   const logo = (config.siteName.split(" ")[0] || "GOOFY").toUpperCase()
+  const wishlistCount = hasMounted && wishlist.hydrated ? wishlist.items.length : 0
+  const cartCount = hasMounted && isHydrated ? itemCount : 0
 
   const navLinkClass = (active: boolean) =>
     `goofy-mono text-[9px] tracking-[0.18em] transition-colors ${
@@ -340,8 +347,11 @@ export function Navbar({
             >
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Wishlist</span>
-              <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-black/8 px-1 text-[7px] text-black transition-colors duration-500 dark:bg-white/8 dark:text-[var(--white)]">
-                {wishlist.hydrated ? wishlist.items.length : 0}
+              <span
+                suppressHydrationWarning
+                className="inline-flex min-w-4 items-center justify-center rounded-full bg-black/8 px-1 text-[7px] text-black transition-colors duration-500 dark:bg-white/8 dark:text-[var(--white)]"
+              >
+                {wishlistCount}
               </span>
             </Link>
 
@@ -355,8 +365,11 @@ export function Navbar({
                 <ShoppingBag className="h-4 w-4" />
               </motion.div>
               <span className="hidden sm:inline">Cart</span>
-              <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-[var(--black)] px-1 text-[7px] text-[var(--white)]">
-                {isHydrated ? itemCount : 0}
+              <span
+                suppressHydrationWarning
+                className="inline-flex min-w-4 items-center justify-center rounded-full bg-[var(--black)] px-1 text-[7px] text-[var(--white)]"
+              >
+                {cartCount}
               </span>
             </Link>
 

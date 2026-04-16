@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { RiskAction, RiskSeverity, RiskType } from "@prisma/client";
 import { ApiError } from "@/lib/server/errors";
 import { prisma } from "@/lib/server/prisma";

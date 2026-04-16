@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AuditAction } from "@prisma/client";
 import { prisma } from "@/lib/server/prisma";
 

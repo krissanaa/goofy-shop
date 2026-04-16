@@ -60,10 +60,7 @@ export async function DynamicProductGrid({ data }: DynamicProductGridProps) {
       : ["All"]
 
   const signLogoUrl = globalConfig.logoUrl
-  const signLogoAlt =
-    globalConfig.status === "fulfilled"
-      ? globalConfig.value.siteName
-      : "Sign logo"
+  const signLogoAlt = globalConfig.siteName || "Sign logo"
 
   return (
     <section

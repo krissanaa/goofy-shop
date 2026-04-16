@@ -6,25 +6,34 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 gsap.registerPlugin(ScrollTrigger)
 
-/**
- * LenisProvider
- * ─────────────
- * Wraps children with Lenis smooth scrolling.
- * Syncs Lenis with GSAP ScrollTrigger on every frame.
- *
- * Install: npm install lenis
- *
- * Usage in layout.tsx or page wrapper:
- *   <LenisProvider>
- *     <HomepageMotionShell>...</HomepageMotionShell>
- *   </LenisProvider>
- */
+type LenisLike = {
+    on: (event: string, callback: () => void) => void
+    raf: (time: number) => void
+    destroy: () => void
+}
+
+type LenisCtor = new (options: {
+    duration: number
+    easing: (t: number) => number
+    orientation: "vertical"
+    gestureOrientation: "vertical"
+    smoothWheel: boolean
+    wheelMultiplier: number
+    touchMultiplier: number
+}) => LenisLike
+
+function resolveLenis(module: unknown): LenisCtor | null {
+    const candidate = (module as { default?: unknown; Lenis?: unknown }).default
+        ?? (module as { default?: unknown; Lenis?: unknown }).Lenis
+
+    return typeof candidate === "function" ? (candidate as LenisCtor) : null
+}
+
 export function LenisProvider({ children }: { children: ReactNode }) {
-    const lenisRef = useRef<any>(null)
-    const rafRef = useRef<number | null>(null)
+    const lenisRef = useRef<LenisLike | null>(null)
+    const tickerRef = useRef<((time: number) => void) | null>(null)
 
     useEffect(() => {
-        /* ── Dynamically import Lenis (avoids SSR issues) ── */
         let cancelled = false
 
         async function init() {
@@ -32,7 +41,8 @@ export function LenisProvider({ children }: { children: ReactNode }) {
                 const LenisModule = await import("lenis")
                 if (cancelled) return
 
-                const Lenis = LenisModule.default || LenisModule.Lenis
+                const Lenis = resolveLenis(LenisModule)
+                if (!Lenis) return
 
                 const lenis = new Lenis({
                     duration: 1.2,
@@ -45,22 +55,20 @@ export function LenisProvider({ children }: { children: ReactNode }) {
                 })
 
                 lenisRef.current = lenis
-
-                /* ── Sync Lenis scroll position with GSAP ScrollTrigger ── */
                 lenis.on("scroll", ScrollTrigger.update)
 
-                /* ── Use GSAP ticker for Lenis RAF (perfect sync) ── */
-                gsap.ticker.add((time) => {
+                const tick = (time: number) => {
                     lenis.raf(time * 1000)
-                })
+                }
+
+                tickerRef.current = tick
+                gsap.ticker.add(tick)
                 gsap.ticker.lagSmoothing(0)
 
-                /* ── Refresh ScrollTrigger after Lenis is ready ── */
                 requestAnimationFrame(() => {
                     ScrollTrigger.refresh()
                 })
-            } catch (err) {
-                /* Lenis not installed — fall back to native scroll */
+            } catch {
                 console.warn(
                     "[LenisProvider] Lenis not found. Install with: npm install lenis\n",
                     "Falling back to native scroll.",
@@ -68,7 +76,6 @@ export function LenisProvider({ children }: { children: ReactNode }) {
             }
         }
 
-        /* Skip if reduced motion preferred */
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             return
         }
@@ -77,8 +84,11 @@ export function LenisProvider({ children }: { children: ReactNode }) {
 
         return () => {
             cancelled = true
+            if (tickerRef.current) {
+                gsap.ticker.remove(tickerRef.current)
+                tickerRef.current = null
+            }
             if (lenisRef.current) {
-                gsap.ticker.remove(lenisRef.current.raf)
                 lenisRef.current.destroy()
                 lenisRef.current = null
             }

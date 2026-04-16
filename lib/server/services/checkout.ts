@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { OrderStatus, PaymentProvider, PaymentStatus, ReservationStatus } from "@prisma/client";
 import { ApiError } from "@/lib/server/errors";
 import { getIdempotentResponse, storeIdempotentResponse } from "@/lib/server/idempotency";

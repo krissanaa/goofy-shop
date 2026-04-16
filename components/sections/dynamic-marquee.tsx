@@ -1,5 +1,13 @@
+interface DynamicMarqueeData {
+  [key: string]: unknown
+  items?: string[] | null
+  speed?: string | null
+  background_color?: string | null
+  text_color?: string | null
+}
+
 interface DynamicMarqueeProps {
-  data: any
+  data: DynamicMarqueeData
 }
 
 const fallbackItems = [
@@ -18,9 +26,12 @@ function normalizeItem(item: string): string {
 }
 
 export function DynamicMarquee({ data }: DynamicMarqueeProps) {
+  const sourceItems = Array.isArray(data.items)
+    ? data.items.filter((item): item is string => typeof item === "string")
+    : null
   const items =
-    Array.isArray(data.items) && data.items.length > 0
-      ? data.items.map(normalizeItem).filter((item) => item.length > 0)
+    sourceItems && sourceItems.length > 0
+      ? sourceItems.map(normalizeItem).filter((item) => item.length > 0)
       : fallbackItems
   const repeated = [...items, ...items, ...items, ...items]
 

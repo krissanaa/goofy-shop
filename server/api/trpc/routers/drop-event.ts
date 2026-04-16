@@ -1,157 +1,37 @@
-import { z } from 'zod'
-import { router, procedure } from '../root'
+import { z } from "zod"
+import { getActiveDropEvent, getDropEventBySlug } from "@/lib/api"
+import { supabase } from "@/lib/supabase"
+import { router, procedure } from "../root"
 
 export const dropEventRouter = router({
-  // Get all drop events
-  getAll: procedure.query(async ({ ctx }) => {
-    const dropEvents = await ctx.prisma.dropEvent.findMany({
-      include: {
-        variants: {
-          include: {
-            variant: {
-              include: {
-                product: true,
-                prices: true,
-                inventory: true,
-                media: true,
-              },
-            },
-          },
-        },
-        createdBy: true,
-      },
-      orderBy: {
-        startsAt: 'desc',
-      },
-    })
-    return dropEvents
+  getAll: procedure.query(async () => {
+    const { data } = await supabase
+      .from("drop_events")
+      .select("*")
+      .order("drop_date", { ascending: false })
+
+    return data ?? []
   }),
 
-  // Get active drop events
-  getActive: procedure.query(async ({ ctx }) => {
-    const now = new Date()
-    const dropEvents = await ctx.prisma.dropEvent.findMany({
-      where: {
-        status: 'LIVE',
-        startsAt: {
-          lte: now,
-        },
-        endsAt: {
-          gte: now,
-        },
-      },
-      include: {
-        variants: {
-          include: {
-            variant: {
-              include: {
-                product: true,
-                prices: true,
-                inventory: true,
-                media: true,
-              },
-            },
-          },
-        },
-        createdBy: true,
-      },
-      orderBy: {
-        startsAt: 'desc',
-      },
-    })
-    return dropEvents
+  getActive: procedure.query(async () => {
+    const activeDrop = await getActiveDropEvent()
+    return activeDrop ? [activeDrop] : []
   }),
 
-  // Get upcoming drop events
-  getUpcoming: procedure.query(async ({ ctx }) => {
-    const now = new Date()
-    const dropEvents = await ctx.prisma.dropEvent.findMany({
-      where: {
-        status: 'SCHEDULED',
-        startsAt: {
-          gt: now,
-        },
-      },
-      include: {
-        variants: {
-          include: {
-            variant: {
-              include: {
-                product: true,
-                prices: true,
-                inventory: true,
-                media: true,
-              },
-            },
-          },
-        },
-        createdBy: true,
-      },
-      orderBy: {
-        startsAt: 'asc',
-      },
-    })
-    return dropEvents
+  getUpcoming: procedure.query(async () => {
+    const now = new Date().toISOString()
+    const { data } = await supabase
+      .from("drop_events")
+      .select("*")
+      .gt("drop_date", now)
+      .order("drop_date", { ascending: true })
+
+    return data ?? []
   }),
 
-  // Get drop event by slug
   getBySlug: procedure
     .input(z.object({ slug: z.string() }))
-    .query(async ({ input, ctx }) => {
-      const dropEvent = await ctx.prisma.dropEvent.findUnique({
-        where: { slug: input.slug },
-        include: {
-          variants: {
-            include: {
-              variant: {
-                include: {
-                  product: true,
-                  prices: true,
-                  inventory: true,
-                  media: true,
-                },
-              },
-            },
-          },
-          rule: true,
-          createdBy: true,
-        },
-      })
-      return dropEvent
-    }),
+    .query(async ({ input }) => getDropEventBySlug(input.slug)),
 
-  // Get latest active drop event (for homepage)
-  getLatestActive: procedure.query(async ({ ctx }) => {
-    const now = new Date()
-    const dropEvent = await ctx.prisma.dropEvent.findFirst({
-      where: {
-        status: 'LIVE',
-        startsAt: {
-          lte: now,
-        },
-        endsAt: {
-          gte: now,
-        },
-      },
-      include: {
-        variants: {
-          include: {
-            variant: {
-              include: {
-                product: true,
-                prices: true,
-                inventory: true,
-                media: true,
-              },
-            },
-          },
-        },
-        createdBy: true,
-      },
-      orderBy: {
-        startsAt: 'desc',
-      },
-    })
-    return dropEvent
-  }),
+  getLatestActive: procedure.query(async () => getActiveDropEvent()),
 })

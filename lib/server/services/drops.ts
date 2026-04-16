@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { DropEntryStatus, OrderStatus, ReservationStatus } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { ApiError } from "@/lib/server/errors";

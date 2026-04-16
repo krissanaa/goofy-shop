@@ -1,7 +1,35 @@
 import { HeroSection, type HeroStat } from "@/components/sections/HeroSection"
 
 interface DynamicSlideshowProps {
-  data: any
+  data: DynamicSlideshowData
+}
+
+interface DynamicSlideshowData {
+  [key: string]: unknown
+  slides?: Array<{
+    url?: string | null
+    alternativeText?: string | null
+  }> | null
+  stats?: Array<{
+    value?: string | null
+    label?: string | null
+    color?: string | null
+  }> | null
+  autoplay_seconds?: number | null
+  show_overlay_text?: boolean | null
+  show_buttons?: boolean | null
+  show_stats?: boolean | null
+  show_dots?: boolean | null
+  badge_text?: string | null
+  heading_line_1?: string | null
+  heading_highlight?: string | null
+  heading_line_2?: string | null
+  description?: string | null
+  primary_cta_text?: string | null
+  primary_cta_link?: string | null
+  secondary_cta_text?: string | null
+  secondary_cta_link?: string | null
+  bottom_note_text?: string | null
 }
 
 const fallbackSlides = [
@@ -17,8 +45,8 @@ const fallbackStats: HeroStat[] = [
 export function DynamicSlideshow({ data }: DynamicSlideshowProps) {
   const slides = !data.slides?.length
     ? fallbackSlides
-    : data.slides.map((slide: any, index: number) => ({
-        src: slide.url,
+    : data.slides.map((slide, index: number) => ({
+        src: slide.url || "",
         alt: slide.alternativeText || `Slideshow image ${index + 1}`,
       }))
 

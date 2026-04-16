@@ -1,12 +1,7 @@
-import { initTRPC } from '@trpc/server'
-import { ZodError } from 'zod'
-import superjson from 'superjson'
-import { PrismaClient } from '@prisma/client'
-
-export interface Context {
-  prisma: PrismaClient
-  userId?: string
-}
+import { initTRPC } from "@trpc/server"
+import { ZodError } from "zod"
+import superjson from "superjson"
+import type { Context } from "./context"
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,

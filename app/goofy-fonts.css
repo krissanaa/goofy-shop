@@ -1,0 +1,31 @@
+/* Goofy brand fonts.
+   Local font files live in /public/fonts/.
+   Noto Sans Lao is already loaded via next/font/google in layout.tsx.
+*/
+
+@font-face {
+    font-family: 'Aerosoldier';
+    src: url('/fonts/AerosoldierBasic_PERSONAL_USE_ONLY.otf') format('opentype'),
+    url('/fonts/Aerosoldier_PERSONAL_USE_ONLY.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Glancyr';
+    src: url('/fonts/Glancyr%20Variable-VF.ttf') format('truetype'),
+    url('/fonts/Glancyr-Regular.otf') format('opentype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --font-title: 'Aerosoldier', var(--font-noto-sans), sans-serif;
+    --font-content: 'Glancyr', var(--font-noto-sans), sans-serif;
+    --font-lao: var(--font-noto-sans-lao), 'Noto Sans Lao', sans-serif;
+    --F: var(--font-title);
+    --FC: var(--font-content);
+    --FL: var(--font-lao);
+}

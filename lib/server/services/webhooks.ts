@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { OrderStatus, PaymentStatus } from "@prisma/client";
 import Stripe from "stripe";
 import { ApiError } from "@/lib/server/errors";

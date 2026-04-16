@@ -3,6 +3,8 @@ import "server-only"
 import { createClient } from "@/lib/supabase/server"
 import {
   cloneDefaultHomepageMockContent,
+  type HomepageFallbackSpot,
+  type HomepageFallbackStory,
   type HomepageHeroSlideInput,
   type HomepageMockContent,
   type HomepageSourceSummaryItem,
@@ -93,7 +95,7 @@ function parseStories(
         href: asString(row.href) ?? fallback[index]?.href ?? "/news",
       }
     })
-    .filter(Boolean)
+    .filter((story): story is HomepageFallbackStory => story !== null)
 
   return stories.length > 0 ? stories : fallback.map((story) => ({ ...story }))
 }
@@ -115,7 +117,7 @@ function parseSpots(value: unknown, fallback: HomepageMockContent["fallbackSpots
         image: asString(row.image) ?? fallback[index]?.image ?? "",
       }
     })
-    .filter(Boolean)
+    .filter((spot): spot is HomepageFallbackSpot => spot !== null)
 
   return spots.length > 0 ? spots : fallback.map((spot) => ({ ...spot }))
 }
