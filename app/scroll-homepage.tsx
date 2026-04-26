@@ -1,10 +1,12 @@
 import {
   GoofyHomepage,
-  type GoofyCategory,
-  type GoofyProduct,
-  type GoofySpot,
-  type GoofyStory,
 } from "@/components/home/GoofyHomepage"
+import type {
+  GoofyCategory,
+  GoofyProduct,
+  GoofySpot,
+  GoofyStory,
+} from "@/components/home/homepage-types"
 
 interface ScrollHomepageProps {
   heroImage: string | null

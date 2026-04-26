@@ -13,6 +13,22 @@
 }
 
 @font-face {
+    font-family: 'AerosoldierSpray';
+    src: url('/fonts/AerosoldierSpray_PERSONAL_USE_ONLY.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'AerosoldierDrip';
+    src: url('/fonts/AerosoldierDrip_PERSONAL_USE_ONLY.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
     font-family: 'Glancyr';
     src: url('/fonts/Glancyr%20Variable-VF.ttf') format('truetype'),
     url('/fonts/Glancyr-Regular.otf') format('opentype');
@@ -23,9 +39,13 @@
 
 :root {
     --font-title: 'Aerosoldier', var(--font-noto-sans), sans-serif;
+    --font-graffiti: 'AerosoldierSpray', 'Aerosoldier', var(--font-noto-sans), sans-serif;
+    --font-graffiti-drip: 'AerosoldierDrip', 'Aerosoldier', var(--font-noto-sans), sans-serif;
     --font-content: 'Glancyr', var(--font-noto-sans), sans-serif;
     --font-lao: var(--font-noto-sans-lao), 'Noto Sans Lao', sans-serif;
     --F: var(--font-title);
+    --FG: var(--font-graffiti);
+    --FGD: var(--font-graffiti-drip);
     --FC: var(--font-content);
     --FL: var(--font-lao);
 }

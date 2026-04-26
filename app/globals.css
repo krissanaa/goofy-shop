@@ -1879,3 +1879,68 @@ body[data-admin-ui="true"] ::-webkit-scrollbar-thumb {
     padding: 0 16px;
   }
 }
+
+@keyframes skate-roll {
+  0% {
+    transform: translateX(-100px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(calc(100vw + 100px)) rotate(0deg);
+  }
+}
+
+@keyframes wheel-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pin-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.s2-card-shimmer {
+  background: linear-gradient(90deg, #f0ece4 25%, #e8e3db 50%, #f0ece4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.s2-product-row:hover .s2-product-card {
+  opacity: 0.7;
+}
+
+.s2-product-row:hover .s2-product-card:hover {
+  opacity: 1;
+}
+
+.pin-spacer {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="skate-roll"],
+  [style*="wheel-spin"],
+  [style*="pin-bounce"],
+  .s2-card-shimmer {
+    animation: none !important;
+  }
+}
